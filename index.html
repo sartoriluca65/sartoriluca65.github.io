@@ -2,45 +2,57 @@
 <html lang="it"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <title>Diviso</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,640&family=Outfit:wght@420;650&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,640&family=Outfit:wght@420;600;700&display=swap" rel="stylesheet"/>
 <style>
-:root{--ink:#2a2118;--muted:#7a6a58;--paper:#fff8ee}
-*{box-sizing:border-box}body{margin:0;font-family:Outfit,system-ui,sans-serif;color:var(--ink);background:linear-gradient(180deg,#ffe7c2,#fff8ee 42%)}
-.app{max-width:440px;margin:0 auto;min-height:100dvh;padding:16px}
-.card{background:#fff;border-radius:24px;padding:14px;margin:10px 0;box-shadow:0 8px 20px rgba(180,90,30,.08)}
-h1{font-family:Fraunces,serif;font-size:32px;margin:4px 0;line-height:1}
-.sub{color:var(--muted);font-size:13px}
-.row{display:flex;gap:10px;align-items:flex-start}
-.bubble{width:46px;height:46px;border-radius:16px;background:#fff1d6;display:grid;place-items:center;flex:none}
-.tabs{display:flex;gap:6px;background:#ffe7c2;padding:4px;border-radius:16px}.tabs button{flex:1;border:0;background:transparent;border-radius:12px;padding:9px;font-weight:650}.tabs button.on{background:#fff}
-.chip{border:0;border-radius:99px;padding:7px 10px;margin:3px;background:#fff1d6}.chip.on{background:#ef6b3c;color:#fff}
-.btn{border:0;border-radius:16px;padding:13px;font-weight:700;background:#ef6b3c;color:#fff;width:100%}.ghost{background:#2a2118}
-.sum{background:#2a2118;color:#fff8ee;border-radius:22px;padding:16px}
-input{width:100%;border:0;background:#fff6e8;border-radius:12px;padding:10px;font:inherit;margin-top:6px}
-.tag{font-size:11px;background:#ffe7c2;border-radius:99px;padding:2px 8px}
-</style></head><body><div class="app" id="app"></div>
+:root{--ink:#1c241c;--muted:#5d6a5c;--line:#e4ddd0;--paper:#f6f1e7;--card:#fffdf8;--green:#1f6b45}
+*{box-sizing:border-box}body{margin:0;font-family:Outfit,system-ui,sans-serif;color:var(--ink);background:#ebe4d6}
+.phone{max-width:430px;margin:0 auto;min-height:100dvh;background:var(--paper);padding:16px 16px 28px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:8px}.mark{width:36px;height:36px;border-radius:12px;background:var(--green);color:#f6f1e7;display:grid;place-items:center;font-family:Fraunces,serif}
+h1{font-family:Fraunces,serif;font-size:30px;margin:8px 0;letter-spacing:-.03em}.sub{color:var(--muted);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;margin:10px 0}
+.tabs{display:flex;gap:6px;background:#efe8db;padding:4px;border-radius:14px}.tabs button{flex:1;border:0;background:transparent;border-radius:10px;padding:8px;font-weight:600}.tabs button.on{background:#fff}
+.btn{border:0;border-radius:14px;padding:13px;font-weight:700;background:var(--green);color:#f7f3ea;width:100%}.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+input,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;font:inherit;background:#fff;margin-top:6px}
+label{font-size:12px;color:var(--muted);display:block;margin-top:8px}
+.av{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;font-size:12px;margin-right:4px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 10px;margin:3px}.chip.on{color:#fff;border-color:transparent}
+.sum{background:#144d31;color:#f6f1e7;border-radius:18px;padding:14px}
+</style></head><body><div class="phone" id="app"></div>
 <script>
+const C=['#1f6b45','#c45c32','#2f5d8a','#8a5a2f','#6b4c9a','#3d7a6a'];
 const euro=n=>Number(n||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
-const pizza='<svg width="28" height="28" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#f0c14a"/><path d="M16 5l6 11h-6z" fill="#e25b3a"/></svg>';
-const cake='<svg width="28" height="28" viewBox="0 0 32 32"><rect x="6" y="14" width="20" height="12" rx="4" fill="#f2b8c6"/><rect x="15" y="6" width="2" height="8" fill="#e25b3a"/></svg>';
-const beer='<svg width="28" height="28" viewBox="0 0 32 32"><rect x="8" y="8" width="12" height="18" rx="3" fill="#f0c14a"/></svg>';
-const icon=n=>/dolce|torta|dessert/i.test(n)?cake:/birra|vino|acqua|bibita|coca/i.test(n)?beer:pizza;
-const kind=n=>/dolce|torta|dessert/i.test(n)?'Dolce':/birra|vino|acqua|bibita|coca|caffe/i.test(n)?'Bibita':'Pietanza';
-const people=[{id:'tu',name:'Tu'},{id:'giulia',name:'Giulia'},{id:'marco',name:'Marco'}];
-let bill=JSON.parse(localStorage.getItem('diviso-scan')||'null')||{title:'Cena',payer:'tu',items:[{name:'Pizza mista',price:9,who:['tu']},{name:'Pizza dolce',price:7,who:['giulia']},{name:'Birra media',price:5,who:['tu','marco']}]};
-let tab='piatti', msg='';
-const save=()=>localStorage.setItem('diviso-scan',JSON.stringify(bill));
-const who=id=>people.find(p=>p.id===id);
-function math(){let tot=0,sub={};bill.items.forEach(it=>{tot+=+it.price||0;const w=it.who||[];if(w.length){const s=(+it.price||0)/w.length;w.forEach(id=>sub[id]=(sub[id]||0)+s)}});return{tot,sub}}
-function render(){const m=math();document.getElementById('app').innerHTML=`<div class="card"><div class="sub">Libero, senza account</div><h1>Chi ha mangiato cosa</h1><p class="sub">Ogni pietanza e ogni bibita va a chi l'ha presa. Lo scontrino prepara le righe.</p></div><div class="tabs"><button data-tab="piatti" class="${tab==='piatti'?'on':''}">Pietanze</button><button data-tab="saldi" class="${tab==='saldi'?'on':''}">Speso</button></div>${tab==='saldi'?saldi(m):piatti()}<div style="display:flex;gap:8px;margin-top:8px"><button class="btn ghost" id="scan">Scansiona scontrino</button><button class="btn" id="add">+ Voce</button></div><input id="cam" type="file" accept="image/*" capture="environment" hidden>${msg?`<p class="sub">${msg}</p>`:''}`;bind()}
-function piatti(){return bill.items.map((it,i)=>`<div class="card row"><div class="bubble">${icon(it.name)}</div><div style="flex:1"><span class="tag">${kind(it.name)}</span> <b>${it.name}</b><div class="sub">${euro(it.price)} · se in più, si divide</div><div>${people.map(p=>`<button class="chip ${(it.who||[]).includes(p.id)?'on':''}" data-i="${i}" data-id="${p.id}">${p.name}</button>`).join('')}</div><input data-n="${i}" value="${it.name}"><input data-p="${i}" type="number" value="${it.price}"></div></div>`).join('')}
-function saldi(m){return `<div class="sum"><div class="sub" style="color:#f0d7b0">Totale scontrino</div><div style="font-family:Fraunces,serif;font-size:34px">${euro(m.tot)}</div></div>${people.map(p=>{const lines=bill.items.filter(it=>(it.who||[]).includes(p.id));const share=m.sub[p.id]||0;return `<div class="card"><b>${p.name}</b> ha speso ${euro(share)}<div class="sub">${lines.map(it=>it.name+' '+euro((+it.price)/(it.who.length||1))).join(' · ')||'niente'}</div></div>`}).join('')}${people.filter(p=>p.id!==bill.payer&& (m.sub[p.id]||0)>0).map(p=>`<div class="card">${p.name} passa ${euro(m.sub[p.id])} a ${who(bill.payer).name}, che ha pagato il conto</div>`).join('')}`}
+const uid=()=>Math.random().toString(36).slice(2,8);
+let state=JSON.parse(localStorage.getItem('diviso-g2')||'null')||{groups:[]};
+let view={name:'home',tab:'items'};
+const save=()=>localStorage.setItem('diviso-g2',JSON.stringify(state));
+const group=()=>state.groups.find(g=>g.id===view.id);
+const person=(g,id)=>g.people.find(p=>p.id===id);
+function math(b){let tot=0,sub={};(b.items||[]).forEach(it=>{tot+=+it.price||0;const w=it.who||[];if(w.length){const s=it.price/w.length;w.forEach(id=>sub[id]=(sub[id]||0)+s)}});return{tot,sub}}
+function balances(g){const bal={};g.people.forEach(p=>bal[p.id]=0);g.bills.forEach(b=>{const m=math(b);bal[b.payer]+=m.tot;Object.entries(m.sub).forEach(([id,v])=>bal[id]-=v)});return bal}
+function render(){document.getElementById('app').innerHTML=view.name==='home'?home():view.name==='new'?nuovo():interno();bind()}
+function home(){return `<header><div class="mark">D</div><div><b>Diviso</b><div class="sub">Gruppi, scontrini, chi deve a chi</div></div></header><h1>I tuoi gruppi</h1><p class="sub">Crea un gruppo, metti i nomi, scansiona lo scontrino e assegna ogni pietanza.</p>${state.groups.map(g=>`<article class="card" data-open="${g.id}"><b>${g.name}</b><div style="margin-top:8px">${g.people.map(p=>`<span class="av" style="background:${p.color}">${p.name.slice(0,1)}</span>`).join('')}</div><div class="sub">${g.people.length} partecipanti · ${g.bills.length} conti</div></article>`).join('')||'<div class="card">Nessun gruppo. Creane uno e scrivi i nomi veri.</div>'}<button class="btn" id="new">Nuovo gruppo</button>`}
+function nuovo(){const n=view.count||3;const names=view.names||Array.from({length:n},(_,i)=>i===0?'Luca':'');return `<header><button class="btn ghost" id="back" style="width:auto">←</button><b>Nuovo gruppo</b></header><div class="card"><label>Nome del gruppo</label><input id="gname" value="${view.gname||'Cena'}"><label>Quanti partecipanti</label><input id="count" type="number" min="2" max="12" value="${n}"><div id="names">${names.map((name,i)=>`<label>Partecipante ${i+1}</label><input class="pname" value="${name}" placeholder="Nome">`).join('')}</div><p class="sub">Nessun "Tu" fisso: il primo nome è una persona come le altre.</p><button class="btn" id="save-g">Crea gruppo</button></div>`}
+function interno(){const g=group();if(!g)return home();const tab=view.tab||'items';return `<header><button class="btn ghost" id="back" style="width:auto">←</button><div><b>${g.name}</b><div class="sub">${g.people.map(p=>p.name).join(' · ')}</div></div></header><div class="tabs"><button data-tab="items" class="${tab==='items'?'on':''}">Scontrino</button><button data-tab="people" class="${tab==='people'?'on':''}">Nomi</button><button data-tab="bal" class="${tab==='bal'?'on':''}">Saldi</button></div>${tab==='people'?peopleTab(g):tab==='bal'?balTab(g):itemsTab(g)}`}
+function itemsTab(g){return `${g.bills.map(b=>`<div class="card" data-bill="${b.id}"><b>${b.title}</b> ${euro(math(b).tot)}<div class="sub">${b.items.length} voci · ha pagato ${person(g,b.payer)?.name}</div></div>`).join('')||'<div class="card">Nessun conto. Scansiona o aggiungi le pietanze.</div>'}<div style="display:flex;gap:8px"><button class="btn ghost" id="scan">Scansiona</button><button class="btn" id="addbill">Conto</button></div><input id="cam" type="file" accept="image/*" capture="environment" hidden><p class="sub">${view.msg||''}</p>${view.bill?billEditor(g):''}`}
+function billEditor(g){const b=view.bill;return `<div class="card"><b>Assegna ogni pietanza</b><label>Ha pagato</label><select id="payer">${g.people.map(p=>`<option value="${p.id}" ${p.id===b.payer?'selected':''}>${p.name}</option>`).join('')}</select>${b.items.map((it,i)=>`<div class="card"><input data-n="${i}" value="${it.name}"><input data-p="${i}" type="number" value="${it.price}"><div>${g.people.map(p=>`<button type="button" class="chip ${(it.who||[]).includes(p.id)?'on':''}" data-i="${i}" data-id="${p.id}" style="${(it.who||[]).includes(p.id)?'background:'+p.color:''}">${p.name}</button>`).join('')}</div></div>`).join('')}<button class="btn ghost" id="additem">+ Pietanza o bibita</button><button class="btn" id="savebill">Salva conto</button></div>`}
+function peopleTab(g){return `<div class="card"><p class="sub">Cambia i nomi quando vuoi.</p>${g.people.map(p=>`<label>${p.name}</label><input class="rename" data-id="${p.id}" value="${p.name}"></div>`).join('')}<button class="btn" id="savenames">Salva nomi</button></div>`}
+function balTab(g){const bal=balances(g);const spent=g.bills.reduce((s,b)=>s+math(b).tot,0);return `<div class="sum"><div class="sub" style="color:#d7ecdf">Speso</div><div style="font-family:Fraunces,serif;font-size:32px">${euro(spent)}</div></div>${g.people.map(p=>`<div class="card"><span class="av" style="background:${p.color}">${p.name.slice(0,1)}</span><b>${p.name}</b> ${euro(bal[p.id]||0)}<div class="sub">${(bal[p.id]||0)>0.01?'deve ricevere':(bal[p.id]||0)<-0.01?'deve':'in pari'}</div></div>`).join('')}`}
 function parseLines(text){return text.split(/\n/).map(s=>s.trim()).map(line=>{const m=line.match(/^(.*?)\s+(\d+[.,]\d{2}|\d+[.,]\d+|\d+)\s*€?$/);if(!m)return null;const name=m[1].replace(/[*\-]+/g,'').trim();if(name.length<2||/totale|subtot|contanti|resto|iva/i.test(name))return null;return{name,price:+m[2].replace(',','.'),who:[]}}).filter(Boolean)}
-async function scan(file){msg='Leggo lo scontrino... la prima volta scarica il lettore e può volerci un po\'.';render();try{if(!window.Tesseract){await new Promise((ok,err)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';s.onload=ok;s.onerror=err;document.head.appendChild(s)})}const r=await Tesseract.recognize(file,'ita+eng');const items=parseLines(r.data.text||'');if(items.length){bill.items=items;save();msg='Trovate '+items.length+' voci. Controlla prezzi e assegna chi ha mangiato.';}else msg='Non ho trovato prezzi. Aggiungi le voci a mano.';}catch(e){msg='Lettura non riuscita. Puoi scrivere le pietanze a mano.'}render()}
-function readInputs(){document.querySelectorAll('[data-n]').forEach(el=>{if(bill.items[el.dataset.n])bill.items[el.dataset.n].name=el.value});document.querySelectorAll('[data-p]').forEach(el=>{if(bill.items[el.dataset.p])bill.items[el.dataset.p].price=+el.value||0})}
-function bind(){document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{readInputs();tab=b.dataset.tab;save();render()});
-document.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{readInputs();const it=bill.items[b.dataset.i];it.who=it.who||[];it.who=it.who.includes(b.dataset.id)?it.who.filter(x=>x!==b.dataset.id):[...it.who,b.dataset.id];save();render()});
-const add=document.getElementById('add');if(add)add.onclick=()=>{readInputs();bill.items.push({name:'Bibita',price:0,who:[]});save();render()};
-const scanBtn=document.getElementById('scan');const cam=document.getElementById('cam');if(scanBtn)scanBtn.onclick=()=>cam.click();if(cam)cam.onchange=()=>{if(cam.files[0])scan(cam.files[0])}}
+async function scan(file){view.msg='Leggo lo scontrino...';render();try{if(!window.Tesseract){await new Promise((ok,err)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';s.onload=ok;s.onerror=err;document.head.appendChild(s)})}const r=await Tesseract.recognize(file,'ita+eng');const items=parseLines(r.data.text||'');const g=group();view.bill={id:uid(),title:'Scontrino',payer:g.people[0].id,items:items.length?items:[{name:'Voce',price:0,who:[]}]};view.msg=items.length?('Trovate '+items.length+' voci. Assegna i nomi.'):'Nessun prezzo letto. Scrivi le voci.';}catch(e){view.msg='Lettura non riuscita.'}render()}
+function syncBill(){const b=view.bill;if(!b)return;document.querySelectorAll('[data-n]').forEach(el=>b.items[el.dataset.n].name=el.value);document.querySelectorAll('[data-p]').forEach(el=>b.items[el.dataset.p].price=+el.value||0);const p=document.getElementById('payer');if(p)b.payer=p.value}
+function bind(){
+document.querySelectorAll('[data-open]').forEach(el=>el.onclick=()=>{view={name:'group',id:el.dataset.open,tab:'items'};render()});
+const nw=document.getElementById('new');if(nw)nw.onclick=()=>{view={name:'new',count:3,names:['Luca','','']};render()};
+const back=document.getElementById('back');if(back)back.onclick=()=>{view={name:'home'};render()};
+const count=document.getElementById('count');if(count)count.onchange=()=>{view.count=+count.value||2;view.gname=document.getElementById('gname').value;view.names=[...document.querySelectorAll('.pname')].map(el=>el.value);while(view.names.length<view.count)view.names.push('');view.names=view.names.slice(0,view.count);render()};
+const sg=document.getElementById('save-g');if(sg)sg.onclick=()=>{const names=[...document.querySelectorAll('.pname')].map(el=>el.value.trim()).filter(Boolean);if(names.length<2)return;const people=names.map((n,i)=>({id:uid(),name:n,color:C[i%C.length]}));state.groups.unshift({id:uid(),name:document.getElementById('gname').value||'Gruppo',people,bills:[]});save();view={name:'group',id:state.groups[0].id,tab:'items'};render()};
+document.querySelectorAll('[data-tab]').forEach(el=>el.onclick=()=>{view.tab=el.dataset.tab;view.bill=null;render()});
+const addbill=document.getElementById('addbill');if(addbill)addbill.onclick=()=>{const g=group();view.bill={id:uid(),title:'Conto',payer:g.people[0].id,items:[{name:'Pizza mista',price:0,who:[]},{name:'Pizza dolce',price:0,who:[]}]};render()};
+const scanBtn=document.getElementById('scan');const cam=document.getElementById('cam');if(scanBtn)scanBtn.onclick=()=>cam.click();if(cam)cam.onchange=()=>{if(cam.files[0])scan(cam.files[0])};
+document.querySelectorAll('[data-bill]').forEach(el=>el.onclick=()=>{view.bill=JSON.parse(JSON.stringify(group().bills.find(b=>b.id===el.dataset.bill)));render()});
+document.querySelectorAll('[data-id]').forEach(el=>el.onclick=()=>{syncBill();const it=view.bill.items[el.dataset.i];const id=el.dataset.id;it.who=it.who||[];it.who=it.who.includes(id)?it.who.filter(x=>x!==id):[...it.who,id];render()});
+const additem=document.getElementById('additem');if(additem)additem.onclick=()=>{syncBill();view.bill.items.push({name:'Bibita',price:0,who:[]});render()};
+const savebill=document.getElementById('savebill');if(savebill)savebill.onclick=()=>{syncBill();const g=group();const i=g.bills.findIndex(b=>b.id===view.bill.id);if(i>=0)g.bills[i]=view.bill;else g.bills.unshift(view.bill);view.bill=null;save();render()};
+const sn=document.getElementById('savenames');if(sn)sn.onclick=()=>{const g=group();document.querySelectorAll('.rename').forEach(el=>{const p=person(g,el.dataset.id);if(el.value.trim())p.name=el.value.trim()});save();render()}}
 render();
 </script></body></html>
