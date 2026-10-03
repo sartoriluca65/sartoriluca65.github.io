@@ -2,81 +2,43 @@
 <html lang="it"><head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>Diviso</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,640&family=Outfit:wght@400;560;700&display=swap" rel="stylesheet"/>
+<title>Diviso — a tavola</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,640&family=Outfit:wght@420;650&display=swap" rel="stylesheet"/>
 <style>
-:root{--ink:#1b241c;--muted:#5e6b60;--line:#e6dfd3;--paper:#f7f3ea;--card:#fffdf8;--green:#1b6b45;--deep:#123c28}
-*{box-sizing:border-box}body{margin:0;font-family:Outfit,system-ui,sans-serif;color:var(--ink);background:#efe7d8}
-.page{max-width:1040px;margin:0 auto;padding:22px 16px 48px}
-.nav{display:flex;justify-content:space-between;align-items:center}
-.brand{display:flex;gap:10px;align-items:center;font-weight:700}
-.mark{width:40px;height:40px;border-radius:14px;background:var(--green);display:grid;place-items:center}
-.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;margin-top:22px;align-items:center}
-@media(max-width:840px){.hero,.feats{grid-template-columns:1fr}}
-h1{font-family:Fraunces,serif;font-size:44px;line-height:.98;margin:8px 0;letter-spacing:-.03em}
-.lead{color:var(--muted);font-size:17px;line-height:1.45}
-.card{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:20px;box-shadow:0 18px 40px rgba(40,32,18,.08)}
-.art{background:linear-gradient(160deg,#1b6b45,#2f8a5b);border-radius:28px;min-height:280px;padding:22px;color:#f6f1e7;position:relative;overflow:hidden}
-.plate{position:absolute;right:-20px;bottom:-30px;width:230px;height:230px;border-radius:50%;background:#f3d7a2;border:10px solid #e7c07a}
-.slice{position:absolute;width:90px;height:90px;border-radius:0 90px 0 0;background:#e25b3a}
-label{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px;font-weight:560}
-input{width:100%;border:1px solid var(--line);border-radius:14px;padding:13px;font:inherit;background:#fff}
-.btn{border:0;border-radius:14px;padding:13px 16px;font-weight:700;cursor:pointer}.primary{background:var(--green);color:#f7f3ea;width:100%}.ghost{background:transparent;color:var(--deep)}
-.err{color:#8a3b1d;font-size:13px;min-height:16px}
-.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-.feat{background:rgba(255,253,248,.8);border:1px solid var(--line);border-radius:18px;padding:14px}
-.ico{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:#e7f3eb;margin-bottom:8px}
-.app{max-width:430px;margin:0 auto;min-height:100dvh;background:var(--paper)}
-.head{padding:16px;display:flex;gap:10px;align-items:center}
-.screens{padding:0 16px 90px}.row{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:center}
-.food{width:42px;height:42px;border-radius:14px;background:#f6ead3;display:grid;place-items:center;flex:none}
-.tabs{display:flex;gap:6px;background:#efe6d6;padding:4px;border-radius:14px;margin-bottom:10px}.tabs button{flex:1;border:0;background:transparent;border-radius:10px;padding:8px}.tabs button.on{background:#fff}
-.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 10px;margin:3px}.chip.on{color:#fff;border-color:transparent}
-.sum{background:var(--deep);color:#f6f1e7;border-radius:18px;padding:14px;margin-bottom:10px}
-</style></head><body><div id="root"></div>
+:root{--ink:#2a2118;--muted:#7a6a58;--paper:#fff8ee;--green:#ef6b3c}
+*{box-sizing:border-box}body{margin:0;font-family:Outfit,system-ui,sans-serif;color:var(--ink);background:linear-gradient(180deg,#ffe7c2,#fff8ee 40%)}
+.app{max-width:430px;margin:0 auto;min-height:100dvh;padding:18px 16px 28px}
+.hello{background:#fff;border-radius:28px;padding:18px;box-shadow:0 12px 30px rgba(180,90,30,.12)}
+h1{font-family:Fraunces,serif;font-size:34px;line-height:1;margin:6px 0}
+.sub{color:var(--muted);font-size:14px}
+.row{background:#fff;border-radius:20px;padding:12px;margin:10px 0;display:flex;gap:10px;align-items:center;box-shadow:0 6px 16px rgba(180,90,30,.06)}
+.bubble{width:48px;height:48px;border-radius:18px;display:grid;place-items:center;background:#fff1d6;flex:none}
+.tabs{display:flex;gap:6px;background:#ffe7c2;padding:4px;border-radius:16px}.tabs button{flex:1;border:0;background:transparent;border-radius:12px;padding:9px;font-weight:650}.tabs button.on{background:#fff}
+.chip{border:0;border-radius:99px;padding:7px 11px;margin:3px;background:#fff1d6}.chip.on{background:#ef6b3c;color:#fff}
+.btn{border:0;border-radius:16px;padding:14px;font-weight:700;background:#ef6b3c;color:#fff;width:100%}
+.sum{background:#2a2118;color:#fff8ee;border-radius:22px;padding:16px;margin:10px 0}
+input{width:100%;border:0;background:#fff6e8;border-radius:12px;padding:10px;font:inherit;margin-top:6px}
+</style></head><body><div class="app" id="app"></div>
 <script>
-const C=['#1b6b45','#c45c32','#2f5d8a','#8a5a2f','#6b4c9a'];
 const euro=n=>Number(n||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
-const uid=()=>Math.random().toString(36).slice(2,8);
-const pizza='<svg width="28" height="28" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#f0c14a"/><path d="M16 4 L22 16 L16 16 Z" fill="#d4533a"/><circle cx="18" cy="12" r="1.3" fill="#fff"/></svg>';
-const cake='<svg width="28" height="28" viewBox="0 0 32 32"><rect x="6" y="14" width="20" height="12" rx="3" fill="#f2b8c6"/><rect x="6" y="12" width="20" height="4" rx="2" fill="#fff"/><rect x="15" y="6" width="2" height="6" fill="#e25b3a"/></svg>';
-const beer='<svg width="28" height="28" viewBox="0 0 32 32"><rect x="8" y="8" width="12" height="18" rx="3" fill="#f0c14a"/><rect x="20" y="11" width="5" height="8" rx="2" fill="none" stroke="#f0c14a" stroke-width="2"/></svg>';
-const icon=name=>/dolce|torta|dessert/i.test(name)?cake:/birra|bibita|vino/i.test(name)?beer:pizza;
-const users=JSON.parse(localStorage.getItem('diviso-users')||'{}');
-let session=JSON.parse(localStorage.getItem('diviso-session')||'null');
-let auth={mode:'landing',err:''};
-let appState=JSON.parse(localStorage.getItem('diviso-v4')||'null')||{trips:[{id:'demo',name:'Cena di prova',people:[{id:'tu',name:'Tu',color:C[0]},{id:'a',name:'Giulia',color:C[1]},{id:'b',name:'Marco',color:C[2]}],expenses:[],bills:[{id:'b1',title:'Pizzeria',payer:'tu',tax:0,tip:0,items:[{name:'Pizza mista',type:'Pizza',price:9,who:['tu']},{name:'Pizza dolce',type:'Dolce',price:7,who:['a']},{name:'Birra',type:'Bibita',price:5,who:['tu','b']}]}],settlements:[]}]};
-let view={name:'home'};
-const saveU=()=>localStorage.setItem('diviso-users',JSON.stringify(users));
-const saveA=()=>localStorage.setItem('diviso-v4',JSON.stringify(appState));
-const trip=()=>appState.trips.find(t=>t.id===view.tripId);
-const person=(t,id)=>t.people.find(p=>p.id===id);
-function billMath(b){let items=0,sub={};b.items.forEach(it=>{items+=+it.price||0;const who=it.who||[];if(who.length){const s=it.price/who.length;who.forEach(id=>sub[id]=(sub[id]||0)+s)}});const extra=items*((+b.tax||0)+(+b.tip||0))/100,as=Object.values(sub).reduce((a,x)=>a+x,0)||1,tot={};Object.entries(sub).forEach(([id,v])=>tot[id]=v+extra*v/as);return{grand:items+extra,tot}}
-function nets(t){const bal={};t.people.forEach(p=>bal[p.id]=0);t.bills.forEach(b=>{const m=billMath(b);bal[b.payer]+=m.grand;Object.entries(m.tot).forEach(([id,v])=>bal[id]-=v)});t.settlements.forEach(s=>{bal[s.from]+=s.amount;bal[s.to]-=s.amount});return bal}
-function plan(bal){const d=[],c=[];Object.entries(bal).forEach(([id,v])=>{v=Math.round(v*100)/100;if(v<-0.01)d.push({id,v:-v});if(v>0.01)c.push({id,v})});const m=[];let i=0,j=0;while(i<d.length&&j<c.length){const pay=Math.min(d[i].v,c[j].v);if(pay>0.01)m.push({from:d[i].id,to:c[j].id,amount:Math.round(pay*100)/100});d[i].v-=pay;c[j].v-=pay;if(d[i].v<0.01)i++;if(c[j].v<0.01)j++}return m}
-function landing(){return `<div class="page"><div class="nav"><div class="brand"><div class="mark">${pizza}</div> Diviso</div><button class="btn ghost" id="go-login">Accedi</button></div><div class="hero"><div><h1>Il conto, diviso per quello che avete preso.</h1><p class="lead">Pizza mista, pizza dolce, birra. Ognuno segna la sua voce e l'app mostra chi deve a chi.</p><div class="feats"><div class="feat"><div class="ico">${pizza}</div><b>Per piatto</b><p class="lead">Non più tutto diviso in parti uguali.</p></div><div class="feat"><div class="ico">${cake}</div><b>Anche i dolci</b><p class="lead">Una voce a parte, con il suo prezzo.</p></div><div class="feat"><div class="ico">${beer}</div><b>Cose condivise</b><p class="lead">Se la birra è di due, si divide in due.</p></div></div></div><form class="card" id="reg"><h2 style="margin-top:0;font-family:Fraunces,serif">Crea l'account</h2><label>Nome</label><input name="name" required placeholder="Luca"><label>Email</label><input name="email" type="email" required placeholder="luca@email.it"><label>Password</label><input name="password" type="password" required minlength="6" placeholder="almeno 6 caratteri"><div class="err">${auth.err||''}</div><button class="btn primary">Registrati e entra</button></form></div><div class="art" style="margin-top:18px"><b>Esempio al tavolo</b><p>Tu pizza mista · Giulia pizza dolce · birra divisa</p><div class="plate"></div><div class="slice" style="right:70px;bottom:60px"></div></div></div>`}
-function login(){return `<div class="page" style="max-width:440px"><div class="brand"><div class="mark">${pizza}</div> Diviso</div><form class="card" id="log" style="margin-top:20px"><h2 style="font-family:Fraunces,serif">Accedi</h2><label>Email</label><input name="email" type="email" required><label>Password</label><input name="password" type="password" required><div class="err">${auth.err||''}</div><button class="btn primary">Entra</button><button type="button" class="btn ghost" id="go-reg">Crea un account</button></form></div>`}
-function appHome(){return `<div class="app"><div class="head"><div class="mark">${pizza}</div><div><b>${session.name}</b><div style="color:#5e6b60;font-size:12px">${session.email}</div></div><button class="btn ghost" id="out">Esci</button></div><div class="screens"><h2 style="font-family:Fraunces,serif">I tuoi gruppi</h2>${appState.trips.map(t=>`<div class="row" data-open="${t.id}"><div class="food">${pizza}</div><div><b>${t.name}</b><div style="color:#5e6b60;font-size:13px">${t.people.map(p=>p.name).join(', ')}</div></div></div>`).join('')}<button class="btn primary" id="new">Nuovo gruppo</button></div>${view.sheet==='new'?`<form class="card" id="ng"><h2>Nuovo gruppo</h2><input name="name" placeholder="Nome"><input name="people" placeholder="Tu, Giulia, Marco" style="margin-top:8px"><button class="btn primary" style="margin-top:8px">Crea</button></form>`:''}</div>`}
-function appTrip(){const t=trip(),tab=view.tab||'bills';return `<div class="app"><div class="head"><button class="btn ghost" id="back">←</button><b>${t.name}</b></div><div class="screens"><div class="tabs"><button data-tab="bills" class="${tab==='bills'?'on':''}">Scontrino</button><button data-tab="bal" class="${tab==='bal'?'on':''}">Saldi</button></div>${tab==='bal'?bal(t):bills(t)}<button class="btn primary" id="bill">Aggiungi voci</button></div>${view.sheet==='bill'?billSheet(t):''}</div>`}
-function bills(t){return t.bills.map(b=>`<div class="row" data-bill="${b.id}" style="display:block"><b>${b.title}</b> ${euro(billMath(b).grand)}${b.items.map(it=>`<div class="row" style="margin-top:8px"><div class="food">${icon(it.name+' '+it.type)}</div><div><b>${it.name}</b><div style="font-size:13px;color:#5e6b60">${euro(it.price)} · ${(it.who||[]).map(id=>person(t,id)?.name).filter(Boolean).join(', ')||'non assegnato'}</div></div></div>`).join('')}</div>`).join('')}
-function bal(t){const n=nets(t);return `<div class="sum"><div style="font-family:Fraunces,serif;font-size:28px">${euro(t.bills.reduce((s,b)=>s+billMath(b).grand,0))}</div>speso</div>${t.people.map(p=>`<div class="row"><b>${p.name}</b> ${euro(n[p.id]||0)}</div>`).join('')}${plan(n).map(x=>`<div class="row">${person(t,x.from).name} paga ${euro(x.amount)} a ${person(t,x.to).name}</div>`).join('')}`}
-function billSheet(t){const b=view.bill;return `<form class="card" id="billform"><h2 style="font-family:Fraunces,serif">Chi ha preso cosa</h2><input name="title" value="${b.title}">${b.items.map((it,i)=>`<div class="row" style="display:block"><input data-n="${i}" value="${it.name}" placeholder="Pizza dolce"><input data-p="${i}" type="number" value="${it.price}" style="margin-top:6px"><div>${t.people.map(p=>`<button type="button" class="chip ${(it.who||[]).includes(p.id)?'on':''}" data-who="${i}" data-id="${p.id}" style="${(it.who||[]).includes(p.id)?'background:'+p.color:''}">${p.name}</button>`).join('')}</div></div>`).join('')}<button type="button" class="btn ghost" id="add-item">+ Voce</button><button class="btn primary">Salva</button></form>`}
-function render(){document.getElementById('root').innerHTML=!session?(auth.mode==='login'?login():landing()):view.name==='trip'?appTrip():appHome();bind()}
-function bind(){
-const reg=document.getElementById('reg');if(reg)reg.onsubmit=e=>{e.preventDefault();const f=new FormData(reg);const email=String(f.get('email')).trim().toLowerCase();if(users[email]){auth.err='Email già registrata. Accedi.';render();return}users[email]={name:f.get('name'),email,password:f.get('password')};saveU();session={name:f.get('name'),email};localStorage.setItem('diviso-session',JSON.stringify(session));render()};
-const log=document.getElementById('log');if(log)log.onsubmit=e=>{e.preventDefault();const f=new FormData(log);const email=String(f.get('email')).trim().toLowerCase();const u=users[email];if(!u||u.password!==f.get('password')){auth.err='Email o password non corretti.';render();return}session={name:u.name,email};localStorage.setItem('diviso-session',JSON.stringify(session));render()};
-const gl=document.getElementById('go-login');if(gl)gl.onclick=()=>{auth={mode:'login',err:''};render()};
-const gr=document.getElementById('go-reg');if(gr)gr.onclick=()=>{auth={mode:'landing',err:''};render()};
-const out=document.getElementById('out');if(out)out.onclick=()=>{session=null;localStorage.removeItem('diviso-session');view={name:'home'};render()};
-const nw=document.getElementById('new');if(nw)nw.onclick=()=>{view.sheet='new';render()};
-const ng=document.getElementById('ng');if(ng)ng.onsubmit=e=>{e.preventDefault();const f=new FormData(ng);const people=String(f.get('people')||'Tu').split(',').map(s=>s.trim()).filter(Boolean).map((n,i)=>({id:uid(),name:n,color:C[i%C.length]}));appState.trips.unshift({id:uid(),name:f.get('name')||'Gruppo',people,expenses:[],bills:[],settlements:[]});saveA();view={name:'trip',tripId:appState.trips[0].id};render()};
-document.querySelectorAll('[data-open]').forEach(el=>el.onclick=()=>{view={name:'trip',tripId:el.dataset.open,tab:'bills'};render()});
-const back=document.getElementById('back');if(back)back.onclick=()=>{view={name:'home'};render()};
-document.querySelectorAll('[data-tab]').forEach(el=>el.onclick=()=>{view.tab=el.dataset.tab;view.sheet=null;render()});
-document.querySelectorAll('[data-bill]').forEach(el=>el.onclick=()=>{view.bill=JSON.parse(JSON.stringify(trip().bills.find(b=>b.id===el.dataset.bill)));view.sheet='bill';render()});
-const bill=document.getElementById('bill');if(bill)bill.onclick=()=>{view.bill={id:uid(),title:'Conto',payer:trip().people[0].id,tax:0,tip:0,items:[{name:'Pizza mista',type:'Pizza',price:0,who:[]},{name:'Pizza dolce',type:'Dolce',price:0,who:[]}]};view.sheet='bill';render()};
-document.querySelectorAll('[data-who]').forEach(el=>el.onclick=()=>{const b=view.bill;document.querySelectorAll('[data-n]').forEach(x=>b.items[x.dataset.n].name=x.value);document.querySelectorAll('[data-p]').forEach(x=>b.items[x.dataset.p].price=+x.value||0);const it=b.items[el.dataset.who];const id=el.dataset.id;it.who=it.who||[];it.who=it.who.includes(id)?it.who.filter(z=>z!==id):[...it.who,id];render()});
-const ai=document.getElementById('add-item');if(ai)ai.onclick=()=>{view.bill.items.push({name:'Pizza dolce',type:'Dolce',price:0,who:[]});render()};
-const bf=document.getElementById('billform');if(bf)bf.onsubmit=e=>{e.preventDefault();const b=view.bill;b.title=new FormData(bf).get('title')||b.title;document.querySelectorAll('[data-n]').forEach(x=>b.items[x.dataset.n].name=x.value);document.querySelectorAll('[data-p]').forEach(x=>b.items[x.dataset.p].price=+x.value||0);const t=trip();const i=t.bills.findIndex(x=>x.id===b.id);if(i>=0)t.bills[i]=b;else t.bills.unshift(b);saveA();view.sheet=null;render()}}
+const pizza='<svg width="30" height="30" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#f0c14a"/><path d="M16 5l6 11h-6z" fill="#e25b3a"/><circle cx="18" cy="12" r="1.2" fill="#fff"/></svg>';
+const cake='<svg width="30" height="30" viewBox="0 0 32 32"><rect x="6" y="14" width="20" height="12" rx="4" fill="#f2b8c6"/><rect x="6" y="12" width="20" height="4" rx="2" fill="#fff"/><rect x="15" y="6" width="2" height="6" fill="#e25b3a"/></svg>';
+const beer='<svg width="30" height="30" viewBox="0 0 32 32"><rect x="8" y="8" width="12" height="18" rx="3" fill="#f0c14a"/><path d="M20 12h4a3 3 0 010 8h-4" fill="none" stroke="#e0a82a" stroke-width="2"/></svg>';
+const icon=n=>/dolce|torta/i.test(n)?cake:/birra|bibita/i.test(n)?beer:pizza;
+let bill=JSON.parse(localStorage.getItem('diviso-tavola')||'null')||{title:'Cena insieme',payer:'tu',items:[{name:'Pizza mista',price:9,who:['tu']},{name:'Pizza dolce',price:7,who:['giulia']},{name:'Birra',price:5,who:['tu','marco']}]};
+const people=[{id:'tu',name:'Tu',color:'#ef6b3c'},{id:'giulia',name:'Giulia',color:'#e25b8a'},{id:'marco',name:'Marco',color:'#3d7ea6'}];
+let tab='tavola', editing=false;
+const save=()=>localStorage.setItem('diviso-tavola',JSON.stringify(bill));
+const who=id=>people.find(p=>p.id===id);
+function math(){let tot=0,sub={};bill.items.forEach(it=>{tot+=+it.price||0;const w=it.who||[];if(w.length){const s=it.price/w.length;w.forEach(id=>sub[id]=(sub[id]||0)+s)}});return{tot,sub}}
+function plan(sub){const bal={};people.forEach(p=>bal[p.id]=(sub[p.id]||0));bal[bill.payer]-=math().tot;const d=[],c=[];Object.entries(bal).forEach(([id,v])=>{v=Math.round(-v*100)/100;if(v>0.01)d.push({id,v});if(v<-0.01)c.push({id,v:-v})});return d.map(x=>({from:x.id,to:bill.payer,amount:x.v}))}
+function render(){const m=math();document.getElementById('app').innerHTML=`<div class="hello"><div class="sub">Niente account. Si entra e si divide.</div><h1>A tavola 🍕</h1><p class="sub">${bill.title}. Ha pagato ${who(bill.payer).name}. Tocca chi ha preso cosa.</p></div><div class="tabs" style="margin-top:14px"><button data-tab="tavola" class="${tab==='tavola'?'on':''}">Piatti</button><button data-tab="saldi" class="${tab==='saldi'?'on':''}">Chi paga</button></div>${tab==='saldi'?saldi(m):piatti()}<button class="btn" id="edit" style="margin-top:8px">${editing?'Chiudi':'Sistema le voci'}</button>${editing?editor():''}`;bind()}
+function piatti(){return bill.items.map(it=>`<div class="row"><div class="bubble">${icon(it.name)}</div><div><b>${it.name}</b><div class="sub">${euro(it.price)} · ${(it.who||[]).map(id=>who(id).name).join(' e ')||'nessuno ancora'}</div><div>${people.map(p=>`<button class="chip ${(it.who||[]).includes(p.id)?'on':''}" data-item="${it.name}" data-id="${p.id}">${p.name}</button>`).join('')}</div></div></div>`).join('')}
+function saldi(m){return `<div class="sum"><div class="sub" style="color:#f0d7b0">Conto</div><div style="font-family:Fraunces,serif;font-size:34px">${euro(m.tot)}</div></div>${people.map(p=>`<div class="row"><div class="bubble" style="background:${p.color};color:#fff">${p.name[0]}</div><div><b>${p.name}</b><div class="sub">ha preso ${euro(m.sub[p.id]||0)}</div></div></div>`).join('')}${plan(m.sub).map(x=>`<div class="row">${who(x.from).name} passa ${euro(x.amount)} a ${who(x.to).name}</div>`).join('')}`}
+function editor(){return `<div class="hello" style="margin-top:10px"><b>Voci</b>${bill.items.map((it,i)=>`<div class="row" style="display:block"><input data-n="${i}" value="${it.name}"><input data-p="${i}" type="number" value="${it.price}"></div>`).join('')}<button class="btn" id="add" style="background:#2a2118">Aggiungi una voce</button></div>`}
+function bind(){document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});
+document.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{const it=bill.items.find(x=>x.name===b.dataset.item);it.who=it.who||[];it.who=it.who.includes(b.dataset.id)?it.who.filter(x=>x!==b.dataset.id):[...it.who,b.dataset.id];save();render()});
+const ed=document.getElementById('edit');if(ed)ed.onclick=()=>{if(editing){document.querySelectorAll('[data-n]').forEach(el=>bill.items[el.dataset.n].name=el.value);document.querySelectorAll('[data-p]').forEach(el=>bill.items[el.dataset.p].price=+el.value||0);save()}editing=!editing;render()};
+const add=document.getElementById('add');if(add)add.onclick=()=>{document.querySelectorAll('[data-n]').forEach(el=>bill.items[el.dataset.n].name=el.value);bill.items.push({name:'Pizza dolce',price:0,who:[]});save();render()}}
 render();
 </script></body></html>
