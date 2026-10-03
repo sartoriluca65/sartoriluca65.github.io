@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Diviso"/>
 <meta name="theme-color" content="#f06a1a"/>
 <link rel="manifest" href="manifest.webmanifest"/>
+<script>/* share-msg */</script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Source+Sans+3:wght@500;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--ink:#1c241c;--muted:#5c675c;--line:#e4ddd0}
@@ -40,7 +41,6 @@ label{font-size:13px;color:var(--muted);font-weight:700}
 <script>
 const LOGO='<div class="logo big"><span>D</span><span>i</span><span>v</span><span>i</span><span>s</span><span>o</span></div>';
 const APP='https://sartoriluca65.github.io/';
-const ICONS='<div class="tools"><button class="btn ghost iconbtn" id="share" aria-label="Condividi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1c241c" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button><a class="btn iconbtn" style="background:#25d366" href="'+''+'" id="wa" aria-label="Scrivi a Luca"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M20 11.5A8.5 8.5 0 0 1 6.7 18L4 20.5l.7-3A8.5 8.5 0 1 1 20 11.5z"/></svg></a></div>';
 const KINDS=['Antipasto','Primo','Secondo','Contorno','Pizza','Dolce','Spritz','Vino','Birra','Bibita','Acqua','Liquore','Caff\u00e8','Amaro','Coperto'];
 const PIZZA='https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=640&q=60';
 const DOLCE='https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=640&q=60';
@@ -57,7 +57,7 @@ let view={name:'home'}, hist=[];
 const save=()=>localStorage.setItem('diviso-vuoto',JSON.stringify(state));
 const group=()=>state.groups.find(g=>g.id===view.id);
 function del(id){if(!confirm('Eliminare questo gruppo?'))return;state.groups=state.groups.filter(g=>g.id!==id);save();view={name:'home'};render()}
-async function shareApp(){const data={title:'Diviso',text:'Dividi il conto con Diviso',url:APP};try{if(navigator.share){await navigator.share(data);return}}catch(e){if(e&&e.name==='AbortError')return}location.href='https://wa.me/?text='+encodeURIComponent(data.text+' '+APP)}
+async function shareApp(){const data={title:'Diviso',text:'Stasera niente calcolatrice. Con Diviso si divide pizza, spritz e caff\u00e8. Apri qui: '+APP};try{if(navigator.share){await navigator.share(data);return}}catch(e){if(e&&e.name==='AbortError')return}location.href='https://wa.me/?text='+encodeURIComponent(data.text)}
 function math(b){let tot=0,sub={};b.items.forEach(it=>{tot+=+it.price||0;const w=it.who||[];if(w.length){const s=it.price/w.length;w.forEach(id=>sub[id]=(sub[id]||0)+s)}});return{tot,sub}}
 function go(next){hist.push(JSON.stringify(view));view=next;render()}
 function back(){const prev=hist.pop();view=prev?JSON.parse(prev):{name:'home'};render()}
