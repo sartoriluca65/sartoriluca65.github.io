@@ -1,14 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-<defs>
-<linearGradient id="r" x1="0" y1="0" x2="1" y2="1">
-<stop offset="0" stop-color="#e25b3a"/>
-<stop offset=".2" stop-color="#e0a106"/>
-<stop offset=".4" stop-color="#7bd389"/>
-<stop offset=".6" stop-color="#2f5d8a"/>
-<stop offset=".8" stop-color="#6b4c9a"/>
-<stop offset="1" stop-color="#c45c32"/>
-</linearGradient>
-</defs>
-<rect width="180" height="180" rx="40" fill="url(#r)"/>
-<text x="90" y="118" text-anchor="middle" font-family="Georgia, serif" font-size="108" font-weight="700" fill="#fffaf2">D</text>
+<rect x="0" width="30" height="180" fill="#e25b3a"/>
+<rect x="30" width="30" height="180" fill="#e0a106"/>
+<rect x="60" width="30" height="180" fill="#3cba6a"/>
+<rect x="90" width="30" height="180" fill="#2f5d8a"/>
+<rect x="120" width="30" height="180" fill="#6b4c9a"/>
+<rect x="150" width="30" height="180" fill="#c45c32"/>
+<rect x="18" y="28" width="144" height="124" rx="28" fill="#fffaf2"/>
+<text x="90" y="118" text-anchor="middle" font-family="Georgia,serif" font-size="92" font-weight="700" fill="#2b241c">D</text>
 </svg>
