@@ -1,101 +1,80 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="850" viewBox="0 0 1200 850" shape-rendering="geometricPrecision">
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400" shape-rendering="geometricPrecision" role="img" aria-labelledby="title desc">
+  <title id="title">DIVISO</title>
+  <desc id="desc">Logo DIVISO con posate colorate disposte a raggiera</desc>
   <defs>
-    <!-- Forchetta standard -->
-    <g id="f" fill="currentColor">
-      <path d="M0 -110 c-3 0-5 2-5 6 v22 c0 4 3 8 7 9 v53 c0 3 1.5 5 4.5 5 s4.5-2 4.5-5 v-53 c4-1 7-5 7-9 v-22 c0-4-2-6-5-6 v20 h-2 v-20 h-2 v20 h-2 v-20 h-2 v20 h-2 v-20 h-2 v20 z" transform="scale(1.2)"/>
+    <!-- Forchetta -->
+    <g id="fork" fill="currentColor">
+      <path d="M-6 -50 v25 c0 4 2 7 6 8 v40 h4 v-40 c4 -1 6 -4 6 -8 v-25 h-2 v18 h-2 v-18 h-2 v18 h-2 v-18 h-2 v18 h-2 v-18 h-2 v18 h-2 v-18 Z"/>
     </g>
-    <!-- Cucchiaio standard -->
-    <g id="s" fill="currentColor">
-      <path d="M0 -112 c-7.5 0-12 8-12 17 c0 9 4.5 14 9.5 16.5 v58 c0 3 2 5 4.5 5 s4.5-2 4.5-5 v-58 c5-2.5 9.5-7.5 9.5-16.5 c0-9-4.5-17-12-17 z" transform="scale(1.15)"/>
+    <!-- Cucchiaio -->
+    <g id="spoon" fill="currentColor">
+      <path d="M0 -52 c-7 0 -11 7 -11 17 c0 9 4 15 9 17 v43 h4 v-43 c5 -2 9 -8 9 -17 c0 -10 -4 -17 -11 -17 Z"/>
     </g>
-    <!-- Coltello standard -->
-    <g id="k" fill="currentColor">
-      <path d="M-0.5 -112 c6.5 7.5 10.5 17 10 26 c-0.5 6-3.5 10.5-7.5 14 v52 c0 3-2 5-5 5 s-5-2-5-5 v-52 c-4-3.5-6.5-8-7.5-14 c-0.5-9 3.5-18.5 10.5-26 z" transform="scale(1.2)"/>
+    <!-- Coltello -->
+    <g id="knife" fill="currentColor">
+      <path d="M-1 -52 c7 8 11 v38 c0 5 -2 7 -5 7 v34 h-4 v-34 c-4 0 -5 -2 -5 -7 v-26 c-3 -4 -5 -8 -5 -14 c0 -10 4 -20 11 -28 Z"/>
     </g>
+    <!-- Sfumatura per il testo principale -->
+    <linearGradient id="wordColor" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#07589a"/>
+      <stop offset="33%" stop-color="#65b4d7"/>
+      <stop offset="66%" stop-color="#74c9b5"/>
+      <stop offset="100%" stop-color="#f4a02f"/>
+    </linearGradient>
   </defs>
 
-  <!-- Sfondo trasparente -->
+  <!-- Sfondo Neutro Trasparente / Bianco -->
   <rect width="100%" height="100%" fill="none"/>
 
-  <!-- RAGGIERA POSATE -->
-  <g transform="translate(600, 415)">
-    <!-- Quadrante Superiore Sinistro -->
-    <g transform="rotate(-68)" color="#07589a"><use href="#s" transform="scale(0.9)"/></g>
-    <g transform="rotate(-52)" color="#65b4d7"><use href="#f" transform="scale(0.6) translate(0, -30)"/></g>
-    <g transform="rotate(-40)" color="#65b4d7"><use href="#k" transform="scale(1.2)"/></g>
-    <g transform="rotate(-28)" color="#74c9b5"><use href="#f" transform="scale(0.7) translate(0, -20)"/></g>
-    <g transform="rotate(-15)" color="#74c9b5"><use href="#s" transform="scale(0.8)"/></g>
-    <g transform="rotate(-8)" color="#f4a02f"><use href="#s" transform="scale(0.5) translate(0, -40)"/></g>
-    
-    <!-- Centro Superiore -->
-    <g transform="rotate(0)" color="#07589a"><use href="#f" transform="scale(1.3)"/></g>
-    
-    <!-- Quadrante Superiore Destro -->
-    <g transform="rotate(10)" color="#65b4d7"><use href="#k" transform="scale(0.5) translate(0, -50)"/></g>
-    <g transform="rotate(22)" color="#f4a02f"><use href="#f" transform="scale(1.1)"/></g>
-    <g transform="rotate(38)" color="#74c9b5"><use href="#k" transform="scale(1.2)"/></g>
-    <g transform="rotate(48)" color="#07589a"><use href="#s" transform="scale(0.6) translate(0, -20)"/></g>
-    <g transform="rotate(58)" color="#07589a"><use href="#f" transform="scale(1.0)"/></g>
-    
-    <!-- Lato Destro Orizzontale -->
-    <g transform="rotate(78)" color="#65b4d7"><use href="#s" transform="scale(0.8) translate(0, 10)"/></g>
-    <g transform="rotate(86)" color="#07589a"><use href="#s" transform="scale(1.4) translate(0, -30)"/></g>
-    <g transform="rotate(94)" color="#74c9b5"><use href="#f" transform="scale(0.5) translate(0, -50)"/></g>
-    <g transform="rotate(105)" color="#f4a02f"><use href="#k" transform="scale(1.5) translate(0, -20)"/></g>
-    
-    <!-- Quadrante Inferiore Destro -->
-    <g transform="rotate(122)" color="#65b4d7"><use href="#s" transform="scale(0.7)"/></g>
-    <g transform="rotate(134)" color="#07589a"><use href="#s" transform="scale(0.6) translate(0, -10)"/></g>
-    <g transform="rotate(145)" color="#74c9b5"><use href="#s" transform="scale(1.1)"/></g>
-    <g transform="rotate(156)" color="#65b4d7"><use href="#k" transform="scale(1.3)"/></g>
-    <g transform="rotate(164)" color="#f4a02f"><use href="#f" transform="scale(0.8)"/></g>
-    <g transform="rotate(174)" color="#74c9b5"><use href="#k" transform="scale(0.5) translate(0, -30)"/></g>
-    
-    <!-- Centro Inferiore -->
-    <g transform="rotate(180)" color="#f4a02f"><use href="#f" transform="scale(1.3)"/></g>
-    
-    <!-- Quadrante Inferiore Sinistro -->
-    <g transform="rotate(188)" color="#07589a"><use href="#f" transform="scale(0.6) translate(0, -20)"/></g>
-    <g transform="rotate(196)" color="#65b4d7"><use href="#k" transform="scale(0.5) translate(0, -40)"/></g>
-    <g transform="rotate(208)" color="#65b4d7"><use href="#s" transform="scale(1.2)"/></g>
-    <g transform="rotate(222)" color="#07589a"><use href="#s" transform="scale(0.7) translate(0, -10)"/></g>
-    <g transform="rotate(234)" color="#74c9b5"><use href="#k" transform="scale(0.9)"/></g>
-    <g transform="rotate(246)" color="#f4a02f"><use href="#s" transform="scale(0.8)"/></g>
-    <g transform="rotate(254)" color="#07589a"><use href="#f" transform="scale(1.1)"/></g>
-    <g transform="rotate(264)" color="#65b4d7"><use href="#s" transform="scale(0.6) translate(0, -30)"/></g>
-    
-    <!-- Lato Sinistro Orizzontale -->
-    <g transform="rotate(274)" color="#f4a02f"><use href="#f" transform="scale(1.3) translate(0, -20)"/></g>
-    <g transform="rotate(285)" color="#07589a"><use href="#s" transform="scale(0.9) translate(0, -20)"/></g>
-    <g transform="rotate(296)" color="#65b4d7"><use href="#f" transform="scale(0.5) translate(0, -40)"/></g>
-    <g transform="rotate(308)" color="#74c9b5"><use href="#k" transform="scale(1.4) translate(0, -10)"/></g>
+  <!-- Raggiera di Posate ed Elementi Grafici -->
+  <g transform="translate(300, 200)">
+    <!-- Gruppo Blu Scuro (#07589a) -->
+    <g transform="rotate(0)" color="#07589a"><use href="#fork" transform="translate(0, -115) scale(0.65)"/><circle cx="0" cy="-155" r="4.5"/></g>
+    <g transform="rotate(90)" color="#07589a"><use href="#knife" transform="translate(0, -110) scale(0.65)"/><circle cx="0" cy="-150" r="3.5"/></g>
+    <g transform="rotate(180)" color="#07589a"><use href="#spoon" transform="translate(0, -125) scale(0.65)"/><circle cx="0" cy="-160" r="5"/></g>
+    <g transform="rotate(270)" color="#07589a"><use href="#fork" transform="translate(0, -115) scale(0.65)"/><circle cx="0" cy="-145" r="4"/></g>
 
-    <!-- Tratti grafici esterni aggiuntivi -->
-    <path d="M -190,-60 L -260,-65 M -195,-50 L -255,-52" stroke="#07589a" stroke-width="6" stroke-linecap="round" />
-    <path d="M -210,130 L -295,145" stroke="#07589a" stroke-width="7" stroke-linecap="round" />
+    <!-- Gruppo Azzurro (#65b4d7) -->
+    <g transform="rotate(30)" color="#65b4d7"><use href="#spoon" transform="translate(0, -120) scale(0.65)"/><circle cx="0" cy="-160" r="4"/></g>
+    <g transform="rotate(120)" color="#65b4d7"><use href="#fork" transform="translate(0, -110) scale(0.65)"/><circle cx="0" cy="-145" r="4.5"/></g>
+    <g transform="rotate(210)" color="#65b4d7"><use href="#knife" transform="translate(0, -125) scale(0.65)"/><circle cx="0" cy="-155" r="3.5"/></g>
+    <g transform="rotate(300)" color="#65b4d7"><use href="#spoon" transform="translate(0, -115) scale(0.65)"/><circle cx="0" cy="-150" r="5"/></g>
+
+    <!-- Gruppo Verde Acqua (#74c9b5) -->
+    <g transform="rotate(60)" color="#74c9b5"><use href="#knife" transform="translate(0, -125) scale(0.65)"/><circle cx="0" cy="-155" r="3.5"/></g>
+    <g transform="rotate(150)" color="#74c9b5"><use href="#spoon" transform="translate(0, -115) scale(0.65)"/><circle cx="0" cy="-150" r="5"/></g>
+    <g transform="rotate(240)" color="#74c9b5"><use href="#fork" transform="translate(0, -120) scale(0.65)"/><circle cx="0" cy="-160" r="4.5"/></g>
+    <g transform="rotate(330)" color="#74c9b5"><use href="#knife" transform="translate(0, -110) scale(0.65)"/><circle cx="0" cy="-145" r="4"/></g>
+
+    <!-- Gruppo Arancione (#f4a02f) -->
+    <g transform="rotate(45)" color="#f4a02f"><use href="#fork" transform="translate(0, -110) scale(0.55)"/><circle cx="0" cy="-140" r="3"/></g>
+    <g transform="rotate(135)" color="#f4a02f"><use href="#knife" transform="translate(0, -120) scale(0.55)"/><circle cx="0" cy="-150" r="4"/></g>
+    <g transform="rotate(225)" color="#f4a02f"><use href="#spoon" transform="translate(0, -115) scale(0.55)"/><circle cx="0" cy="-145" r="3.5"/></g>
+    <g transform="rotate(315)" color="#f4a02f"><use href="#fork" transform="translate(0, -125) scale(0.55)"/><circle cx="0" cy="-155" r="4"/></g>
+
+    <!-- Linee sottili radiali di accento intercalate -->
+    <line x1="0" y1="-75" x2="0" y2="-90" transform="rotate(15)" stroke="#65b4d7" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="-75" x2="0" y2="-90" transform="rotate(75)" stroke="#74c9b5" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="-75" x2="0" y2="-90" transform="rotate(105)" stroke="#f4a02f" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="-75" x2="0" y2="-90" transform="rotate(165)" stroke="#07589a" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="-75" x2="0" y2="-90" transform="rotate(195)" stroke="#65b4d7" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="-75" x2="0" y2="-90" transform="rotate(255)" stroke="#74c9b5" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="-75" x2="0" y2="-90" transform="rotate(285)" stroke="#f4a02f" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="-75" x2="0" y2="-90" transform="rotate(345)" stroke="#07589a" stroke-width="2" stroke-linecap="round"/>
   </g>
 
-  <!-- MASCHERA DI SFUMATURA CENTRALE -->
-  <circle cx="600" cy="415" r="190" fill="#fff" opacity="0.95"/>
+  <!-- Maschera sfumata centrale per isolare il testo -->
+  <circle cx="300" cy="200" r="85" fill="#fff" opacity="0.9"/>
 
-  <!-- PAROLA "DIVIS" CONVERTITA COMPLETAMENTE IN VETTORI GEOMETRICI (PATH) -->
-  <g>
-    <!-- Lettera D (Blu Scuro) -->
-    <path d="M250,345 h45 c25,0 45,15 45,55 v10 c0,40 -20,55 -45,55 h-45 Z M282,375 v60 h10 c12,0 18,-6 18,-25 v-10 c0,-19 -6,-25 -18,-25 Z" fill="#07589a"/>
-    <!-- Lettera I (Azzurro) -->
-    <path d="M375,345 h24 v120 h-24 Z" fill="#65b4d7"/>
-    <!-- Lettera V (Verde) -->
-    <path d="M425,345 h26 l22,85 l22,-85 h26 l-36,120 h-24 Z" fill="#0e7a46"/>
-    <!-- Lettera I (Arancione) -->
-    <path d="M550,345 h24 v120 h-24 Z" fill="#f4a02f"/>
-    <!-- Lettera S (Blu Elettrico) -->
-    <path d="M645,345 h35 c15,0 25,8 25,22 v4 c0,12 -8,18 -20,20 l15,22 v27 h-26 v-24 l-14,-21 h-15 v45 h-24 Z M645,370 v22 h12 c8,0 12,-4 12,-10 v-2 c0,-6 -4,-10 -12,-10 Z" fill="#1b75bc"/>
-  </g>
-
-  <!-- LETTERA "O" IN VERSIONE GRAFICA CUSTOM -->
-  <g transform="translate(780, 405)">
-    <circle cx="0" cy="0" r="62" fill="none" stroke="#74c9b5" stroke-width="15"/>
-    <circle cx="0" cy="0" r="34" fill="none" stroke="#74c9b5" stroke-width="4" stroke-dasharray="1 1"/>
-    <ellipse cx="0" cy="0" rx="18" ry="8" fill="none" stroke="#74c9b5" stroke-width="5"/>
+  <!-- Testo Centrale "DIVISO" -->
+  <text x="300" y="220" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="bold" letter-spacing="4">
+    <!-- Parola sfumata con l'ultima lettera con colore pieno e mirino -->
+    <tspan fill="url(#wordColor)">DIVIS</tspan><tspan fill="#07589a">O</tspan>
+  </text>
+  
+  <!-- Dettaglio grafico interno alla lettera O (Mirino/Piatto) -->
+  <g transform="translate(435, 196)" stroke="#74c9b5" stroke-width="3" fill="none">
+    <circle cx="0" cy="0" r="14" opacity="0.8"/>
+    <line x1="-6" y1="0" x2="6" y2="0"/>
   </g>
 </svg>
