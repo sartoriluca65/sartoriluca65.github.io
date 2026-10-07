@@ -18,7 +18,3 @@
 <circle cx="300" cy="165" r="94" fill="url(#centerGlow)"/>
 <text x="300" y="181" text-anchor="middle" fill="url(#wordColor)" font-family="Arial,Helvetica,sans-serif" font-size="64" font-weight="300" letter-spacing="2">DIVIS<tspan fill="#07589a" font-weight="400">O</tspan></text>
 </svg>
-<svg xmlns="http://www.w3.org/2000/svg" width="600" height="330" viewBox="0 0 600 330">
-<title>DIVISO</title>
-<image href="./DIVISO_logo_trasparente.png" x="0" y="0" width="600" height="330"/>
-</svg>
