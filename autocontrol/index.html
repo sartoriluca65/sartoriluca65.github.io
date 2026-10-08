@@ -54,7 +54,38 @@
 </div>
 <datalist id="workshopSuggestions"></datalist><datalist id="brandSuggestions"><option>Abarth</option><option>Alfa Romeo</option><option>Audi</option><option>BMW</option><option>Citroën</option><option>Dacia</option><option>Fiat</option><option>Ford</option><option>Honda</option><option>Hyundai</option><option>Jeep</option><option>Kia</option><option>Lancia</option><option>Land Rover</option><option>Mercedes-Benz</option><option>MG</option><option>Nissan</option><option>Opel</option><option>Peugeot</option><option>Renault</option><option>SEAT</option><option>Škoda</option><option>Subaru</option><option>Suzuki</option><option>Tesla</option><option>Toyota</option><option>Volkswagen</option><option>Volvo</option></datalist><datalist id="modelSuggestions"><option>500</option><option>Panda</option><option>Ypsilon</option><option>Golf</option><option>Polo</option><option>T-Roc</option><option>Clio</option><option>Captur</option><option>Yaris</option><option>Corolla</option><option>Qashqai</option><option>208</option><option>2008</option><option>Model 3</option><option>Model Y</option><option>Serie 1</option><option>Serie 3</option><option>A3</option><option>A4</option><option>Classe A</option><option>Classe C</option></datalist><datalist id="trimSuggestions"><option>Base</option><option>Business</option><option>Active</option><option>Comfortline</option><option>Highline</option><option>Style</option><option>Sport</option><option>Allure</option><option>GT Line</option><option>AMG Line</option><option>Hybrid</option><option>Plug-in Hybrid</option></datalist><div class="modal-back" id="modalBack" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-top"><h2 id="modalTitle">Aggiungi</h2><button class="close" onclick="closeModal()">×</button></div><form id="entryForm"></form></div></div><div class="toast" id="toast"></div>
 <script>
-const KEY='autocontrol-v1';let db=JSON.parse(localStorage.getItem(KEY)||'{}');for(const k of ['vehicles','maintenance','fuel','parts','documents','insurance','tax','revision','bodywork','deadlines','accessories','workshops'])if(!Array.isArray(db[k]))db[k]=[];let editingVehicle=null,editingWorkshop=null,currentOcrConfidence=0;
+// La chiave dell’archivio e il database degli allegati restano stabili tra versioni.
+const KEY='autocontrol-v1';
+const DATA_SECTIONS=['vehicles','maintenance','fuel','parts','documents','insurance','tax','revision','bodywork','deadlines','accessories','workshops'];
+let db;
+try{
+ const previous=localStorage.getItem(KEY);
+ db=previous?JSON.parse(previous):{};
+ if(!db||typeof db!=='object'||Array.isArray(db))throw new Error('Formato archivio non valido');
+ for(const k of DATA_SECTIONS){
+  if(db[k]===undefined)db[k]=[];
+  else if(!Array.isArray(db[k]))throw new Error('Sezione archivio non valida: '+k);
+ }
+ if(previous)preserveBeforeUpdate(previous);
+}catch(error){
+ alert('Archivio non leggibile. I dati esistenti non sono stati cancellati o sostituiti. Chiudi questa pagina e richiedi assistenza. Dettaglio: '+error.message);
+ throw error;
+}
+function preserveBeforeUpdate(raw){
+ // Copia dei dati strutturati prima di questa versione; gli originali restano invariati.
+ const version='20261009-preserve-data';
+ try{
+  const request=indexedDB.open('autocontrol-safety',1);
+  request.onupgradeneeded=()=>request.result.createObjectStore('snapshots',{keyPath:'version'});
+  request.onsuccess=()=>{
+   const store=request.result,tx=store.transaction('snapshots','readwrite'),snapshots=tx.objectStore('snapshots');
+   const existing=snapshots.get(version);
+   existing.onsuccess=()=>{if(!existing.result)snapshots.add({version,savedAt:new Date().toISOString(),raw})};
+   tx.oncomplete=()=>store.close();tx.onabort=()=>store.close();tx.onerror=()=>store.close();
+  };
+ }catch(error){console.warn('Copia di sicurezza locale non disponibile; archivio originale conservato.');}
+}
+let editingVehicle=null,editingWorkshop=null,currentOcrConfidence=0;
 const money=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(Number(n)||0),dateFmt=s=>s?new Date(s+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'}):'—',save=()=>{localStorage.setItem(KEY,JSON.stringify(db));render()};
 function showView(name){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===name));document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===name));document.getElementById('crumb').textContent=({dashboard:'Panoramica',vehicles:'I miei veicoli',maintenance:'Manutenzioni',fuel:'Rifornimenti',parts:'Ricambi',documents:'Documenti',insurance:'Assicurazioni',tax:'Bollo auto',revision:'Revisioni',bodywork:'Carrozzeria',workshops:'Officine e carrozzerie',deadlines:'Scadenze',reports:'Report',accessories:'Accessori'})[name]||name;}
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>showView(b.dataset.view));
