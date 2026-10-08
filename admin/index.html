@@ -26,7 +26,29 @@ async function request(path,body,token,method='POST'){
   const headers={apikey:config.publicKey,'Content-Type':'application/json'};
   if(token)headers.Authorization='Bearer '+token;
   const response=await fetch(config.url+path,{method,headers,body:JSON.stringify(body),cache:'no-store',signal:controller.signal});
-  if(!response.ok){const error=new Error('Il servizio non risponde. Riprova tra poco.');error.code=response.status;if(response.status===429)error.message='Troppe richieste. Attendi qualche minuto prima di riprovare.';else if(path.startsWith('/auth/v1/token')&&response.status===400)error.message='Email o password non valide, oppure email non confermata.';else if(path==='/auth/v1/user'&&response.status===422)error.message='Password non accettata: scegli una password più lunga e diversa dalla precedente.';else if(path.startsWith('/auth/v1/recover'))error.message='Impossibile inviare l’email. Verifica l’indirizzo e la configurazione email del progetto Supabase.';else if(response.status===401||response.status===403)error.message='Accesso non autorizzato. Verifica l’utente e il ruolo admin in Supabase.';throw error;}
+  if(!response.ok){
+   const details=await response.json().catch(()=>({}));
+   const authCode=typeof details.code==='string'?details.code:typeof details.error_code==='string'?details.error_code:'';
+   const messages={
+    invalid_credentials:'Email o password non corrette per l’utente admin. Le credenziali GitHub non sono quelle di questo pannello.',
+    email_not_confirmed:'L’email dell’utente admin non è ancora confermata. Controlla l’utente in Supabase → Authentication → Users.',
+    email_address_not_authorized:'Supabase non può inviare email a questo indirizzo con il servizio email predefinito. Verifica che corrisponda all’email del titolare dell’organizzazione oppure configura SMTP.',
+    over_email_send_rate_limit:'Limite di invio email raggiunto. Attendi prima di richiedere un altro link.',
+    over_request_rate_limit:'Troppe richieste. Attendi qualche minuto prima di riprovare.',
+    email_provider_disabled:'L’accesso tramite email è disattivato nel progetto Supabase.',
+    weak_password:'La password non soddisfa i requisiti del progetto.',
+    same_password:'Scegli una password diversa dalla precedente.'
+   };
+   let message=messages[authCode]||'Il servizio non risponde. Riprova tra poco.';
+   if(!messages[authCode]){
+    if(response.status===429)message='Troppe richieste. Attendi prima di riprovare.';
+    else if(path.startsWith('/auth/v1/token')&&response.status===400)message='Email o password non valide, oppure email non confermata.';
+    else if(path.startsWith('/auth/v1/recover'))message='Invio email non riuscito. Controlla i log Authentication e la configurazione email in Supabase.';
+    else if(response.status===401||response.status===403)message='Accesso non autorizzato. Verifica l’utente e il ruolo admin in Supabase.';
+   }
+   const safeCode=/^[a-z0-9_]{1,80}$/.test(authCode)?authCode:'HTTP '+response.status;
+   const error=new Error(message+' (Codice: '+safeCode+')');error.code=response.status;throw error;
+  }
   const text=await response.text();return text?JSON.parse(text):null;
  }catch(error){if(error.name==='AbortError')throw new Error('Connessione scaduta. Riprova.');throw error}finally{clearTimeout(timer)}
 }
