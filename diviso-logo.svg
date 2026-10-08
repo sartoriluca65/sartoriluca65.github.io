@@ -1,137 +1,20 @@
-<svg xmlns="http://w3.org" width="1200" height="850" viewBox="0 0 1200 850" shape-rendering="geometricPrecision">
-  <defs>
-    <!-- Forchetta standard della raggiera -->
-    <g id="f" fill="currentColor">
-      <path d="M0 -110 c-3 0-5 2-5 6 v22 c0 4 3 8 7 9 v53 c0 3 1.5 5 4.5 5 s4.5-2 4.5-5 v-53 c4-1 7-5 7-9 v-22 c0-4-2-6-5-6 v20 h-2 v-20 h-2 v20 h-2 v-20 h-2 v20 h-2 v-20 h-2 v20 z" transform="scale(1.2)"/>
-    </g>
-    <!-- Cucchiaio standard della raggiera -->
-    <g id="s" fill="currentColor">
-      <path d="M0 -112 c-7.5 0-12 8-12 17 c0 9 4.5 14 9.5 16.5 v58 c0 3 2 5 4.5 5 s4.5-2 4.5-5 v-58 c5-2.5 9.5-7.5 9.5-16.5 c0-9-4.5-17-12-17 z" transform="scale(1.15)"/>
-    </g>
-    <!-- Coltello standard della raggiera -->
-    <g id="k" fill="currentColor">
-      <path d="M-0.5 -112 c6.5 7.5 10.5 17 10 26 c-0.5 6-3.5 10.5-7.5 14 v52 c0 3-2 5-5 5 s-5-2-5-5 v-52 c-4-3.5-6.5-8-7.5-14 c-0.5-9 3.5-18.5 10.5-26 z" transform="scale(1.2)"/>
-    </g>
-  </defs>
-
-  <!-- Sfondo -->
-  <rect width="100%" height="100%" fill="none"/>
-
-  <!-- RAGGIERA POSATE ESTERNE -->
-  <g transform="translate(600, 415)">
-    <!-- Quadrante Superiore Sinistro -->
-    <g transform="rotate(-68)" color="#07589a"><use href="#s" transform="scale(0.9)"/></g>
-    <g transform="rotate(-52)" color="#65b4d7"><use href="#f" transform="scale(0.6) translate(0, -30)"/></g>
-    <g transform="rotate(-40)" color="#65b4d7"><use href="#k" transform="scale(1.2)"/></g>
-    <g transform="rotate(-28)" color="#74c9b5"><use href="#f" transform="scale(0.7) translate(0, -20)"/></g>
-    <g transform="rotate(-15)" color="#74c9b5"><use href="#s" transform="scale(0.8)"/></g>
-    <g transform="rotate(-8)" color="#f4a02f"><use href="#s" transform="scale(0.5) translate(0, -40)"/></g>
-    
-    <!-- Centro Superiore -->
-    <g transform="rotate(0)" color="#07589a"><use href="#f" transform="scale(1.3)"/></g>
-    
-    <!-- Quadrante Superiore Destro -->
-    <g transform="rotate(10)" color="#65b4d7"><use href="#k" transform="scale(0.5) translate(0, -50)"/></g>
-    <g transform="rotate(22)" color="#f4a02f"><use href="#f" transform="scale(1.1)"/></g>
-    <g transform="rotate(38)" color="#74c9b5"><use href="#k" transform="scale(1.2)"/></g>
-    <g transform="rotate(48)" color="#07589a"><use href="#s" transform="scale(0.6) translate(0, -20)"/></g>
-    <g transform="rotate(58)" color="#07589a"><use href="#f" transform="scale(1.0)"/></g>
-    
-    <!-- Lato Destro Orizzontale -->
-    <g transform="rotate(78)" color="#65b4d7"><use href="#s" transform="scale(0.8) translate(0, 10)"/></g>
-    <g transform="rotate(86)" color="#07589a"><use href="#s" transform="scale(1.4) translate(0, -30)"/></g>
-    <g transform="rotate(94)" color="#74c9b5"><use href="#f" transform="scale(0.5) translate(0, -50)"/></g>
-    <g transform="rotate(105)" color="#f4a02f"><use href="#k" transform="scale(1.5) translate(0, -20)"/></g>
-    
-    <!-- Quadrante Inferiore Destro -->
-    <g transform="rotate(122)" color="#65b4d7"><use href="#s" transform="scale(0.7)"/></g>
-    <g transform="rotate(134)" color="#07589a"><use href="#s" transform="scale(0.6) translate(0, -10)"/></g>
-    <g transform="rotate(145)" color="#74c9b5"><use href="#s" transform="scale(1.1)"/></g>
-    <g transform="rotate(156)" color="#65b4d7"><use href="#k" transform="scale(1.3)"/></g>
-    <g transform="rotate(164)" color="#f4a02f"><use href="#f" transform="scale(0.8)"/></g>
-    <g transform="rotate(174)" color="#74c9b5"><use href="#k" transform="scale(0.5) translate(0, -30)"/></g>
-    
-    <!-- Centro Inferiore -->
-    <g transform="rotate(180)" color="#f4a02f"><use href="#f" transform="scale(1.3)"/></g>
-    
-    <!-- Quadrante Inferiore Sinistro -->
-    <g transform="rotate(188)" color="#07589a"><use href="#f" transform="scale(0.6) translate(0, -20)"/></g>
-    <g transform="rotate(196)" color="#65b4d7"><use href="#k" transform="scale(0.5) translate(0, -40)"/></g>
-    <g transform="rotate(208)" color="#65b4d7"><use href="#s" transform="scale(1.2)"/></g>
-    <g transform="rotate(222)" color="#07589a"><use href="#s" transform="scale(0.7) translate(0, -10)"/></g>
-    <g transform="rotate(234)" color="#74c9b5"><use href="#k" transform="scale(0.9)"/></g>
-    <g transform="rotate(246)" color="#f4a02f"><use href="#s" transform="scale(0.8)"/></g>
-    <g transform="rotate(254)" color="#07589a"><use href="#f" transform="scale(1.1)"/></g>
-    <g transform="rotate(264)" color="#65b4d7"><use href="#s" transform="scale(0.6) translate(0, -30)"/></g>
-    
-    <!-- Lato Sinistro Orizzontale -->
-    <g transform="rotate(274)" color="#f4a02f"><use href="#f" transform="scale(1.3) translate(0, -20)"/></g>
-    <g transform="rotate(285)" color="#07589a"><use href="#s" transform="scale(0.9) translate(0, -20)"/></g>
-    <g transform="rotate(296)" color="#65b4d7"><use href="#f" transform="scale(0.5) translate(0, -40)"/></g>
-    <g transform="rotate(308)" color="#74c9b5"><use href="#k" transform="scale(1.4) translate(0, -10)"/></g>
-
-    <!-- Tratti grafici lineari di accento -->
-    <path d="M -190,-60 L -260,-65 M -195,-50 L -255,-52" stroke="#07589a" stroke-width="6" stroke-linecap="round" />
-    <path d="M -210,130 L -295,145" stroke="#07589a" stroke-width="7" stroke-linecap="round" />
-  </g>
-
-  <!-- CIRCOLO BIANCO CENTRALE DI MASCHERAMENTO -->
-  <circle cx="600" cy="415" r="235" fill="#fff" opacity="0.96"/>
-
-  <!-- BLOCCO PAROLA PRINCIPALE "DIVIDI" (Tracciati Vettoriali Puri) -->
-  <g fill="#4d4d4d">
-    <!-- D iniziale (Stile Lineare Open) -->
-    <path d="M260,345 h30 c28,0 48,18 48,55 v2 c0,37 -20,55 -48,55 h-30 v-8 h30 c22,0 39,-14 39,-47 v-2 c0,-33 -17,-47 -39,-47 h-30 z"/>
-    
-    <!-- I iniziale con Grafica Posate (Forchetta + Coltello + Piatto Centrale incorporati) -->
-    <g transform="translate(375, 401)" fill="#07589a">
-      <!-- Forchetta Mini dell'asta sinistra -->
-      <path d="M-22,-52 h4 v42 c0,3 1,4 3,4 v4 h-10 v-4 c2,0 3,-1 3,-4 v-42 h-3 v12 h-1 v-12 h-1 v12 h-1 v-12 h-1 v12 h-1 v-12 z" transform="scale(1.1)"/>
-      <!-- Cerchio/Piatto centrale -->
-      <circle cx="0" cy="0" r="22" fill="none" stroke="#07589a" stroke-width="5"/>
-      <circle cx="0" cy="0" r="14" fill="#07589a"/>
-      <!-- Coltello Mini dell'asta destra -->
-      <path d="M18,-52 c3,4 5,9 5,14 c0,5 -2,7 -4,9 v29 c0,3 1,4 3,4 v4 h-10 v-4 c2,0 3,-1 3,-4 v-32 c-2,-2 -3,-5 -3,-7 c0,-6 2,-13 4,-18 z" transform="scale(1.1)"/>
-    </g>
-
-    <!-- V minimale -->
-    <path d="M440,345 h9 l24,86 l24,-86 h9 l-30,107 h-6 z"/>
-
-    <!-- I centrale (Asta Lineare Semplice) -->
-    <path d="M532,345 h8 v107 h-8 z"/>
-
-    <!-- D secondaria -->
-    <path d="M575,345 h30 c28,0 48,18 48,55 v2 c0,37 -20,55 -48,55 h-30 v-8 h30 c22,0 39,-14 39,-47 v-2 c0,-33 -17,-47 -39,-47 h-30 z"/>
-
-    <!-- I finale (Asta Lineare Semplice) -->
-    <path d="M685,345 h8 v107 h-8 z"/>
-  </g>
-
-  <!-- LOGOTIPO SECONDARIO CONVERTITO IN PATH: "RISTORAZIONE COLLETTIVA" -->
-  <g fill="#7f8c8d" transform="translate(110, 0)">
-    <!-- R --> <path d="M260,490 h14 c7,0 11,3 11,9 c0,5 -3,8 -8,9 l9,14 h-6 l-8,-13 h-7 v13 h-5 z M265,494 v7 h8 c4,0 6,-1 6,-4 c0,-3 -2,-3 -6,-3 z"/>
-    <!-- I --> <path d="M293,490 h5 v45 h-5 z"/>
-    <!-- S --> <path d="M307,522 h6 c4,0 7,-2 7,-5 c0,-3 -2,-4 -6,-5 l-5,-1 c-5,-1 -8,-4 -8,-9 c0,-6 5,-9 11,-9 h6 v4 h-6 c-4,0 -7,2 -7,5 c0,3 2,4 6,5 l5,1 c6,1 8,4 8,9 c0,6 -4,9 -12,9 h-7 z"/>
-    <!-- T --> <path d="M336,494 v37 h-5 v-37 h-10 v-4 h25 v4 z"/>
-    <!-- O --> <path d="M360,508 c0,-11 7,-19 16,-19 s16,8 16,19 c0,12 -7,19 -16,19 s-16,-7 -16,-19 z M387,508 c0,-9 -5,-15 -11,-15 s-11,6 -11,15 s5,15 11,15 s11,-6 11,-15 z"/>
-    <!-- R --> <path d="M402,490 h14 c7,0 11,3 11,9 c0,5 -3,8 -8,9 l9,14 h-6 l-8,-13 h-7 v13 h-5 z M407,494 v7 h8 c4,0 6,-1 6,-4 c0,-3 -2,-3 -6,-3 z"/>
-    <!-- A --> <path d="M439,490 h6 l15,41 h-6 l-4,-11 h-16 l-4,11 h-5 z M441,514 h13 l-6,-19 z"/>
-    <!-- Z --> <path d="M469,490 h22 v4 l-16,33 h16 v4 h-23 v-3 l16,-34 h-15 z"/>
-    <!-- I --> <path d="M501,490 h5 v45 h-5 z"/>
-    <!-- O --> <path d="M515,508 c0,-11 7,-19 16,-19 s16,8 16,19 c0,12 -7,19 -16,19 s-16,-7 -16,-19 z M542,508 c0,-9 -5,-15 -11,-15 s-11,6 -11,15 s5,15 11,15 s11,-6 11,-15 z"/>
-    <!-- N --> <path d="M557,490 h6 l16,32 v-32 h5 v45 h-5 l-17,-33 v-12 v45 h-5 z"/>
-    <!-- E --> <path d="M594,490 h20 v4 h-15 v15 h13 v4 h-13 v18 h16 v4 h-21 z"/>
-    
-    <!-- SPAZIO - COLLETTIVA -->
-    <!-- C --> <path d="M645,508 c0,-11 6,-19 15,-19 h5 v4 h-5 c-7,0 -11,6 -11,15 c0,9 4,15 11,15 h5 v4 h-5 c-9,0 -15,-8 -15,-19 z"/>
-    <!-- O --> <path d="M672,508 c0,-11 7,-19 16,-19 s16,8 16,19 c0,12 -7,19 -16,19 s-16,-7 -16,-19 z M699,508 c0,-9 -5,-15 -11,-15 s-11,6 -11,15 s5,15 11,15 s11,-6 11,-15 z"/>
-    <!-- L --> <path d="M714,490 h5 v37 h15 v4 h-20 z"/>
-    <!-- L --> <path d="M741,490 h5 v37 h15 v4 h-20 z"/>
-    <!-- E --> <path d="M768,490 h20 v4 h-15 v15 h13 v4 h-13 v18 h16 v4 h-21 z"/>
-    <!-- T --> <path d="M806,494 v37 h-5 v-37 h-10 v-4 h25 v4 z"/>
-    <!-- T --> <path d="M831,494 v37 h-5 v-37 h-10 v-4 h25 v4 z"/>
-    <!-- I --> <path d="M849,490 h5 v45 h-5 z"/>
-    <!-- V --> <path d="M862,490 h5 l12,41 l12,-41 h5 l-15,45 h-4 z"/>
-    <!-- A --> <path d="M900,490 h6 l15,41 h-6 l-4,-11 h-16 l-4,11 h-5 z M902,514 h13 l-6,-19 z"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="330" viewBox="0 0 600 330" shape-rendering="geometricPrecision" role="img" aria-labelledby="title desc">
+<title id="title">DIVISO</title><desc id="desc">Logo DIVISO con posate colorate disposte a raggiera</desc>
+<defs>
+ <g id="fork" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M0 -150c-4 0-6 3-6 8v14c0 7 4 12 10 13v35c0 5 3 8 7 8s7-3 7-8v-35c6-1 10-6 10-13v-14c0-5-2-8-6-8v21h-3v-21h-3v21h-3v-21h-3v21H3v-21Z" transform="scale(.42 1)"/>
+ </g>
+ <g id="spoon" fill="currentColor" stroke="currentColor" stroke-linecap="round">
+  <path d="M0 -151c-8 0-12 9-12 19 0 9 4 15 10 18v20h4v-20c6-3 10-9 10-18 0-10-4-19-12-19Z"/>
+  <path d="M-2 -96h4v13c0 4 2 7 5 9l-2 4c-5-2-7-7-7-12Z"/>
+ </g>
+ <g id="knife" fill="currentColor" stroke="currentColor" stroke-linejoin="round">
+  <path d="M-1 -151c9 10 15 23 14 35-1 8-5 14-10 19v36c0 5-3 8-7 8s-7-3-7-8v-36c-5-5-9-11-10-19-1-12 5-25 14-35l3-3Z" transform="scale(.56 1)"/>
+ </g>
+ <linearGradient id="wordColor" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#07589a"/><stop offset=".35" stop-color="#65b4d7"/><stop offset=".68" stop-color="#74c9b5"/><stop offset="1" stop-color="#f4a02f"/></linearGradient>
+ <radialGradient id="centerGlow"><stop stop-color="#fff" stop-opacity=".96"/><stop offset=".78" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+</defs>
+<g transform="translate(300 165) scale(1.3 1) translate(-300 -165)"><g><g transform="translate(300 165) rotate(0)" color="#07589a"><use href="#fork"/><circle cx="0" cy="-135" r="1.8" fill="#07589a" opacity=".72"/></g><g transform="translate(300 165) rotate(15)" color="#65b4d7"><use href="#spoon"/><circle cx="0" cy="-122" r="1.8" fill="#65b4d7" opacity=".72"/></g><g transform="translate(300 165) rotate(30)" color="#74c9b5"><use href="#knife"/><circle cx="0" cy="-140" r="1.8" fill="#74c9b5" opacity=".72"/></g><g transform="translate(300 165) rotate(45)" color="#f4a02f"><use href="#spoon"/><circle cx="0" cy="-114" r="1.8" fill="#f4a02f" opacity=".72"/></g><g transform="translate(300 165) rotate(60)" color="#07589a"><use href="#fork"/><circle cx="0" cy="-130" r="1.8" fill="#07589a" opacity=".72"/></g><g transform="translate(300 165) rotate(75)" color="#65b4d7"><use href="#spoon"/><circle cx="0" cy="-142" r="1.8" fill="#65b4d7" opacity=".72"/></g><g transform="translate(300 165) rotate(90)" color="#74c9b5"><use href="#knife"/><circle cx="0" cy="-119" r="1.8" fill="#74c9b5" opacity=".72"/></g><g transform="translate(300 165) rotate(105)" color="#f4a02f"><use href="#spoon"/><circle cx="0" cy="-137" r="1.8" fill="#f4a02f" opacity=".72"/></g><g transform="translate(300 165) rotate(120)" color="#07589a"><use href="#fork"/><circle cx="0" cy="-135" r="1.8" fill="#07589a" opacity=".72"/></g><g transform="translate(300 165) rotate(135)" color="#65b4d7"><use href="#spoon"/><circle cx="0" cy="-122" r="1.8" fill="#65b4d7" opacity=".72"/></g><g transform="translate(300 165) rotate(150)" color="#74c9b5"><use href="#knife"/><circle cx="0" cy="-140" r="1.8" fill="#74c9b5" opacity=".72"/></g><g transform="translate(300 165) rotate(165)" color="#f4a02f"><use href="#spoon"/><circle cx="0" cy="-114" r="1.8" fill="#f4a02f" opacity=".72"/></g><g transform="translate(300 165) rotate(180)" color="#07589a"><use href="#fork"/><circle cx="0" cy="-130" r="1.8" fill="#07589a" opacity=".72"/></g><g transform="translate(300 165) rotate(195)" color="#65b4d7"><use href="#spoon"/><circle cx="0" cy="-142" r="1.8" fill="#65b4d7" opacity=".72"/></g><g transform="translate(300 165) rotate(210)" color="#74c9b5"><use href="#knife"/><circle cx="0" cy="-119" r="1.8" fill="#74c9b5" opacity=".72"/></g><g transform="translate(300 165) rotate(225)" color="#f4a02f"><use href="#spoon"/><circle cx="0" cy="-137" r="1.8" fill="#f4a02f" opacity=".72"/></g><g transform="translate(300 165) rotate(240)" color="#07589a"><use href="#fork"/><circle cx="0" cy="-135" r="1.8" fill="#07589a" opacity=".72"/></g><g transform="translate(300 165) rotate(255)" color="#65b4d7"><use href="#spoon"/><circle cx="0" cy="-122" r="1.8" fill="#65b4d7" opacity=".72"/></g><g transform="translate(300 165) rotate(270)" color="#74c9b5"><use href="#knife"/><circle cx="0" cy="-140" r="1.8" fill="#74c9b5" opacity=".72"/></g><g transform="translate(300 165) rotate(285)" color="#f4a02f"><use href="#spoon"/><circle cx="0" cy="-114" r="1.8" fill="#f4a02f" opacity=".72"/></g><g transform="translate(300 165) rotate(300)" color="#07589a"><use href="#fork"/><circle cx="0" cy="-130" r="1.8" fill="#07589a" opacity=".72"/></g><g transform="translate(300 165) rotate(315)" color="#65b4d7"><use href="#spoon"/><circle cx="0" cy="-142" r="1.8" fill="#65b4d7" opacity=".72"/></g><g transform="translate(300 165) rotate(330)" color="#74c9b5"><use href="#knife"/><circle cx="0" cy="-119" r="1.8" fill="#74c9b5" opacity=".72"/></g><g transform="translate(300 165) rotate(345)" color="#f4a02f"><use href="#spoon"/><circle cx="0" cy="-137" r="1.8" fill="#f4a02f" opacity=".72"/></g><path d="M0 -92v-10" transform="translate(300 165) rotate(0)" stroke="#07589a" stroke-width="2.3" stroke-linecap="round" opacity=".78"/><path d="M0 -92v-10" transform="translate(300 165) rotate(30)" stroke="#65b4d7" stroke-width="2.3" stroke-linecap="round" opacity=".78"/><path d="M0 -92v-10" transform="translate(300 165) rotate(60)" stroke="#74c9b5" stroke-width="2.3" stroke-linecap="round" opacity=".78"/><path d="M0 -92v-10" transform="translate(300 165) rotate(90)" stroke="#f4a02f" stroke-width="2.3" stroke-linecap="round" opacity=".78"/><path d="M0 -92v-10" transform="translate(300 165) rotate(120)" stroke="#07589a" stroke-width="2.3" stroke-linecap="round" opacity=".78"/><path d="M0 -92v-10" transform="translate(300 165) rotate(150)" stroke="#65b4d7" stroke-width="2.3" stroke-linecap="round" opacity=".78"/><path d="M0 -92v-10" transform="translate(300 165) rotate(180)" stroke="#74c9b5" stroke-width="2.3" stroke-linecap="round" opacity=".78"/><path d="M0 -92v-10" transform="translate(300 165) rotate(210)" stroke="#f4a02f" stroke-width="2.3" stroke-linecap="round" opacity=".78"/><path d="M0 -92v-10" transform="translate(300 165) rotate(240)" stroke="#07589a" stroke-width="2.3" stroke-linecap="round" opacity=".78"/><path d="M0 -92v-10" transform="translate(300 165) rotate(270)" stroke="#65b4d7" stroke-width="2.3" stroke-linecap="round" opacity=".78"/><path d="M0 -92v-10" transform="translate(300 165) rotate(300)" stroke="#74c9b5" stroke-width="2.3" stroke-linecap="round" opacity=".78"/><path d="M0 -92v-10" transform="translate(300 165) rotate(330)" stroke="#f4a02f" stroke-width="2.3" stroke-linecap="round" opacity=".78"/></g></g>
+<circle cx="300" cy="165" r="94" fill="url(#centerGlow)"/>
+<text x="300" y="181" text-anchor="middle" fill="url(#wordColor)" font-family="Arial,Helvetica,sans-serif" font-size="64" font-weight="300" letter-spacing="2">DIVIS<tspan fill="#07589a" font-weight="400">O</tspan></text>
 </svg>
