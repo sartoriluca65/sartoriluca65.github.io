@@ -12,7 +12,7 @@
 <p id="status" role="status" aria-live="polite">Le statistiche sono riservate all’amministratore.</p>
 <section id="dashboard" hidden><div class="toolbar" style="margin-bottom:16px"><button id="refresh">Aggiorna ora</button><span class="muted">Aggiornamento automatico ogni 15 secondi</span></div><div id="apps" class="apps"></div><p class="note">I visitatori unici sono browser riconosciuti sul dispositivo, dall’attivazione del contatore. Una persona su dispositivi diversi può contare più volte. “Attivi ora” indica una scheda visibile che ha inviato un segnale negli ultimi 90 secondi; “Oggi” usa il fuso orario italiano. Più schede della stessa app nello stesso browser contano una sola volta. I dati sono stime e possono includere traffico automatizzato.</p><p class="note">Le statistiche registrano un identificativo casuale e gli orari di utilizzo. Non ricevono veicoli, documenti, conti o altri contenuti delle app. Le visite precedenti all’attivazione non sono recuperabili.</p></section>
 <footer><a href="/autocontrol/">AutoControl</a><a href="/">Diviso</a><a href="https://valutatore-auto-luca.streamlit.app/">AutoQuota</a></footer>
-</main><script src="../analytics/config.js"></script><script>
+</main><script src="../analytics/config.js?v=20261009-configfix"></script><script>
 'use strict';
 const config=window.LS_ANALYTICS_CONFIG||{};
 const ready=config.url==='https://uphtmvqzlfoftcibbacr.supabase.co'&&/^sb_publishable_[A-Za-z0-9_-]{16,}$/.test(config.publicKey||'');
