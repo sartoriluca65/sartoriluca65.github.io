@@ -30,7 +30,50 @@ let stickers = readStore('ss-stickers', exampleStickers);
 let currentView = 'home', currentFilter = '', uploadImage = null, originalUploadImage = null, uploadName = '', activeStyle = 'comic', localBackgroundPipeline = null, localBackgroundPipelinePromise = null, uploadHasLocalCutout = false, connectedGeminiKey = '', aiStickerImage = null, aiGenerating = false;
 let styleStrength = 46, lineStrength = 24, toastTimer, targetPack = '', targetPlatform = 'whatsapp', uploadMode = 'single', sheetSegments = [], cameraStream = null, modalHistory = [];
 
-const persist = () => { localStorage.setItem('ss-packs', JSON.stringify(packs)); localStorage.setItem('ss-stickers', JSON.stringify(stickers)); };
+let stickerDbPromise;
+function openStickerDb() {
+  if (!('indexedDB' in window)) return Promise.reject(new Error('Archivio immagini non disponibile in questo browser.'));
+  if (!stickerDbPromise) stickerDbPromise = new Promise((resolve, reject) => {
+    const request = indexedDB.open('luki-stickers', 1);
+    request.onupgradeneeded = () => { if (!request.result.objectStoreNames.contains('stickers')) request.result.createObjectStore('stickers', { keyPath: 'id' }); };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error('Impossibile aprire l’archivio sticker.'));
+  });
+  return stickerDbPromise;
+}
+async function persist() {
+  localStorage.setItem('ss-packs', JSON.stringify(packs));
+  try {
+    const db = await openStickerDb();
+    await new Promise((resolve, reject) => {
+      const transaction = db.transaction('stickers', 'readwrite'), store = transaction.objectStore('stickers');
+      store.clear(); stickers.forEach(sticker => store.put(sticker));
+      transaction.oncomplete = resolve; transaction.onerror = () => reject(transaction.error || new Error('Salvataggio immagini non riuscito.'));
+      transaction.onabort = () => reject(transaction.error || new Error('Salvataggio immagini annullato.'));
+    });
+    localStorage.setItem('ss-stickers', JSON.stringify(stickers.map(({ image, ...sticker }) => sticker)));
+  } catch (error) {
+    // Keep compatibility with browsers where IndexedDB is unavailable, but never
+    // silently leave a newly created pack without its sticker images.
+    try { localStorage.setItem('ss-stickers', JSON.stringify(stickers)); }
+    catch { throw new Error('Spazio browser esaurito: libera spazio o elimina alcuni sticker e riprova.'); }
+  }
+}
+async function hydrateStickerImages() {
+  try {
+    const db = await openStickerDb();
+    const stored = await new Promise((resolve, reject) => {
+      const request = db.transaction('stickers', 'readonly').objectStore('stickers').getAll();
+      request.onsuccess = () => resolve(request.result || []); request.onerror = () => reject(request.error);
+    });
+    if (stored.length) {
+      const images = new Map(stored.map(sticker => [sticker.id, sticker]));
+      stickers = stickers.map(sticker => ({ ...sticker, ...(images.get(sticker.id) || {}) }));
+      const existing = new Set(stickers.map(sticker => sticker.id));
+      stickers.push(...stored.filter(sticker => !existing.has(sticker.id)));
+    }
+  } catch (error) { console.warn('Archivio sticker non disponibile:', error); }
+}
 const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const slugify = value => (value || 'sticker').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const toast = message => { const node = qs('#toast'); node.textContent = message; node.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => node.classList.remove('show'), 3000); };
@@ -418,9 +461,16 @@ function openSheetPreview(splitOverride = null) {
     const name = qs('#sheet-pack-name').value.trim(); if (!name) { qs('#sheet-pack-name').focus(); return; }
     if (packs.some(pack => pack.name.toLowerCase() === name.toLowerCase())) { toast('Esiste già un pacchetto con questo nome. Scegline un altro.'); return; }
     const chosen = qsa('[data-sheet-index]:checked').map(box => Number(box.dataset.sheetIndex));
-    packs.unshift({ id: crypto.randomUUID(), name, emoji: '✨', count: chosen.length, author: 'tu', bg: '#e9e8df', featured: '✨', minis: ['💫', '💌'] });
-    chosen.forEach((index, order) => stickers.unshift({ id: crypto.randomUUID(), name: `${name} ${String(order + 1).padStart(2, '0')}`, pack: name, image: sheetSegments[index].image, style: 'sheet', bg: '#f5f4ef' }));
-    persist(); renderPacks(); closeModal(); showView('packs'); openPack(name); toast(`${chosen.length} sticker aggiunti a “${name}”`);
+    setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="modal-icon">✦</div><div class="section-overline">CONFERMA SALVATAGGIO</div><h2 id="modal-title">Salvare il pacchetto?</h2><p>Salverò ${chosen.length} sticker nel pacchetto “${escapeHtml(name)}”.</p><div class="delete-actions"><button class="secondary-button" id="cancel-save-pack">Annulla</button><button class="create-button" id="confirm-save-pack">Salva</button></div>`);
+    qs('#cancel-save-pack').onclick = goBackModal;
+    qs('#confirm-save-pack').onclick = async event => {
+      const button = event.currentTarget; button.disabled = true; button.textContent = 'Salvataggio…';
+      const newPack = { id: crypto.randomUUID(), name, emoji: '✨', count: chosen.length, author: 'tu', bg: '#e9e8df', featured: '✨', minis: ['💫', '💌'] };
+      const newStickers = chosen.map((index, order) => ({ id: crypto.randomUUID(), name: `${name} ${String(order + 1).padStart(2, '0')}`, pack: name, image: sheetSegments[index].image, style: 'sheet', bg: '#f5f4ef' }));
+      packs.unshift(newPack); stickers.unshift(...newStickers);
+      try { await persist(); renderPacks(); closeModal(); showView('packs'); openPack(name); toast(`Salvati ${chosen.length} sticker in “${name}”`); }
+      catch (error) { packs = packs.filter(pack => pack.id !== newPack.id); const ids = new Set(newStickers.map(item => item.id)); stickers = stickers.filter(item => !ids.has(item.id)); renderPacks(); goBackModal(); toast(error.message || 'Non sono riuscito a salvare gli sticker.'); }
+    };
   };
 }
 
@@ -502,6 +552,7 @@ const platformPresets = {
 
 function openEditor() {
   const styleButtons = styleOptions.map(style => `<button class="style-option ${activeStyle === style.id ? 'selected' : ''}" data-style="${style.id}"><span>${style.emoji}</span>${style.label}</button>`).join('');
+  if (targetPack && !packs.some(pack => pack.name === targetPack)) targetPack = '';
   const packOptions = `<option value="">I miei sticker</option>${packs.map(pack => `<option value="${escapeHtml(pack.name)}" ${targetPack === pack.name ? 'selected' : ''}>${escapeHtml(pack.name)}</option>`).join('')}`;
   const destinationOptions = Object.entries(platformPresets).map(([id, item]) => `<option value="${id}" ${targetPlatform === id ? 'selected' : ''}>${item.icon} ${item.label}</option>`).join('');
   const platform = platformPresets[targetPlatform];
@@ -780,9 +831,15 @@ async function shareStickerPack(items, packName) {
 function saveSticker() {
   const canvas = qs('#preview-canvas'); if (!canvas) return;
   const caption = qs('#caption').value.trim(), pack = qs('#pack-select').value, name = caption || uploadName || 'Il mio sticker';
-  stickers.unshift({ id: crypto.randomUUID(), name, pack: pack || 'I miei sticker', image: canvas.toDataURL('image/png'), style: activeStyle, platform: targetPlatform, bg: '#f5f4ef' });
-  const target = packs.find(item => item.name === pack); if (target) target.count = stickers.filter(item => item.pack === pack).length;
-  persist(); closeModal(); renderPacks(); showView(pack ? 'packs' : 'my-stickers'); if (pack) openPack(pack); toast('Sticker salvato nella tua raccolta');
+  const sticker = { id: crypto.randomUUID(), name, pack: pack || 'I miei sticker', image: canvas.toDataURL('image/png'), style: activeStyle, platform: targetPlatform, bg: '#f5f4ef' };
+  setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="modal-icon">✦</div><div class="section-overline">CONFERMA SALVATAGGIO</div><h2 id="modal-title">Salvare questo sticker?</h2><p>“${escapeHtml(name)}” verrà aggiunto a ${pack ? `“${escapeHtml(pack)}”` : '“I miei sticker”'}.</p><div class="delete-actions"><button class="secondary-button" id="cancel-save-sticker">Annulla</button><button class="create-button" id="confirm-save-sticker">Salva</button></div>`);
+  qs('#cancel-save-sticker').onclick = goBackModal;
+  qs('#confirm-save-sticker').onclick = async event => {
+    const button = event.currentTarget; button.disabled = true; button.textContent = 'Salvataggio…'; stickers.unshift(sticker);
+    const target = packs.find(item => item.name === pack); if (target) target.count = stickers.filter(item => item.pack === pack).length;
+    try { await persist(); closeModal(); renderPacks(); showView(pack ? 'packs' : 'my-stickers'); if (pack) openPack(pack); toast(`Salvato “${name}”${pack ? ` in “${pack}”` : ' nei tuoi sticker'}`); }
+    catch (error) { stickers = stickers.filter(item => item.id !== sticker.id); if (target) target.count = stickers.filter(item => item.pack === pack).length; renderPacks(); goBackModal(); toast(error.message || 'Non sono riuscito a salvare lo sticker.'); }
+  };
 }
 
 function filterSearch() { currentFilter = qs('#search-input').value.trim(); renderStickers(); }
@@ -834,7 +891,7 @@ document.addEventListener('drop', event => {
   target.classList.remove('drop-active'); moveSticker(id, destination);
 });
 
-renderPacks(); renderStickers();
+hydrateStickerImages().finally(() => { renderPacks(); renderStickers(); });
 
 const romeDateParts = () => {
   const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Rome', year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(new Date());
