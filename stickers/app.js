@@ -209,9 +209,10 @@ function openPack(name) {
   const animationNote = pack.motion ? '<p class="animation-format-note">L’esportazione WebM genera video animati da condividere. WhatsApp li riceve come video, non come pacchetto installato.</p>' : '';
   const destinations = packs.filter(item => item.name !== name).map(item => `<button class="drop-pack-target" data-drop-pack="${escapeHtml(item.name)}">${item.emoji} ${escapeHtml(item.name)}</button>`).join('');
   const moveTargets = `<div class="pack-drop-zone"><strong>Trascina qui uno sticker per spostarlo</strong><div><button class="drop-pack-target" data-drop-pack="">✨ I miei sticker</button>${destinations}</div></div>`;
-  setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="pack-modal-heading"><span class="pack-modal-emoji" style="background:${pack.bg}">${pack.emoji}</span><div><div class="section-overline">${pack.motion ? 'PACCHETTO ANIMATO' : 'PACCHETTO STICKER'}</div><h2 id="modal-title">${escapeHtml(pack.name)}</h2><p>${items.length} sticker · creato da ${pack.author === 'tu' ? 'te' : escapeHtml(pack.author || 'creator')}</p></div></div><div class="pack-detail-actions"><button class="create-button" id="add-to-pack">＋ Aggiungi una foto</button><button class="secondary-button" id="share-pack">↗ Condividi sticker</button><button class="secondary-button" id="animate-pack">${pack.motion ? '✦ Modifica animazione' : '▶ Crea animato'}</button>${pack.motion ? '<button class="secondary-button" id="export-animated">↓ Esporta WebM</button>' : ''}${pack.author === 'tu' ? '<button class="delete-confirm" id="delete-pack">Elimina pacchetto</button>' : ''}</div>${moveTargets}${cards}${animationNote}`);
+  setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="pack-modal-heading"><span class="pack-modal-emoji" style="background:${pack.bg}">${pack.emoji}</span><div><div class="section-overline">${pack.motion ? 'PACCHETTO ANIMATO' : 'PACCHETTO STICKER'}</div><h2 id="modal-title">${escapeHtml(pack.name)}</h2><p>${items.length} sticker · creato da ${pack.author === 'tu' ? 'te' : escapeHtml(pack.author || 'creator')}</p></div></div><div class="pack-detail-actions"><button class="create-button" id="add-to-pack">＋ Aggiungi una foto</button><button class="secondary-button" id="share-pack">↗ Condividi PNG</button><button class="secondary-button" id="download-pack">↓ Scarica pacchetto ZIP</button><button class="secondary-button" id="animate-pack">${pack.motion ? '✦ Modifica animazione' : '▶ Crea animato'}</button>${pack.motion ? '<button class="secondary-button" id="export-animated">↓ Esporta WebM</button>' : ''}${pack.author === 'tu' ? '<button class="delete-confirm" id="delete-pack">Elimina pacchetto</button>' : ''}</div>${moveTargets}${cards}${animationNote}<small class="share-note">Il pacchetto ZIP contiene i PNG trasparenti. Per installarlo come pacchetto WhatsApp serve un’app dedicata.</small>`);
   qs('#add-to-pack').onclick = () => { closeModal(); openUpload(pack.name); };
   qs('#share-pack').onclick = () => shareStickerPack(items.filter(item => item.image), pack.name);
+  qs('#download-pack').onclick = () => downloadStickerPack(items.filter(item => item.image), pack.name);
   qs('#animate-pack').onclick = () => openMotionModal(pack.name);
   qs('#export-animated')?.addEventListener('click', () => exportAnimatedPack(items.filter(item => item.image), pack));
   qs('#delete-pack')?.addEventListener('click', () => confirmDeletePack(name));
@@ -228,8 +229,9 @@ function openStickerDetail(id) {
   const moveControl = sticker.image
     ? `<label class="sticker-detail-move" for="detail-move">Sposta in un altro pacchetto</label><select id="detail-move" class="caption-input" data-move="${escapeHtml(sticker.id)}"><option value="" disabled selected>Scegli un pacchetto…</option><option value="">I miei sticker</option>${packs.filter(pack => pack.name !== packName).map(pack => `<option value="${escapeHtml(pack.name)}">${escapeHtml(pack.name)}</option>`).join('')}</select>`
     : '';
-  setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="section-overline">DETTAGLIO STICKER</div><h2 id="modal-title">${escapeHtml(sticker.name)}</h2><div class="sticker-detail-stage">${artwork}</div><p class="sticker-detail-meta">${escapeHtml(packName)}${platform ? ` · Preset ${escapeHtml(platform)}` : ''}</p>${moveControl}<div class="pack-detail-actions sticker-detail-actions"><button class="secondary-button" id="detail-share">↗ Condividi PNG</button>${sticker.image ? `<button class="delete-confirm" id="detail-delete">Elimina sticker</button>` : ''}</div>`);
-  qs('#detail-share').onclick = () => shareSticker(sticker);
+  setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="section-overline">DETTAGLIO STICKER</div><h2 id="modal-title">${escapeHtml(sticker.name)}</h2><div class="sticker-detail-stage">${artwork}</div><p class="sticker-detail-meta">${escapeHtml(packName)}${platform ? ` · Preset ${escapeHtml(platform)}` : ''}</p>${moveControl}<div class="pack-detail-actions sticker-detail-actions">${sticker.image ? `<button class="secondary-button" id="detail-cutout">✦ Rimuovi sfondo</button><button class="secondary-button" id="detail-share">↗ Condividi PNG</button><button class="delete-confirm" id="detail-delete">Elimina sticker</button>` : ''}</div>`);
+  qs('#detail-share')?.addEventListener('click', () => shareSticker(sticker));
+  qs('#detail-cutout')?.addEventListener('click', event => removeSavedStickerBackground(sticker.id, event.currentTarget));
   qs('#detail-delete')?.addEventListener('click', () => confirmDeleteSticker(sticker.id));
 }
 
@@ -560,7 +562,7 @@ function openEditor() {
   const destinationOptions = Object.entries(platformPresets).map(([id, item]) => `<option value="${id}" ${targetPlatform === id ? 'selected' : ''}>${item.icon} ${item.label}</option>`).join('');
   const platform = platformPresets[targetPlatform];
   aiStickerImage = null;
-  setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="section-overline">EDITOR STICKER · ${uploadImage.naturalWidth} × ${uploadImage.naturalHeight}</div><h2 id="modal-title">Trasformazione fumetto</h2><p>Scegli un look: con Gemini collegato l’IA crea una nuova illustrazione partendo dalla foto.</p><div class="editor-layout"><div class="editor-stage"><canvas id="preview-canvas" width="512" height="512"></canvas></div><div class="editor-controls"><div class="ai-connection-box"><button class="secondary-button" id="editor-connect-ai">${connectedGeminiKey ? '✓ Gemini collegato · Gestisci' : '✦ Collega la tua AI'}</button><small id="editor-ai-status">${connectedGeminiKey ? 'La prossima direzione artistica verrà generata con Gemini.' : 'Collega la tua chiave Gemini per generare il look con l’IA.'}</small></div><div class="local-ai-control"><button class="secondary-button" id="local-cutout">✦ Scontorna con IA sul dispositivo</button><small id="local-cutout-status">Modello gratuito. La foto resta sul dispositivo; al primo uso scarica i pesi in cache.</small></div><div class="control-group"><label>Direzione artistica <small>scegli il look</small></label><div class="style-options">${styleButtons}</div></div><div class="control-group"><label for="intensity">Intensità <small id="intensity-value">${styleStrength}%</small></label><input id="intensity" class="range" type="range" min="20" max="100" value="${styleStrength}" /></div><div class="control-group"><label for="outline">Contorni fumetto <small id="outline-value">${lineStrength}%</small></label><input id="outline" class="range" type="range" min="0" max="100" value="${lineStrength}" /></div><div class="control-group"><label for="caption">Emoji o scritta <small>facoltativa</small></label><input class="caption-input" id="caption" maxlength="26" placeholder="es. Ciao bella! ✨" /></div><div class="control-group"><label for="platform-select">Crea per la piattaforma</label><select id="platform-select" class="caption-input">${destinationOptions}</select><small id="platform-format" class="platform-format">${platform.format}</small><div id="platform-tip" class="platform-tip">${platform.tip}</div></div><div class="control-group"><label for="pack-select">Salva nel pacchetto</label><select id="pack-select" class="caption-input">${packOptions}</select></div><div class="editor-actions"><button class="secondary-button" id="share-sticker">↗ Esporta ${platform.label}</button><button class="create-button" id="save-sticker">Salva sticker <span>→</span></button></div><div class="share-note">Gemini usa la foto caricata per generare il look. Lo scontorno locale rimane disponibile; il modello locale non crea nuove pose.</div></div></div>`, 'modal editor-modal');
+  setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="section-overline">EDITOR STICKER · ${uploadImage.naturalWidth} × ${uploadImage.naturalHeight}</div><h2 id="modal-title">Trasformazione fumetto</h2><p>Scegli un look: con Gemini collegato l’IA crea una nuova illustrazione partendo dalla foto.</p><div class="editor-layout"><div class="editor-stage"><canvas id="preview-canvas" width="512" height="512"></canvas></div><div class="editor-controls"><div class="ai-connection-box"><button class="secondary-button" id="editor-connect-ai">${connectedGeminiKey ? '✓ Gemini collegato · Gestisci' : '✦ Collega la tua AI'}</button><small id="editor-ai-status">${connectedGeminiKey ? 'La prossima direzione artistica verrà generata con Gemini.' : 'Collega la tua chiave Gemini per generare il look con l’IA.'}</small></div><div class="local-ai-control"><button class="secondary-button" id="local-cutout">✦ Rimuovi sfondo</button><small id="local-cutout-status">Lo sfondo viene rimosso prima del salvataggio. Elaborazione sul dispositivo, senza inviare la foto.</small></div><div class="control-group"><label>Direzione artistica <small>scegli il look</small></label><div class="style-options">${styleButtons}</div></div><div class="control-group"><label for="intensity">Intensità <small id="intensity-value">${styleStrength}%</small></label><input id="intensity" class="range" type="range" min="20" max="100" value="${styleStrength}" /></div><div class="control-group"><label for="outline">Contorni fumetto <small id="outline-value">${lineStrength}%</small></label><input id="outline" class="range" type="range" min="0" max="100" value="${lineStrength}" /></div><div class="control-group"><label for="caption">Emoji o scritta <small>facoltativa</small></label><input class="caption-input" id="caption" maxlength="26" placeholder="es. Ciao bella! ✨" /></div><div class="control-group"><label for="platform-select">Crea per la piattaforma</label><select id="platform-select" class="caption-input">${destinationOptions}</select><small id="platform-format" class="platform-format">${platform.format}</small><div id="platform-tip" class="platform-tip">${platform.tip}</div></div><div class="control-group"><label for="pack-select">Salva nel pacchetto</label><select id="pack-select" class="caption-input">${packOptions}</select></div><div class="editor-actions"><button class="secondary-button" id="share-sticker">↗ Esporta ${platform.label}</button><button class="create-button" id="save-sticker">Salva sticker <span>→</span></button></div><div class="share-note">Gemini usa la foto caricata per generare il look. Lo scontorno locale rimane disponibile; il modello locale non crea nuove pose.</div></div></div>`, 'modal editor-modal');
   qsa('.style-option').forEach(button => button.onclick = () => {
     if (aiGenerating) return;
     activeStyle = button.dataset.style; qsa('.style-option').forEach(item => item.classList.toggle('selected', item === button));
@@ -704,7 +706,7 @@ async function getLocalBackgroundPipeline() {
 async function removeLocalBackground() {
   if (uploadHasLocalCutout) {
     uploadImage = originalUploadImage; uploadHasLocalCutout = false;
-    qs('#local-cutout').textContent = '✦ Scontorna con IA sul dispositivo';
+    qs('#local-cutout').textContent = '✦ Rimuovi sfondo';
     qs('#local-cutout-status').textContent = 'Foto originale ripristinata. La foto resta sul dispositivo.';
     drawPreview(); return;
   }
@@ -725,6 +727,26 @@ async function removeLocalBackground() {
   } finally {
     if (qs('#local-cutout')) button.disabled = false;
   }
+}
+
+async function removeSavedStickerBackground(id, button) {
+  const sticker = stickers.find(item => item.id === id);
+  if (!sticker?.image || !button) return;
+  const original = sticker.image; button.disabled = true; button.textContent = 'Rimozione sfondo…';
+  try {
+    const source = new Image();
+    await new Promise((resolve, reject) => { source.onload = resolve; source.onerror = () => reject(new Error('Non riesco ad aprire questo sticker.')); source.src = original; });
+    const cutout = await cutoutImageWithLocalAI(source);
+    sticker.image = cutout.src;
+    try { await persist(); }
+    catch (error) { sticker.image = original; throw error; }
+    renderPacks(); renderStickers();
+    const preview = qs('.sticker-detail-image'); if (preview) preview.src = sticker.image;
+    button.textContent = '✓ Sfondo rimosso'; toast('Sfondo rimosso e sticker aggiornato');
+  } catch (error) {
+    console.error('Rimozione sfondo sticker non riuscita:', error);
+    button.textContent = '✦ Rimuovi sfondo'; toast(error.message || 'Non sono riuscito a rimuovere lo sfondo.');
+  } finally { button.disabled = false; }
 }
 
 function bilateralSmooth(data, width, height, amount) {
@@ -809,8 +831,8 @@ async function shareBlob(blob, name, title = 'Il mio sticker') {
   const file = new File([blob], name, { type: 'image/png' });
   if (navigator.share && navigator.canShare?.({ files: [file] })) {
     try { await navigator.share({ files: [file], title, text: 'Creato con Sticker Studio' }); }
-    catch (error) { if (error.name !== 'AbortError') toast('Condivisione non disponibile. Ho scaricato il PNG.'); else return; }
-    return;
+    catch (error) { if (error.name === 'AbortError') return; await downloadBlob(blob, name); toast('Condivisione non disponibile: ho scaricato il PNG.'); return; }
+    toast('Sticker condiviso'); return;
   }
   await downloadBlob(blob, name); toast('PNG scaricato. Apri WhatsApp e scegli il file dalla galleria.');
 }
@@ -824,11 +846,39 @@ async function shareStickerPack(items, packName) {
   const files = await Promise.all(items.map(async sticker => new File([await (await fetch(sticker.image)).blob()], `${slugify(sticker.name)}.png`, { type: 'image/png' })));
   if (navigator.share && navigator.canShare?.({ files })) {
     try { await navigator.share({ files, title: packName, text: `Sticker dal pacchetto ${packName}` }); }
-    catch (error) { if (error.name !== 'AbortError') toast('Condivisione non disponibile.'); }
-    return;
+    catch (error) { if (error.name === 'AbortError') return; await downloadStickerPack(items, packName); return; }
+    toast('Sticker del pacchetto condivisi'); return;
   }
-  for (const file of files) await downloadBlob(file, file.name);
-  toast('PNG scaricati. Ora puoi condividerli da WhatsApp.');
+  await downloadStickerPack(items, packName);
+}
+
+function crc32(bytes) {
+  let crc = -1;
+  for (const byte of bytes) { crc ^= byte; for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1)); }
+  return (crc ^ -1) >>> 0;
+}
+async function createZip(entries) {
+  const encoder = new TextEncoder(), localParts = [], centralParts = []; let offset = 0;
+  const now = new Date(), dosTime = (now.getHours() << 11) | (now.getMinutes() << 5) | Math.floor(now.getSeconds() / 2), dosDate = ((Math.max(1980, now.getFullYear()) - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+  for (const entry of entries) {
+    const name = encoder.encode(entry.name), data = new Uint8Array(await entry.blob.arrayBuffer()), crc = crc32(data);
+    const local = new Uint8Array(30 + name.length), lv = new DataView(local.buffer);
+    lv.setUint32(0, 0x04034b50, true); lv.setUint16(4, 20, true); lv.setUint16(6, 0x0800, true); lv.setUint16(8, 0, true); lv.setUint16(10, dosTime, true); lv.setUint16(12, dosDate, true); lv.setUint32(14, crc, true); lv.setUint32(18, data.length, true); lv.setUint32(22, data.length, true); lv.setUint16(26, name.length, true); lv.setUint16(28, 0, true); local.set(name, 30);
+    localParts.push(local, data);
+    const central = new Uint8Array(46 + name.length), cv = new DataView(central.buffer);
+    cv.setUint32(0, 0x02014b50, true); cv.setUint16(4, 20, true); cv.setUint16(6, 20, true); cv.setUint16(8, 0x0800, true); cv.setUint16(10, 0, true); cv.setUint16(12, dosTime, true); cv.setUint16(14, dosDate, true); cv.setUint32(16, crc, true); cv.setUint32(20, data.length, true); cv.setUint32(24, data.length, true); cv.setUint16(28, name.length, true); cv.setUint16(30, 0, true); cv.setUint16(32, 0, true); cv.setUint16(34, 0, true); cv.setUint16(36, 0, true); cv.setUint32(38, 0, true); cv.setUint32(42, offset, true); central.set(name, 46); centralParts.push(central); offset += local.length + data.length;
+  }
+  const centralSize = centralParts.reduce((sum, part) => sum + part.length, 0), end = new Uint8Array(22), view = new DataView(end.buffer);
+  view.setUint32(0, 0x06054b50, true); view.setUint16(4, 0, true); view.setUint16(6, 0, true); view.setUint16(8, entries.length, true); view.setUint16(10, entries.length, true); view.setUint32(12, centralSize, true); view.setUint32(16, offset, true); view.setUint16(20, 0, true);
+  return new Blob([...localParts, ...centralParts, end], { type: 'application/zip' });
+}
+async function downloadStickerPack(items, packName) {
+  if (!items.length) { toast('Questo pacchetto non contiene sticker immagine da esportare.'); return; }
+  try {
+    const entries = await Promise.all(items.map(async sticker => ({ name: `${slugify(sticker.name) || 'sticker'}.png`, blob: await (await fetch(sticker.image)).blob() })));
+    await downloadBlob(await createZip(entries), `${slugify(packName) || 'pacchetto-sticker'}.zip`);
+    toast(`Pacchetto scaricato · ${items.length} PNG trasparenti`);
+  } catch (error) { console.error('Esportazione pacchetto non riuscita:', error); toast('Non riesco a preparare il pacchetto. Riprova.'); }
 }
 
 function saveSticker() {
