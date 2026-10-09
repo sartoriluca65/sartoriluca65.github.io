@@ -37,7 +37,8 @@ function renderPackCard(pack) {
 }
 
 function renderPacks() {
-  qs('#sidebar-packs').innerHTML = packs.slice(0, 5).map(pack => `<button class="side-pack" data-pack="${escapeHtml(pack.name)}"><span class="side-pack-emoji">${pack.emoji}</span>${escapeHtml(pack.name)}<span class="pack-small-count">${stickers.filter(item => item.pack === pack.name).length}</span></button>`).join('');
+  const sidebarPacks = [...packs.filter(pack => pack.author === 'tu'), ...packs.filter(pack => pack.author !== 'tu')];
+  qs('#sidebar-packs').innerHTML = sidebarPacks.map(pack => `<button class="side-pack" data-pack="${escapeHtml(pack.name)}"><span class="side-pack-emoji">${pack.emoji}</span>${escapeHtml(pack.name)}<span class="pack-small-count">${stickers.filter(item => item.pack === pack.name).length}</span></button>`).join('');
   qs('#popular-packs').innerHTML = packs.slice(0, 4).map(renderPackCard).join('') || emptyState('Ancora nessun pacchetto', 'Crea la tua prima collezione di sticker.');
 }
 
