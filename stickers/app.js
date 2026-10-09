@@ -20,7 +20,12 @@ const exampleStickers = [
 ].map(([name, emoji, pack, bg], i) => ({ id: `sample-${i}`, name, emoji, pack, bg }));
 
 const readStore = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
-let packs = readStore('ss-packs', examplePacks);
+const builtInPackIds = new Set(examplePacks.map(pack => pack.id));
+const savedPacks = readStore('ss-packs', examplePacks);
+let packs = (Array.isArray(savedPacks) ? savedPacks : examplePacks).map(pack => ({
+  ...pack,
+  author: pack.author || (builtInPackIds.has(pack.id) ? undefined : 'tu'),
+}));
 let stickers = readStore('ss-stickers', exampleStickers);
 let currentView = 'home', currentFilter = '', uploadImage = null, originalUploadImage = null, uploadName = '', activeStyle = 'comic', localBackgroundPipeline = null, localBackgroundPipelinePromise = null, uploadHasLocalCutout = false, connectedGeminiKey = '', aiStickerImage = null, aiGenerating = false;
 let styleStrength = 46, lineStrength = 24, toastTimer, targetPack = '', targetPlatform = 'whatsapp', uploadMode = 'single', sheetSegments = [], cameraStream = null, modalHistory = [];
@@ -143,7 +148,8 @@ function openPackModal() {
   setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="modal-icon">✳</div><div class="section-overline">NUOVO PACCHETTO</div><h2 id="modal-title">Crea una collezione</h2><p>Dai un nome alla tua raccolta di sticker.</p><form id="pack-form"><label for="pack-name">Nome del pacchetto</label><input id="pack-name" maxlength="30" placeholder="es. Piccole gioie" required /><label>Scegli un'emoji</label><div class="emoji-options">${['🌼', '✨', '🍒', '🪩', '☁️'].map((emoji, i) => `<label><input type="radio" name="emoji" value="${emoji}" ${i === 0 ? 'checked' : ''}/><span>${emoji}</span></label>`).join('')}</div><button type="submit" class="create-button modal-submit">Crea pacchetto <span>→</span></button></form>`);
   qs('#pack-form').onsubmit = event => {
     event.preventDefault(); const name = qs('#pack-name').value.trim(); if (!name) return;
-    if (packs.some(pack => pack.name.toLowerCase() === name.toLowerCase())) { toast('Esiste già un pacchetto con questo nome.'); return; }
+    const existingPack = packs.find(pack => String(pack.name || '').trim().toLocaleLowerCase('it-IT') === name.toLocaleLowerCase('it-IT'));
+    if (existingPack) { closeModal(); showView('packs'); openPack(existingPack.name); toast(`“${existingPack.name}” esiste già: ho aperto il pacchetto.`); return; }
     const emoji = qs('input[name="emoji"]:checked').value;
     packs.unshift({ id: crypto.randomUUID(), name, emoji, count: 0, author: 'tu', bg: ['#f4d989', '#c8b6ea', '#f5bfd0', '#b9d9ce'][packs.length % 4], featured: emoji, minis: ['✨', '💌'] });
     persist(); renderPacks(); closeModal(); showView('packs'); toast(`Pacchetto “${name}” creato`);
