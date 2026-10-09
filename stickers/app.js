@@ -42,7 +42,6 @@ function openStickerDb() {
   return stickerDbPromise;
 }
 async function persist() {
-  localStorage.setItem('ss-packs', JSON.stringify(packs));
   try {
     const db = await openStickerDb();
     await new Promise((resolve, reject) => {
@@ -52,10 +51,11 @@ async function persist() {
       transaction.onabort = () => reject(transaction.error || new Error('Salvataggio immagini annullato.'));
     });
     localStorage.setItem('ss-stickers', JSON.stringify(stickers.map(({ image, ...sticker }) => sticker)));
+    localStorage.setItem('ss-packs', JSON.stringify(packs));
   } catch (error) {
     // Keep compatibility with browsers where IndexedDB is unavailable, but never
     // silently leave a newly created pack without its sticker images.
-    try { localStorage.setItem('ss-stickers', JSON.stringify(stickers)); }
+    try { localStorage.setItem('ss-stickers', JSON.stringify(stickers)); localStorage.setItem('ss-packs', JSON.stringify(packs)); }
     catch { throw new Error('Spazio browser esaurito: libera spazio o elimina alcuni sticker e riprova.'); }
   }
 }
