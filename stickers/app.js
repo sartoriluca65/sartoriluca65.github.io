@@ -140,7 +140,8 @@ function showView(view) {
   const hero = qs('.hero-card'), welcome = qs('.welcome-row'), sections = qsa('.section-block'), shell = qs('.recent-block');
   if (view === 'home') {
     hero.hidden = false; welcome.hidden = false; qs('#time-dashboard').hidden = false; sections.forEach(section => { section.hidden = false; });
-    shell.querySelector('.sticker-grid').className = 'sticker-grid';
+    const homeGrid = shell.querySelector('.sticker-grid, .pack-grid');
+    if (homeGrid) homeGrid.className = 'sticker-grid';
     renderPacks(); renderStickers();
     qs('.recent-block .section-heading h2').innerHTML = 'Sticker recenti <span class="heading-arrow">✦</span>';
     qs('.recent-block .section-overline').textContent = 'IL TUO LABORATORIO';
@@ -151,7 +152,8 @@ function showView(view) {
   hero.hidden = true; welcome.hidden = true; qs('#time-dashboard').hidden = true; sections.forEach(section => { section.hidden = true; }); shell.hidden = false;
   qs('.recent-block .section-heading h2').innerHTML = `${labels[view]} <span class="heading-arrow">✦</span>`;
   qs('.recent-block .section-overline').textContent = view === 'discover' ? 'ISPIRAZIONE PER TE' : 'IL TUO LABORATORIO';
-  const grid = shell.querySelector('.sticker-grid');
+  const grid = shell.querySelector('.sticker-grid, .pack-grid');
+  if (!grid) return;
   if (view === 'packs' || view === 'discover') {
     grid.className = 'pack-grid'; grid.innerHTML = packs.map(renderPackCard).join('') || emptyState('Ancora nessun pacchetto', 'Crea una collezione per organizzare gli sticker.');
   } else { grid.className = 'sticker-grid'; renderStickers(stickers); }
@@ -468,8 +470,9 @@ function openSheetPreview(splitOverride = null) {
       const newPack = { id: crypto.randomUUID(), name, emoji: '✨', count: chosen.length, author: 'tu', bg: '#e9e8df', featured: '✨', minis: ['💫', '💌'] };
       const newStickers = chosen.map((index, order) => ({ id: crypto.randomUUID(), name: `${name} ${String(order + 1).padStart(2, '0')}`, pack: name, image: sheetSegments[index].image, style: 'sheet', bg: '#f5f4ef' }));
       packs.unshift(newPack); stickers.unshift(...newStickers);
-      try { await persist(); renderPacks(); closeModal(); showView('packs'); openPack(name); toast(`Salvati ${chosen.length} sticker in “${name}”`); }
-      catch (error) { packs = packs.filter(pack => pack.id !== newPack.id); const ids = new Set(newStickers.map(item => item.id)); stickers = stickers.filter(item => !ids.has(item.id)); renderPacks(); goBackModal(); toast(error.message || 'Non sono riuscito a salvare gli sticker.'); }
+      try { await persist(); }
+      catch (error) { packs = packs.filter(pack => pack.id !== newPack.id); const ids = new Set(newStickers.map(item => item.id)); stickers = stickers.filter(item => !ids.has(item.id)); renderPacks(); goBackModal(); toast(error.message || 'Non sono riuscito a salvare gli sticker.'); return; }
+      renderPacks(); closeModal(); showView('packs'); openPack(name); toast(`Salvati ${chosen.length} sticker in “${name}”`);
     };
   };
 }
@@ -837,8 +840,9 @@ function saveSticker() {
   qs('#confirm-save-sticker').onclick = async event => {
     const button = event.currentTarget; button.disabled = true; button.textContent = 'Salvataggio…'; stickers.unshift(sticker);
     const target = packs.find(item => item.name === pack); if (target) target.count = stickers.filter(item => item.pack === pack).length;
-    try { await persist(); closeModal(); renderPacks(); showView(pack ? 'packs' : 'my-stickers'); if (pack) openPack(pack); toast(`Salvato “${name}”${pack ? ` in “${pack}”` : ' nei tuoi sticker'}`); }
-    catch (error) { stickers = stickers.filter(item => item.id !== sticker.id); if (target) target.count = stickers.filter(item => item.pack === pack).length; renderPacks(); goBackModal(); toast(error.message || 'Non sono riuscito a salvare lo sticker.'); }
+    try { await persist(); }
+    catch (error) { stickers = stickers.filter(item => item.id !== sticker.id); if (target) target.count = stickers.filter(item => item.pack === pack).length; renderPacks(); goBackModal(); toast(error.message || 'Non sono riuscito a salvare lo sticker.'); return; }
+    closeModal(); renderPacks(); showView(pack ? 'packs' : 'my-stickers'); if (pack) openPack(pack); toast(`Salvato “${name}”${pack ? ` in “${pack}”` : ' nei tuoi sticker'}`);
   };
 }
 
