@@ -31,6 +31,13 @@ export default {
     }
     if (request.method === "POST" && url.pathname === "/api/ai/sticker") {
       if (!origin || !allowedOrigins.has(origin)) return json({ error: "Richiesta non valida." }, 403);
+      if (!env?.AI_RATE_LIMITER?.limit) return json({ error: "Protezione anti-abuso non configurata." }, 503, origin);
+      const ip = request.headers.get("cf-connecting-ip");
+      if (!ip) return json({ error: "Identificazione richiesta non disponibile." }, 403, origin);
+      try {
+        const { success } = await env.AI_RATE_LIMITER.limit({ key: ip });
+        if (!success) return json({ error: "Limite generazioni raggiunto. Riprova più tardi." }, 429, origin);
+      } catch { return json({ error: "Protezione temporaneamente non disponibile." }, 503, origin); }
       const contentLength = Number(request.headers.get("content-length") || 0);
       if (contentLength > 6_000_000) return json({ error: "La foto è troppo grande. Ridimensionala e riprova." }, 413, origin);
       let input;
