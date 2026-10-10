@@ -7,7 +7,8 @@ Interfaccia responsive in italiano, senza build step. Apri `index.html` in un br
 - Il garage parte con una Volkswagen Golf e una Fiat 500e dimostrative; lo storico parte con quattro registrazioni demo. Sono modificabili o rimovibili.
 - Stazioni, prezzi, disponibilità, distanze e durate sono dimostrativi. I prezzi sono fittizi e non vengono aggiornati in automatico. Il badge DEMO e le note accanto ai prezzi lo indicano.
 - La mappa visualizza punti demo su OpenStreetMap. Il tragitto è una stima in linea d'aria maggiorata del 25%, con velocità media convenzionale; traffico, strade e navigazione turn-by-turn non sono collegati.
-- La localizzazione richiede il permesso del browser. Se viene negata si può inserire un punto tramite latitudine e longitudine. Cambiare partenza ricalcola distanze e tragitto stimati.
+- La localizzazione richiede il permesso del browser e ha un limite di attesa di 12 secondi. Se viene negata si può inserire un punto tramite latitudine e longitudine. Cambiare partenza ricalcola distanze e tragitto stimati. I punti demo sono limitati a Milano e dintorni: fuori da quest’area l’app mostra uno stato vuoto invece di lasciare risultati che sembrano pertinenti.
+- I chilometraggi inseriti nei rifornimenti alimentano una media automatica dopo almeno due letture crescenti per lo stesso veicolo; la media sostituisce il consumo manuale nel confronto. Le registrazioni demo sono escluse dal calcolo. La formula è quantità dell’ultimo rifornimento ÷ km tra le due letture × 100; rifornimenti parziali possono alterare la stima.
 - Le statistiche del grafico in questa prima versione sono illustrative; spesa, quantità e tabella usano le registrazioni locali. Le registrazioni demo iniziali vanno cancellate per avere un archivio composto solo dai dati personali.
 
 ## Attivare dati reali
