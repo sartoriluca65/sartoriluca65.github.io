@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const appId = document.currentScript?.dataset.app;
-  if (!['autocontrol', 'diviso', 'autoquota', 'luki-stickers'].includes(appId) || window.__lsTrackerStarted) return;
+  if (!['autocontrol', 'diviso', 'autoquota', 'luki-stickers', 'rifornio'].includes(appId) || window.__lsTrackerStarted) return;
   window.__lsTrackerStarted = true;
   const config = window.LS_ANALYTICS_CONFIG;
   if (!config || !/^sb_publishable_[A-Za-z0-9_-]{16,}$/.test(config.publicKey || '') ||
