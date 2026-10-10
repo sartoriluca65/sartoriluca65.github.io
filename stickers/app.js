@@ -640,7 +640,7 @@ async function generateStickerWithGemini(styleId) {
     const apiEndpoint = location.hostname === 'sartoriluca65.github.io'
       ? 'https://sticker-studio.sartori-luca65.chatgpt.site/api/ai/sticker'
       : '/api/ai/sticker';
-    const response = await fetch(apiEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ apiKey: connectedGeminiKey, prompt, image: { mimeType, data: base64 } }) });
+    const response = await fetch(apiEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt, image: { mimeType, data: base64 } }) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || `Gemini non disponibile (${response.status}).`);
     const image = new Image();
