@@ -29,3 +29,7 @@ Il calcolo del costo usa `quantità × prezzo unitario` per l'acquisto e `consum
 Sul sito GitHub Pages, la cartella viene pubblicata in `/rifornio/`. L'integrazione usa il contatore visite già presente sul sito e associa la pagina all'ID `rifornio`: il pannello `/admin/` mostra visitatori unici, attivi ora e visite giornaliere. Il tracker usa un identificativo casuale del browser e un segnale periodico; non legge il garage o lo storico. La configurazione analytics è caricata solo sul dominio di produzione, quindi il prototipo aperto in locale non invia conteggi.
 
 Il tracker silenzia gli errori di rete; se il backend analytics del sito applica una whitelist agli ID app, va aggiunto `rifornio` anche alla funzione o policy Supabase che registra i segnali. In assenza di tale abilitazione, l'app resta funzionante ma non comparirà nei contatori.
+
+## Backup, trasferimento e condivisione
+
+Garage e storico restano nel browser. Il sito pubblicato e la copia aperta da `file://` hanno archivi separati per sicurezza del browser. Usa **Esporta dati** sulla versione che contiene il tuo archivio e poi **Importa archivio** sull'altra versione; il file JSON conserva veicoli e registrazioni. L'importazione chiede conferma e sostituisce l'archivio presente nel browser di destinazione. La condivisione apre un invito modificabile con il link pubblico dell'app.
