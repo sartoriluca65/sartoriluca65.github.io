@@ -60,3 +60,42 @@ document.getElementById('export-data').onclick=()=>{const backup={app:'Rifornio'
 document.getElementById('import-data').onclick=()=>document.getElementById('import-file').click();
 document.getElementById('import-file').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const backup=JSON.parse(await file.text());if(!Array.isArray(backup.vehicles)||!Array.isArray(backup.entries))throw new Error('Formato non valido');if(!confirm(`Importare ${backup.vehicles.length} veicoli e ${backup.entries.length} registrazioni? I dati attualmente presenti in questo browser verranno sostituiti.`))return;vehicles=backup.vehicles;entries=backup.entries.map(row=>({...row,demo:row.demo??/^e[1-4]$/.test(row.id)}));if(save()){refresh();notify('Archivio importato e salvato in questo browser')}}catch(error){notify(error.message==='Formato non valido'?'Il file non è un archivio Rifornio valido':'Impossibile leggere il file selezionato')}finally{e.target.value=''}};
 function refresh(){renderVehicleSelect();renderGarage();renderDashboard();renderHistory();renderResults()}document.getElementById('today').textContent=new Intl.DateTimeFormat('it-IT',{weekday:'short',day:'2-digit',month:'short'}).format(new Date());refresh();updateOfficialPrices();const start=location.hash.slice(1);if(start&&document.getElementById('page-'+start))navigate(start);setTimeout(()=>{if(map)map.invalidateSize()},300);
+
+
+// Assistente Gemini per il confronto dei prezzi: la chiave API resta solo su Cloudflare.
+(function setupRifornioAssistant(){
+  const endpoint='https://rifornio-gemini.sartori-luca65.workers.dev/api/ai/advice';
+  function init(){
+    const list=document.getElementById('result-list');
+    if(!list||document.getElementById('rifornio-ai-panel'))return;
+    const panel=document.createElement('section');
+    panel.id='rifornio-ai-panel';
+    panel.style.cssText='margin:20px 0;padding:18px;border:1px solid #d5e3d8;border-radius:14px;background:#f5faf6;color:#193c2c';
+    const title=document.createElement('h3');title.textContent='🤖 Assistente Rifornio';title.style.margin='0 0 8px';
+    const note=document.createElement('p');note.textContent='Chiedi un consiglio sui distributori visualizzati. I prezzi non sono in tempo reale e i tragitti sono stimati.';note.style.margin='0 0 12px';
+    const button=document.createElement('button');button.type='button';button.textContent='✨ Analizza il rifornimento';button.className='primary-button';
+    const output=document.createElement('p');output.style.cssText='white-space:pre-wrap;margin:12px 0 0;line-height:1.5';output.setAttribute('aria-live','polite');
+    button.addEventListener('click',async()=>{
+      if(!officialPricesActive){output.textContent='I prezzi ufficiali non sono disponibili. Non posso consigliare un distributore sulla base dei dati DEMO.';return}
+      const v=vehicleById(document.getElementById('vehicle-select').value)||vehicles[0];
+      if(!v){output.textContent='Seleziona prima un veicolo.';return}
+      const qty=Math.max(.01,Number(document.getElementById('quantity-input').value)||1);
+      const stations=STATIONS.filter(s=>Number.isFinite(s.prices?.[v.fuel])).slice(0,12).map(s=>{
+        const route=routeFor(s),price=s.prices[v.fuel];
+        return {name:s.name,fuel:v.fuel,price,distanceKm:Number(route.km.toFixed(1)),totalCost:Number((qty*price+v.consumption*route.km/100*price).toFixed(2)),updated:s.updated,source:'MIMIT'};
+      });
+      if(!stations.length){output.textContent='Nessun distributore compatibile da confrontare.';return}
+      button.disabled=true;output.textContent='Analisi in corso…';
+      try{
+        const response=await fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({question:'Per '+v.name+', confronta '+qty+' '+fuelUnit(v.fuel)+' di '+v.fuel+'. Quale distributore conviene considerando anche il tragitto stimato?',stations}),signal:AbortSignal.timeout(25000)});
+        const data=await response.json();
+        if(!response.ok)throw Error(data.error||'Servizio non disponibile');
+        output.textContent=data.answer||'Nessuna risposta disponibile.';
+      }catch(error){output.textContent='Assistente temporaneamente non disponibile: '+error.message}
+      finally{button.disabled=false}
+    });
+    panel.append(title,note,button,output);
+    list.parentElement.insertBefore(panel,list);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
