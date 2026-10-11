@@ -9,7 +9,7 @@
   "theme_color": "#0877ef",
   "icons": [
     {
-      "src": "pienosmart-logo.svg?v=20261011-icon2",
+      "src": "icon-home.svg?v=20261011",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
