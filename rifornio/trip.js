@@ -25,6 +25,14 @@
   const matches=await response.json();if(!matches.length)throw Error('Indirizzo non trovato: '+address);
   return {lng:Number(matches[0].lon),lat:Number(matches[0].lat),label:matches[0].display_name};
  }
+ $('trip-gps').addEventListener('click',()=>{
+  output.textContent='Acquisizione posizione in corso…';
+  navigator.geolocation.getCurrentPosition(
+   position=>{ $('trip-from').value=position.coords.latitude.toFixed(6)+', '+position.coords.longitude.toFixed(6);output.textContent='Posizione acquisita: ora inserisci la destinazione.'; },
+   ()=>{output.textContent='Posizione non disponibile. Inserisci l’indirizzo manualmente.';},
+   {timeout:12000}
+  );
+ });
  select.addEventListener('change',syncPrice);
  form.addEventListener('submit',async e=>{
   e.preventDefault();syncVehicles();
