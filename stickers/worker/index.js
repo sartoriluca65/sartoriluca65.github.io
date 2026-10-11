@@ -37,6 +37,7 @@ export default {
         if (!success) return json({ error: "Limite generazioni raggiunto. Riprova più tardi." }, 429, origin);
       } catch { return json({ error: "Protezione temporaneamente non disponibile." }, 503, origin); }
       const contentLength = Number(request.headers.get("content-length") || 0);
+      if (!contentLength) return json({ error: "Dimensione richiesta non disponibile." }, 411, origin);
       if (contentLength > 6_000_000) return json({ error: "La foto è troppo grande. Ridimensionala e riprova." }, 413, origin);
       let input;
       try { input = await request.json(); } catch { return json({ error: "Richiesta incompleta." }, 400, origin); }
@@ -47,7 +48,7 @@ export default {
 
       let upstream;
       try {
-        upstream = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-image:generateContent", {
+        upstream = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent", {
           method: "POST",
           headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
           body: JSON.stringify({
