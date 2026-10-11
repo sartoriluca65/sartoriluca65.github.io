@@ -4,6 +4,13 @@
  const $=id=>document.getElementById(id);
  document.querySelector('[data-goto-trip]')?.addEventListener('click',e=>{e.preventDefault();navigate('trip')});
  const select=$('trip-vehicle'),price=$('trip-price'),output=$('trip-result'),button=$('trip-submit');
+ // Keep the trip draft on this device even when the app receives an update.
+ const draftKey='pienosmartTripDraftV1';
+ const draftIds=['trip-from','trip-to','trip-price','trip-kind','trip-return','trip-vehicle'];
+ function storeDraft(){try{const draft={};for(const id of draftIds){const el=$(id);if(el)draft[id]=el.type==='checkbox'?el.checked:el.value}localStorage.setItem(draftKey,JSON.stringify(draft))}catch{}}
+ function restoreDraft(){try{const draft=JSON.parse(localStorage.getItem(draftKey)||'null');if(!draft)return;for(const id of draftIds){const el=$(id);if(!el||!(id in draft))continue;if(el.type==='checkbox')el.checked=Boolean(draft[id]);else if(id!=='trip-vehicle'||[...el.options].some(o=>o.value===draft[id]))el.value=draft[id]}}catch{}}
+ for(const id of draftIds){const el=$(id);if(el){el.addEventListener('input',storeDraft);el.addEventListener('change',storeDraft)}}
+ window.addEventListener('pagehide',storeDraft);
  function syncVehicles(){
   const previous=select.value,main=$('vehicle-select')?.value;
   select.replaceChildren();
@@ -82,7 +89,7 @@
   }catch(error){output.textContent='Non riesco a calcolare il viaggio: '+error.message+'. Verifica gli indirizzi e riprova.'}
   finally{button.disabled=false}
  });
- syncVehicles();syncPrice();
+ syncVehicles();syncPrice();restoreDraft();
  window.addEventListener('pienosmart:garage-updated',()=>{syncVehicles();syncPrice()});
  window.addEventListener('pageshow',()=>{syncVehicles();syncPrice()});
  document.querySelector('[data-page="trip"]')?.addEventListener('click',()=>{syncVehicles();syncPrice()});
