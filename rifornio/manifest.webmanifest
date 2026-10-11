@@ -2,7 +2,7 @@
   "name": "PienoSmart — Risparmia, viaggia meglio",
   "short_name": "PienoSmart",
   "description": "Confronta prezzi carburante e calcola le spese dei viaggi",
-  "start_url": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
