@@ -594,8 +594,24 @@ function syncGeminiConnectionUI() {
 
 function openGeminiConnectionModal(styleAfterConnect = null) {
   setModal('<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><h2 id="modal-title">Gemini per gli sticker</h2><p>Gemini utilizza il servizio protetto di LucaStickers. Non serve inserire una chiave API. Quando generi un look, la foto viene inviata a Google per elaborarla. Il servizio può avere limiti di utilizzo.</p><button class="create-button" id="gemini-confirm">Ho capito · Continua</button>', 'modal ai-connect-modal');
+  // Keep the current sticker editor open when dismissing the Gemini notice.
+  // Closing this informational dialog must not discard the user's work.
+  const returnToEditor = () => {
+    const previous = modalHistory.pop();
+    if (previous) {
+      const modal = qs('.modal');
+      modal.className = previous.className;
+      modal.replaceChildren(previous.fragment);
+      qs('#modal-backdrop').hidden = false;
+      bindModalNavigation();
+    } else {
+      qs('#modal-backdrop').hidden = true;
+    }
+  };
+  qs('#modal-close').onclick = returnToEditor;
+  qs('#modal-back').onclick = returnToEditor;
   qs('#gemini-confirm').onclick = () => {
-    goBackModal();
+    returnToEditor();
     if (styleAfterConnect) generateStickerWithGemini(styleAfterConnect);
   };
 }
