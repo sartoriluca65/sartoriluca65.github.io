@@ -2,6 +2,7 @@
 (function(){
  const form=document.getElementById('trip-form');if(!form)return;
  const $=id=>document.getElementById(id);
+ document.querySelector('[data-goto-trip]')?.addEventListener('click',e=>{e.preventDefault();navigate('trip')});
  const select=$('trip-vehicle'),price=$('trip-price'),output=$('trip-result'),button=$('trip-submit');
  function syncVehicles(){
   const previous=select.value,main=$('vehicle-select')?.value;
@@ -16,6 +17,7 @@
   else price.value=v.fuel==='Elettricità'?'0.60':'1.75';
  }
  async function geocode(address){
+  const coords=address.split(',').map(Number);if(coords.length===2&&coords.every(Number.isFinite)&&Math.abs(coords[0])<=90&&Math.abs(coords[1])<=180)return {lat:coords[0],lng:coords[1],label:'Posizione GPS'};
   const url=new URL('https://nominatim.openstreetmap.org/search');
   url.searchParams.set('q',address);url.searchParams.set('format','jsonv2');url.searchParams.set('limit','1');url.searchParams.set('countrycodes','it');
   const response=await fetch(url,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(12000)});
@@ -39,7 +41,7 @@
    if(!response.ok||!Number.isFinite(route.distanceKm))throw Error(route.error||'Percorso stradale non disponibile');
    const km=route.distanceKm*(roundTrip?2:1),minutes=route.durationMin*(roundTrip?2:1),consumption=v.consumption*km/100,total=consumption*costPerUnit;
    output.replaceChildren();
-   const heading=document.createElement('h3');heading.textContent='🚗 Preventivo del viaggio';heading.style.margin='0 0 12px';
+   const heading=document.createElement('h3');heading.textContent=$('trip-kind').value==='past'?'🚗 Spesa stimata del viaggio effettuato':'🚗 Preventivo del viaggio';heading.style.margin='0 0 12px';
    const details=document.createElement('div');details.style.cssText='padding:16px;background:#f1f8f3;border-radius:12px';
    const rows=[['Partenza',start.label],['Destinazione',end.label],['Distanza',fmt(km,1)+' km'+(roundTrip?' · andata e ritorno':' · sola andata')],['Tempo di guida',Math.floor(minutes/60)+' h '+Math.round(minutes%60)+' min'],['Veicolo',v.name],['Consumo medio',fmt(v.consumption,1)+' '+consumptionUnit(v.fuel)],['Carburante / energia necessari',fmt(consumption,2)+' '+fuelUnit(v.fuel)],['Prezzo inserito',euro(costPerUnit)+' / '+fuelUnit(v.fuel)],['SPESA STIMATA',euro(total)]];
    for(const [label,value] of rows){const row=document.createElement('p');row.style.margin='7px 0';const b=document.createElement('b');b.textContent=label+': ';row.append(b,document.createTextNode(value));details.append(row)}
