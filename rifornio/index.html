@@ -1,56 +1,82 @@
-// PienoSmart trip calculator. No API keys are exposed in the browser.
-(function(){
- const form=document.getElementById('trip-form');if(!form)return;
- const $=id=>document.getElementById(id);
- document.querySelector('[data-goto-trip]')?.addEventListener('click',e=>{e.preventDefault();navigate('trip')});
- $('trip-gps')?.addEventListener('click',()=>{if(!navigator.geolocation){output.textContent='GPS non disponibile.';return}output.textContent='Cerco la tua posizione…';navigator.geolocation.getCurrentPosition(p=>{const lat=p.coords.latitude,lng=p.coords.longitude;$('trip-from').value=lat.toFixed(6)+', '+lng.toFixed(6);output.textContent='Posizione GPS acquisita. Inserisci la destinazione.'},()=>{output.textContent='Permesso GPS negato o posizione non disponibile.'},{enableHighAccuracy:true,timeout:12000})});
- const select=$('trip-vehicle'),price=$('trip-price'),output=$('trip-result'),button=$('trip-submit');
- function syncVehicles(){
-  const previous=select.value,main=$('vehicle-select')?.value;
-  select.replaceChildren();
-  vehicles.forEach(v=>{const option=document.createElement('option');option.value=v.id;option.textContent=v.name+' · '+v.fuel;select.append(option)});
-  if(vehicles.some(v=>v.id===previous))select.value=previous;else if(vehicles.some(v=>v.id===main))select.value=main;
- }
- function syncPrice(){
-  const v=vehicleById(select.value);if(!v)return;
-  const prices=STATIONS.map(s=>s.prices?.[v.fuel]).filter(p=>Number.isFinite(p)&&p>0);
-  if(officialPricesActive&&prices.length)price.value=(prices.reduce((a,b)=>a+b,0)/prices.length).toFixed(3);
-  else price.value=v.fuel==='Elettricità'?'0.60':'1.75';
- }
- async function geocode(address){
-  const coordinates=address.match(/^(-?\\d+(?:\\.\\d+)?)\\s*,\\s*(-?\\d+(?:\\.\\d+)?)$/);if(coordinates){const lat=Number(coordinates[1]),lng=Number(coordinates[2]);if(Math.abs(lat)<=90&&Math.abs(lng)<=180)return {lat,lng,label:'Posizione GPS ('+address+')'}}
-  const url=new URL('https://nominatim.openstreetmap.org/search');
-  url.searchParams.set('q',address);url.searchParams.set('format','jsonv2');url.searchParams.set('limit','1');url.searchParams.set('countrycodes','it');
-  const response=await fetch(url,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(12000)});
-  if(!response.ok)throw Error('Servizio indirizzi non disponibile');
-  const matches=await response.json();if(!matches.length)throw Error('Indirizzo non trovato: '+address);
-  return {lng:Number(matches[0].lon),lat:Number(matches[0].lat),label:matches[0].display_name};
- }
- select.addEventListener('change',syncPrice);
- form.addEventListener('submit',async e=>{
-  e.preventDefault();syncVehicles();
-  const v=vehicleById(select.value),costPerUnit=Number(price.value),from=$('trip-from').value.trim(),to=$('trip-to').value.trim(),roundTrip=$('trip-return').checked;
-  if(!v||!from||!to||!Number.isFinite(costPerUnit)||costPerUnit<=0){output.textContent='Compila tutti i campi e scegli un veicolo.';return}
-  button.disabled=true;output.textContent='Cerco gli indirizzi e calcolo il percorso stradale…';
-  try{
-   const start=await geocode(from);
-   // Public Nominatim usage policy: at most one request per second.
-   await new Promise(resolve=>setTimeout(resolve,1100));
-   const end=await geocode(to);
-   const response=await fetch(ROUTES_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({from:[start.lng,start.lat],to:[end.lng,end.lat]}),signal:AbortSignal.timeout(22000)});
-   const route=await response.json().catch(()=>({}));
-   if(!response.ok||!Number.isFinite(route.distanceKm))throw Error(route.error||'Percorso stradale non disponibile');
-   const km=route.distanceKm*(roundTrip?2:1),minutes=route.durationMin*(roundTrip?2:1),consumption=v.consumption*km/100,total=consumption*costPerUnit;
-   output.replaceChildren();
-   const heading=document.createElement('h3');heading.textContent=$('trip-kind').value==='past'?'🚗 Spesa stimata del viaggio effettuato':'🚗 Preventivo del viaggio';heading.style.margin='0 0 12px';
-   const details=document.createElement('div');details.style.cssText='padding:16px;background:#f1f8f3;border-radius:12px';
-   const rows=[['Partenza',start.label],['Destinazione',end.label],['Distanza',fmt(km,1)+' km'+(roundTrip?' · andata e ritorno':' · sola andata')],['Tempo di guida',Math.floor(minutes/60)+' h '+Math.round(minutes%60)+' min'],['Veicolo',v.name],['Consumo medio',fmt(v.consumption,1)+' '+consumptionUnit(v.fuel)],['Carburante / energia necessari',fmt(consumption,2)+' '+fuelUnit(v.fuel)],['Prezzo inserito',euro(costPerUnit)+' / '+fuelUnit(v.fuel)],['SPESA STIMATA',euro(total)]];
-   for(const [label,value] of rows){const row=document.createElement('p');row.style.margin='7px 0';const b=document.createElement('b');b.textContent=label+': ';row.append(b,document.createTextNode(value));details.append(row)}
-   const note=document.createElement('p');note.textContent='Stima basata sul consumo medio: non include pedaggi, parcheggi o variazioni dovute a traffico e guida.';note.style.fontSize='13px';
-   output.append(heading,details,note);
-  }catch(error){output.textContent='Non riesco a calcolare il viaggio: '+error.message+'. Verifica gli indirizzi e riprova.'}
-  finally{button.disabled=false}
- });
- syncVehicles();syncPrice();
- document.querySelector('[data-page="trip"]')?.addEventListener('click',()=>{syncVehicles();syncPrice()});
-})();
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f7f8f5" />
+  <meta name="description" content="PienoSmart: confronta i prezzi dei carburanti e calcola il costo dei tuoi viaggi." />
+  <title>PienoSmart — spendi meno, ovunque</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="styles.css?v=20261010-studio1" />
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="#dashboard"><span class="brand-mark" style="background:linear-gradient(135deg,#00c3e9,#0877ef);color:white">⛽</span><span>rifornio<span class="brand-dot">.</span></span></a>
+    <div class="side-label">IL TUO SPAZIO</div>
+    <nav class="nav" aria-label="Navigazione principale">
+      <a href="#dashboard" data-page="dashboard" class="nav-item active"><span class="nav-icon">⌂</span>Panoramica</a>
+      <a href="#search" data-page="search" class="nav-item"><span class="nav-icon">⌖</span>Trova un punto</a>
+      <a href="#garage" data-page="garage" class="nav-item"><span class="nav-icon">▱</span>Il mio garage <span class="nav-count" id="garage-count">2</span></a>
+      <a href="#trip" data-page="trip" class="nav-item"><span class="nav-icon">↗</span>Calcola viaggio</a>
+      <a href="#history" data-page="history" class="nav-item"><span class="nav-icon">◷</span>Storico & statistiche</a>
+    </nav>
+    <div class="sidebar-bottom"><div class="help-card"><span class="help-icon">✳</span><b>Ogni centesimo conta.</b><p>Confronta il costo reale, compreso il tragitto.</p><a href="#search">Inizia a risparmiare <span>→</span></a></div><div class="profile"><div class="avatar">LS</div><div><b>Luca</b><small>Account personale</small></div><span class="more">···</span></div></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><button class="mobile-menu" aria-label="Apri menu">☰</button><div class="crumb">Il tuo spazio <span>/</span> <b id="crumb-name">Panoramica</b></div><div class="top-actions"><span class="today" id="today"></span><button class="share-button" id="share-open" aria-label="Condividi PienoSmart" title="Condividi PienoSmart"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg><span>Condividi</span></button><div class="mini-avatar">LS</div></div></header>
+    <section class="page active" id="page-dashboard">
+      <div class="welcome-row"><div><div class="eyebrow">SABATO 10 OTTOBRE 2026 <span class="live-dot"></span></div><h1>Ciao Luca, <span>buon viaggio.</span></h1><p class="subtitle">Ecco come stanno andando i tuoi costi di mobilità.</p></div><button class="primary-button" data-goto="search"><span>＋</span> Trova il prezzo migliore</button></div>
+      <div class="stat-grid"><article class="stat-card"><div class="stat-head"><span>Spesa questo mese</span><span class="stat-icon orange">€</span></div><div class="stat-value">€ 186<span>,40</span></div><div class="stat-foot"><span class="pill-down">↓ 12,8%</span><span>vs mese scorso</span><svg class="sparkline" viewBox="0 0 100 28"><path d="M1 20 C12 19 14 8 24 14 S39 25 47 13 S60 17 68 10 S83 16 99 3"/></svg></div></article>
+      <article class="stat-card"><div class="stat-head"><span>Chilometri percorsi</span><span class="stat-icon blue">↗</span></div><div class="stat-value">1.248<span> km</span></div><div class="stat-foot"><span class="pill-up">↑ 8,4%</span><span>vs mese scorso</span><svg class="sparkline blue-line" viewBox="0 0 100 28"><path d="M1 23 C14 21 13 16 26 20 S39 5 49 14 S62 13 72 9 S89 17 99 2"/></svg></div></article>
+      <article class="stat-card"><div class="stat-head"><span>Costo medio</span><span class="stat-icon violet">⌁</span></div><div class="stat-value">€ 0<span>,149 / km</span></div><div class="stat-foot"><span class="pill-down">↓ 3,2%</span><span>vs mese scorso</span><svg class="sparkline violet-line" viewBox="0 0 100 28"><path d="M1 8 C12 17 17 3 26 13 S40 14 48 9 S65 23 73 13 S89 18 99 5"/></svg></div></article>
+      <article class="stat-card highlight-card"><div class="stat-head"><span>Risparmio potenziale</span><span class="stat-icon green">✳</span></div><div class="stat-value">€ 24<span>,80</span></div><div class="stat-foot"><span>confrontando ogni rifornimento</span><a href="#search" class="arrow-link">→</a></div></article></div>
+      <div class="section-heading"><div><h2>La scelta più conveniente</h2><p>Basata sul tuo veicolo e sulla posizione attuale</p></div><button class="text-button" data-goto="search">Vedi tutti i punti <span>→</span></button></div>
+      <div class="featured-layout"><article class="best-card"><div class="best-top"><span class="best-tag">✦ MIGLIOR PREZZO TOTALE</span><span class="data-tag demo-tag">DEMO</span></div><div class="best-station"><div class="station-logo green-logo">Q8</div><div><h3>Q8 Easy Milano Nord</h3><p>Via Alessandro Manzoni, 42 · Milano</p></div><span class="favorite">♡</span></div><div class="best-metrics"><div><small>PREZZO AL LITRO</small><b>€ 1,749 <span>/L</span></b></div><div><small>DISTANZA</small><b>2,4 <span>km · 8 min</span></b></div><div><small>IL TUO RISPARMIO</small><b class="saving">€ 1,20 <span>su 20 L</span></b></div></div><div class="best-footer"><span>Prezzo demo · aggiornamento simulato oggi, 10:15</span><button class="outline-button" data-goto="search">Apri confronto <span>→</span></button></div></article><article class="vehicle-card"><div class="vehicle-card-head"><h3>Veicolo selezionato</h3><button class="dots">···</button></div><div class="vehicle-visual"><span class="car-emoji">🚙</span><span class="fuel-badge">⛽ Benzina</span></div><div class="vehicle-info"><b>Volkswagen Golf</b><span>1.5 eTSI · 2022</span></div><div class="vehicle-details"><span>Consumo medio<b>6,2 L / 100 km</b></span><span>Serbatoio<b>50 litri</b></span></div><a class="manage-link" href="#garage">Gestisci garage <span>→</span></a></article></div>
+      <div class="section-heading lower-heading"><div><h2>La tua attività recente</h2><p>I movimenti registrati nel tuo garage</p></div><button class="text-button" data-goto="history">Vai allo storico <span>→</span></button></div><div class="activity-card" id="dashboard-activity"></div>
+      <div class="disclaimer"><span>ⓘ</span><span>Indicatori, attività, stazioni e prezzi precompilati sono <b>dati dimostrativi</b>. I valori diventano personali quando registri i tuoi rifornimenti; i prezzi richiedono una fonte dati collegata.</span><a href="#search">Scopri di più</a></div>
+    </section>
+    <section class="page" id="page-search"><div class="page-title-row"><div><div class="eyebrow">CONFRONTO INTELLIGENTE</div><h1>Trova il prezzo <span>migliore.</span></h1><p class="subtitle">Confronta il costo del rifornimento, viaggio incluso.</p></div><span class="data-tag demo-tag">● DATI DEMO</span></div>
+      <div class="search-controls"><label class="control-label">IL TUO VEICOLO<select id="vehicle-select"></select></label><label class="control-label">ALIMENTAZIONE<div class="fake-select" id="fuel-display">⛽ Benzina</div></label><label class="control-label">QUANTITÀ<div class="quantity-control"><input id="quantity-input" type="number" min="1" value="20" /><span id="quantity-unit">L</span><div class="step-buttons"><button id="quantity-up" aria-label="Aumenta quantità">⌃</button><button id="quantity-down" aria-label="Diminuisci quantità">⌄</button></div></div></label><label class="control-label origin-label">PUNTO DI PARTENZA<div class="origin-control"><span>⌖</span><input id="origin-input" value="Milano, Italia" aria-label="Punto di partenza" /><button id="locate-button" title="Usa la mia posizione">◎</button></div></label><button class="search-button" id="search-button">Cerca <span>→</span></button></div>
+      <div class="origin-help" id="origin-status" role="status" aria-live="polite">Posizione demo · <button id="edit-origin">Inserisci coordinate</button> oppure <button id="geolocate">usa la mia posizione</button></div>
+      <div style="margin:16px 0;padding:19px;border-radius:16px;background:#e8f6ef;border:1px solid #b7dfd1"><strong style="font-size:20px">🚗 Calcola le spese del viaggio</strong><p>Viaggio già fatto o da fare, con indirizzi oppure registrazione GPS.</p><a href="#trip" id="trip-quick-link" style="display:inline-block;background:#153f31;color:white;padding:13px;border-radius:10px;text-decoration:none">Apri calcolatore viaggio →</a></div><div class="results-toolbar"><div><h2>Le opzioni più convenienti</h2><span id="result-count">4 punti nelle vicinanze</span></div><div class="sort-label">Ordina per <select id="sort-select"><option value="total">Costo totale</option><option value="unit">Prezzo unitario</option><option value="distance">Distanza</option></select></div></div>
+      <div class="results-layout"><div class="result-list" id="result-list"></div><div class="map-panel"><div id="map"></div><div class="map-legend"><span><i class="pin best-pin"></i>Più conveniente</span><span><i class="pin"></i>Altri punti</span><span class="map-note">Percorso stimato</span></div><button class="map-expand" id="map-expand" title="Espandi mappa">⛶</button></div></div>
+      <div class="calc-note"><b>Come calcoliamo il totale?</b><span>Acquisto + costo stimato del tragitto (consumo medio × distanza stradale stimata × prezzo del carburante). Il percorso usa una maggiorazione stimata del 25% sulla distanza in linea d’aria; traffico e itinerari live non sono attivi.</span></div>
+    </section>
+<section class="page" id="page-trip">
+<div class="page-title-row"><div><div class="eyebrow">PIENOSMART · PIANIFICA IL TUO VIAGGIO</div><h1>Quanto costa <span>il tuo viaggio?</span></h1><p class="subtitle">Inserisci due indirizzi e calcola chilometri, carburante e spesa prevista.</p></div></div>
+<div style="padding:20px;border:1px solid #d1e4d8;border-radius:16px;background:#f1f9f4;margin-bottom:22px"><h2>🔴 Registra viaggio GPS</h2><p>Registra i chilometri realmente percorsi mentre l'app rimane aperta sullo schermo.</p><label>Veicolo <select id="record-vehicle" style="display:block;width:100%;padding:12px;margin:8px 0"></select></label><label>Prezzo carburante / kWh (€) <input type="number" id="record-price" value="1.75" min="0.01" step="0.001" style="display:block;width:100%;padding:12px;margin:8px 0"></label><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="primary-button" id="record-start" type="button">▶ Inizia viaggio</button><button class="outline-button" id="record-stop" type="button" disabled>■ Termina viaggio</button></div><div id="record-status" role="status" aria-live="polite" style="padding:12px 0">Registrazione non avviata.</div><div id="record-result"></div><small>Richiede permesso GPS e Safari aperto in primo piano. Non funziona in modo affidabile con schermo bloccato o app in background. Il costo resta stimato dal consumo medio.</small></div><form id="trip-form" style="background:white;border:1px solid #e1e8e3;border-radius:18px;padding:22px;max-width:780px;display:grid;gap:16px">
+<label class="control-label">PARTENZA<input id="trip-from" required autocomplete="street-address" placeholder="Es. Padova, Piazza delle Erbe" style="display:block;width:100%;padding:13px;border:1px solid #cbd9d1;border-radius:10px;margin-top:8px"><button id="trip-gps" type="button">📍 Usa posizione GPS</button></label>
+<label class="control-label">DESTINAZIONE<input id="trip-to" required autocomplete="off" placeholder="Es. Verona, Piazza Bra" style="display:block;width:100%;padding:13px;border:1px solid #cbd9d1;border-radius:10px;margin-top:8px"></label>
+<label class="control-label">VEICOLO<select id="trip-vehicle" required style="display:block;width:100%;padding:12px;margin-top:8px"></select></label>
+<label class="control-label">PREZZO CARBURANTE / ENERGIA (€ per L o kWh)<input id="trip-price" type="number" min="0.01" step="0.001" value="1.75" required style="display:block;width:100%;padding:12px;border:1px solid #cbd9d1;border-radius:10px;margin-top:8px"></label>
+<label style="display:flex;align-items:center;gap:9px"><input type="checkbox" id="trip-return"> Calcola anche il ritorno (stesso percorso)</label>
+<button class="primary-button" id="trip-submit" type="submit">🛣️ Calcola spesa viaggio →</button>
+<div id="trip-result" role="status" aria-live="polite" style="line-height:1.7"></div>
+<small>Indirizzi cercati tramite OpenStreetMap/Nominatim. Percorso stradale tramite OpenRouteService. Stima basata sul consumo medio del veicolo: pedaggi, traffico e soste esclusi. Il percorso di ritorno è stimato uguale all'andata.</small>
+</form></section>
+    <section class="page" id="page-garage"><div class="page-title-row"><div><div class="eyebrow">I TUOI VEICOLI</div><h1>Il tuo garage, <span>sempre aggiornato.</span></h1><p class="subtitle">Aggiungi i tuoi mezzi per calcolare costi e consumi precisi.</p></div><button class="primary-button" id="add-vehicle">＋ Aggiungi veicolo</button></div><div id="garage-grid" class="garage-grid"></div></section>
+    <section class="page" id="page-history"><div class="page-title-row"><div><div class="eyebrow">TUTTO SOTTO CONTROLLO</div><h1>Storico & <span>statistiche.</span></h1><p class="subtitle">Monitora consumi, spesa e chilometri nel tempo.</p></div><button class="primary-button" id="add-refuel">＋ Registra rifornimento</button></div><div class="period-row"><div class="period-tabs"><button class="period active" data-period="month">Questo mese</button><button class="period" data-period="all">Tutto lo storico</button><button class="period" data-period="custom">Personalizzato</button></div><span class="demo-inline">● Dati locali · solo su questo dispositivo</span></div><div class="history-stats" id="history-stats"></div><div class="history-chart-card"><div class="chart-head"><div><h2>Spesa nel tempo</h2><p>Confronto tra i veicoli del tuo garage</p></div><select id="chart-period"><option>Ultimi 6 mesi</option><option>Ultimi 12 mesi</option></select></div><div class="chart" id="chart"></div><div class="chart-legend"><span><i class="legend-dot orange-dot"></i>Golf · Benzina</span><span><i class="legend-dot blue-dot"></i>Fiat 500e · Elettricità</span></div></div><div class="history-table-wrap"><div class="table-head"><div><h2>Rifornimenti e ricariche</h2><p>Le tue registrazioni recenti</p></div><button class="filter-button">Filtra⌄</button></div><table><thead><tr><th>DATA</th><th>VEICOLO</th><th>TIPO</th><th>QUANTITÀ</th><th>PREZZO / UNITÀ</th><th>CHILOMETRAGGIO</th><th>TOTALE</th><th></th></tr></thead><tbody id="history-body"></tbody></table></div><div class="disclaimer"><span>ⓘ</span><span>Lo storico viene salvato solo nel browser di questo dispositivo. Esporta o sincronizza i dati per non perderli.</span></div></section>
+  <section class="data-transfer" aria-label="Backup dei dati"><div><b>I tuoi dati restano tuoi.</b><span>Esporta o importa un archivio per trasferirlo tra il sito e il file locale.</span></div><div><button type="button" id="export-data" class="text-button">Esporta dati ↓</button><button type="button" id="import-data" class="text-button">Importa archivio ↑</button><input type="file" id="import-file" accept="application/json,.json" hidden></div></section>
+  </main>
+  <div class="modal-backdrop" id="modal-backdrop" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-head"><div><div class="eyebrow" id="modal-eyebrow">IL TUO GARAGE</div><h2 id="modal-title">Aggiungi veicolo</h2></div><button class="close-modal" aria-label="Chiudi">×</button></div><form id="vehicle-form"><input type="hidden" id="vehicle-id"><label>Nome o modello<input id="vehicle-name" required placeholder="es. Toyota Yaris Hybrid"></label><div class="form-row"><label>Tipo di mezzo<select id="vehicle-type"><option>Automobile</option><option>Motociclo</option><option>Furgone</option><option>Altro</option></select></label><label>Alimentazione<select id="vehicle-fuel"><option>Benzina</option><option>Benzina Super</option><option>Gasolio</option><option>Gasolio ecologico</option><option>GPL</option><option>Metano</option><option>Elettricità</option></select></label></div><div class="form-row"><label>Consumo medio<input type="number" id="vehicle-consumption" step="0.1" min="0.1" required placeholder="6.2"><small id="consumption-hint" class="field-hint">La media diventa automatica dopo due rifornimenti con chilometraggio crescente.</small></label><label>Unità<span class="unit-field" id="consumption-unit">L/100 km</span></label></div><label>Capacità serbatoio / batteria (opzionale)<input type="number" id="vehicle-capacity" step="0.1" min="0" placeholder="50"></label><div class="modal-actions"><button type="button" class="cancel-button close-modal">Annulla</button><button class="primary-button" type="submit">Salva veicolo</button></div></form></div></div>
+  <div class="modal-backdrop" id="refuel-backdrop" hidden><div class="modal" role="dialog" aria-modal="true"><div class="modal-head"><div><div class="eyebrow">AGGIORNA LO STORICO</div><h2>Registra un rifornimento</h2></div><button class="close-refuel close-modal" aria-label="Chiudi">×</button></div><form id="refuel-form"><label>Veicolo<select id="entry-vehicle"></select></label><div class="form-row"><label>Data<input type="date" id="entry-date" required></label><label>Quantità (L / kWh)<input type="number" id="entry-quantity" step="0.01" min="0.01" required></label></div><div class="form-row"><label>Prezzo unitario (€)<input type="number" id="entry-price" step="0.001" min="0" required></label><label>Chilometraggio (opzionale)<input type="number" id="entry-odometer" min="0"><small class="field-hint">Inseriscilo a ogni rifornimento per calcolare il consumo medio.</small></label></div><div class="entry-total">Costo totale <b id="entry-total">€ 0,00</b></div><div class="modal-actions"><button type="button" class="cancel-button close-modal">Annulla</button><button class="primary-button" type="submit">Registra</button></div></form></div></div>
+  <div class="modal-backdrop" id="share-backdrop" hidden><div class="modal share-modal" role="dialog" aria-modal="true" aria-labelledby="share-title"><div class="modal-head"><div><div class="eyebrow">PASSAPAROLA</div><h2 id="share-title">Invita qualcuno su PienoSmart</h2></div><button class="close-modal" aria-label="Chiudi">×</button></div><p class="share-welcome">Ciao! Ti invito a provare PienoSmart: confronta i costi di carburante e ricarica e trova l’opzione più conveniente per i tuoi viaggi.</p><label>Messaggio di benvenuto<textarea id="share-message" rows="4">Ciao! Ti invito a provare PienoSmart: confronta i costi di carburante e ricarica e trova l’opzione più conveniente per i tuoi viaggi.</textarea></label><label>Link da condividere<div class="share-link-row"><input id="share-link" readonly><button type="button" id="share-copy" class="outline-button">Copia link</button></div></label><div class="modal-actions"><button type="button" class="primary-button" id="share-send">Condividi invito ↗</button></div></div></div>
+  <div class="app-toast" id="app-toast" role="status" aria-live="polite"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="app.js?v=20261011-record1"></script><script src="trip.js?v=20261011-record1"></script><script src="record.js?v=20261011-record1"></script>
+  <script>
+    if (location.hostname === 'sartoriluca65.github.io') {
+      const analyticsConfig = document.createElement('script');
+      analyticsConfig.src = '/analytics/config.js?v=20261010-rifornio';
+      analyticsConfig.onload = () => {
+        const tracker = document.createElement('script');
+        tracker.src = '/analytics/tracker.js?v=20261010-rifornio';
+        tracker.dataset.app = 'rifornio';
+        document.body.append(tracker);
+      };
+      document.head.append(analyticsConfig);
+    }
+  </script>
+</body></html>
