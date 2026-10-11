@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta name="theme-color" content="#f7f8f5" />
   <meta name="description" content="PienoSmart: confronta i prezzi dei carburanti e calcola il costo dei tuoi viaggi." />
   <title>PienoSmart — Risparmia, viaggia meglio</title><link rel="icon" type="image/svg+xml" href="pienosmart-logo.svg"><link rel="apple-touch-icon" href="pienosmart-logo.svg"><link rel="manifest" href="manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="PienoSmart"><meta name="application-name" content="PienoSmart">
@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="styles.css?v=20261011-mobile2" />
+  <link rel="stylesheet" href="styles.css?v=20261011-autoupdate1" />
 </head>
 <body>
   <aside class="sidebar">
@@ -65,7 +65,7 @@
   <div class="modal-backdrop" id="refuel-backdrop" hidden><div class="modal" role="dialog" aria-modal="true"><div class="modal-head"><div><div class="eyebrow">AGGIORNA LO STORICO</div><h2>Registra un rifornimento</h2></div><button class="close-refuel close-modal" aria-label="Chiudi">×</button></div><form id="refuel-form"><label>Veicolo<select id="entry-vehicle"></select></label><div class="form-row"><label>Data<input type="date" id="entry-date" required></label><label>Quantità (L / kWh)<input type="number" id="entry-quantity" step="0.01" min="0.01" required></label></div><div class="form-row"><label>Prezzo unitario (€)<input type="number" id="entry-price" step="0.001" min="0" required></label><label>Chilometraggio (opzionale)<input type="number" id="entry-odometer" min="0"><small class="field-hint">Inseriscilo a ogni rifornimento per calcolare il consumo medio.</small></label></div><div class="entry-total">Costo totale <b id="entry-total">€ 0,00</b></div><div class="modal-actions"><button type="button" class="cancel-button close-modal">Annulla</button><button class="primary-button" type="submit">Registra</button></div></form></div></div>
   <div class="modal-backdrop" id="share-backdrop" hidden><div class="modal share-modal" role="dialog" aria-modal="true" aria-labelledby="share-title"><div class="modal-head"><div><div class="eyebrow">PASSAPAROLA</div><h2 id="share-title">Invita qualcuno su PienoSmart</h2></div><button class="close-modal" aria-label="Chiudi">×</button></div><p class="share-welcome">Ciao! Ti invito a provare PienoSmart: confronta i costi di carburante e ricarica e trova l’opzione più conveniente per i tuoi viaggi.</p><label>Messaggio di benvenuto<textarea id="share-message" rows="4">Ciao! Ti invito a provare PienoSmart: confronta i costi di carburante e ricarica e trova l’opzione più conveniente per i tuoi viaggi.</textarea></label><label>Link da condividere<div class="share-link-row"><input id="share-link" readonly><button type="button" id="share-copy" class="outline-button">Copia link</button></div></label><div class="modal-actions"><button type="button" class="primary-button" id="share-send">Condividi invito ↗</button></div></div></div>
   <div class="app-toast" id="app-toast" role="status" aria-live="polite"></div>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="app.js?v=20261011-record1"></script><script src="trip.js?v=20261011-record1"></script><script src="mobile-nav.js?v=20261011-mobile2"></script><script src="record.js?v=20261011-record1"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="app.js?v=20261011-autoupdate1"></script><script src="trip.js?v=20261011-autoupdate1"></script><script src="mobile-nav.js?v=20261011-autoupdate1"></script><script src="record.js?v=20261011-autoupdate1"></script>
   <script>
     if (location.hostname === 'sartoriluca65.github.io') {
       const analyticsConfig = document.createElement('script');
@@ -79,4 +79,4 @@
       document.head.append(analyticsConfig);
     }
   </script>
-<footer style="text-align:center;padding:20px 12px;color:#315a48;font-size:12px;border-top:1px solid #dce9e0;margin-top:22px"><span style="font-weight:700">© 2026 Luca Sartori</span> · PienoSmart · Tutti i diritti riservati<br><small>Ideazione e realizzazione: Luca Sartori · Riproduzione non autorizzata vietata</small></footer></body></html>
+<footer style="text-align:center;padding:20px 12px;color:#315a48;font-size:12px;border-top:1px solid #dce9e0;margin-top:22px"><span style="font-weight:700">© 2026 Luca Sartori</span> · PienoSmart · Tutti i diritti riservati<br><small>Ideazione e realizzazione: Luca Sartori · Riproduzione non autorizzata vietata</small></footer><script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).then(reg=>reg.update()).catch(()=>{}))}</script></body></html>
