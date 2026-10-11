@@ -76,15 +76,22 @@
    const start=await geocode(from);
    const end=await geocode(to);
    const response=await fetch(ROUTES_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({from:[start.lng,start.lat],to:[end.lng,end.lat]}),signal:AbortSignal.timeout(22000)});
-   const route=await response.json().catch(()=>({}));
-   if(!response.ok||!Number.isFinite(route.distanceKm))throw Error(route.error||'Percorso stradale non disponibile');
+   let route=await response.json().catch(()=>({}));
+   let approximate=false;
+   if(!response.ok||!Number.isFinite(route.distanceKm)){
+    // Provider outages must not prevent a clearly labeled approximate estimate.
+    const rad=Math.PI/180,dlat=(end.lat-start.lat)*rad,dlng=(end.lng-start.lng)*rad;
+    const a=Math.sin(dlat/2)**2+Math.cos(start.lat*rad)*Math.cos(end.lat*rad)*Math.sin(dlng/2)**2;
+    const straight=6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+    route={distanceKm:straight*1.30,durationMin:straight*1.30/65*60};approximate=true;
+   }
    const km=route.distanceKm*(roundTrip?2:1),minutes=route.durationMin*(roundTrip?2:1),consumption=v.consumption*km/100,total=consumption*costPerUnit;
    output.replaceChildren();
-   const heading=document.createElement('h3');heading.textContent=$('trip-kind').value==='past'?'🚗 Spesa stimata del viaggio effettuato':'🚗 Preventivo del viaggio';heading.style.margin='0 0 12px';
+   const heading=document.createElement('h3');heading.textContent=$('trip-kind')?.value==='past'?'🚗 Spesa stimata del viaggio effettuato':'🚗 Preventivo del viaggio';heading.style.margin='0 0 12px';
    const details=document.createElement('div');details.style.cssText='padding:16px;background:#f1f8f3;border-radius:12px';
-   const rows=[['Partenza',start.label],['Destinazione',end.label],['Distanza',fmt(km,1)+' km'+(roundTrip?' · andata e ritorno':' · sola andata')],['Tempo di guida',Math.floor(minutes/60)+' h '+Math.round(minutes%60)+' min'],['Veicolo',v.name],['Consumo medio',fmt(v.consumption,1)+' '+consumptionUnit(v.fuel)],['Carburante / energia necessari',fmt(consumption,2)+' '+fuelUnit(v.fuel)],['Prezzo inserito',euro(costPerUnit)+' / '+fuelUnit(v.fuel)],['SPESA STIMATA',euro(total)]];
+   const rows=[['Partenza',start.label],['Destinazione',end.label],['Distanza',fmt(km,1)+' km'+(approximate?' · stima approssimativa':'')+(roundTrip?' · andata e ritorno':' · sola andata')],['Tempo di guida',Math.floor(minutes/60)+' h '+Math.round(minutes%60)+' min'],['Veicolo',v.name],['Consumo medio',fmt(v.consumption,1)+' '+consumptionUnit(v.fuel)],['Carburante / energia necessari',fmt(consumption,2)+' '+fuelUnit(v.fuel)],['Prezzo inserito',euro(costPerUnit)+' / '+fuelUnit(v.fuel)],['SPESA STIMATA',euro(total)]];
    for(const [label,value] of rows){const row=document.createElement('p');row.style.margin='7px 0';const b=document.createElement('b');b.textContent=label+': ';row.append(b,document.createTextNode(value));details.append(row)}
-   const note=document.createElement('p');note.textContent='Stima basata sul consumo medio: non include pedaggi, parcheggi o variazioni dovute a traffico e guida.';note.style.fontSize='13px';
+   const note=document.createElement('p');note.textContent=(approximate?'Servizio percorsi non disponibile: distanza stimata in linea d’aria con maggiorazione del 30%, NON è un percorso stradale verificato. ':'')+'Stima basata sul consumo medio: non include pedaggi, parcheggi o variazioni dovute a traffico e guida.';note.style.fontSize='13px';
    output.append(heading,details,note);
   }catch(error){output.textContent='Non riesco a calcolare il viaggio: '+error.message+'. Verifica gli indirizzi e riprova.'}
   finally{button.disabled=false}
