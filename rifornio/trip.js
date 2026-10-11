@@ -59,5 +59,7 @@
   finally{button.disabled=false}
  });
  syncVehicles();syncPrice();
+ window.addEventListener('pienosmart:garage-updated',()=>{syncVehicles();syncPrice()});
+ window.addEventListener('pageshow',()=>{syncVehicles();syncPrice()});
  document.querySelector('[data-page="trip"]')?.addEventListener('click',()=>{syncVehicles();syncPrice()});
 })();
