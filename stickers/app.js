@@ -567,8 +567,8 @@ function openEditor() {
     if (aiGenerating) return;
     activeStyle = button.dataset.style; qsa('.style-option').forEach(item => item.classList.toggle('selected', item === button));
     qs('#modal-title').textContent = activeStyle === 'comic' ? 'Trasformazione fumetto' : `Stile ${styleOptions.find(style => style.id === activeStyle).label.toLowerCase()}`;
-    if (connectedGeminiKey) openGeminiConnectionModal(activeStyle);
-    else { drawPreview(); openGeminiConnectionModal(activeStyle); }
+    if (connectedGeminiKey) generateStickerWithGemini(activeStyle);
+    else drawPreview();
   });
   qs('#intensity').oninput = event => { styleStrength = Number(event.target.value); qs('#intensity-value').textContent = `${styleStrength}%`; drawPreview(); };
   qs('#outline').oninput = event => { lineStrength = Number(event.target.value); qs('#outline-value').textContent = `${lineStrength}%`; drawPreview(); };
@@ -578,7 +578,7 @@ function openEditor() {
   qs('#share-sticker').onclick = shareCurrentArtwork;
   qs('#save-sticker').onclick = saveSticker;
   qs('#local-cutout').onclick = removeLocalBackground;
-  qs('#editor-connect-ai').onclick = () => openGeminiConnectionModal();
+  qs('#editor-connect-ai').onclick = () => toast('Gemini è già collegato: scegli uno stile per generare lo sticker.');
   drawPreview();
 }
 
