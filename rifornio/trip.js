@@ -16,14 +16,40 @@
   if(officialPricesActive&&prices.length)price.value=(prices.reduce((a,b)=>a+b,0)/prices.length).toFixed(3);
   else price.value=v.fuel==='Elettricità'?'0.60':'1.75';
  }
- async function geocode(address){
-  const coords=address.split(',').map(Number);if(coords.length===2&&coords.every(Number.isFinite)&&Math.abs(coords[0])<=90&&Math.abs(coords[1])<=180)return {lat:coords[0],lng:coords[1],label:'Posizione GPS'};
+ let lastSearch=0;
+ async function searchAddress(query){
+  const delay=Math.max(0,1100-(Date.now()-lastSearch));
+  if(delay)await new Promise(resolve=>setTimeout(resolve,delay));
+  lastSearch=Date.now();
   const url=new URL('https://nominatim.openstreetmap.org/search');
-  url.searchParams.set('q',address);url.searchParams.set('format','jsonv2');url.searchParams.set('limit','1');url.searchParams.set('countrycodes','it');
-  const response=await fetch(url,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(12000)});
-  if(!response.ok)throw Error('Servizio indirizzi non disponibile');
-  const matches=await response.json();if(!matches.length)throw Error('Indirizzo non trovato: '+address);
-  return {lng:Number(matches[0].lon),lat:Number(matches[0].lat),label:matches[0].display_name};
+  url.searchParams.set('q',query);url.searchParams.set('format','jsonv2');
+  url.searchParams.set('limit','3');url.searchParams.set('countrycodes','it');
+  url.searchParams.set('accept-language','it');
+  const response=await fetch(url,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(15000)});
+  if(!response.ok)throw Error('Servizio indirizzi momentaneamente non disponibile');
+  return response.json();
+ }
+ async function geocode(address){
+  const coords=address.split(',').map(s=>Number(s.trim()));
+  if(coords.length===2&&coords.every(Number.isFinite)&&Math.abs(coords[0])<=90&&Math.abs(coords[1])<=180)return {lat:coords[0],lng:coords[1],label:'Posizione GPS'};
+  const clean=address.replace(/\s+/g,' ').trim();
+  const variants=[clean];
+  // The city is often written without a comma: "Viale della Cooperazione Rovigo".
+  const words=clean.split(' ');
+  if(!clean.includes(',')&&words.length>=3){
+   variants.push(words.slice(0,-1).join(' ')+', '+words.at(-1)+', Italia');
+   if(words.length>=5)variants.push(words.slice(0,-2).join(' ')+', '+words.slice(-2).join(' ')+', Italia');
+  }else if(clean.includes(','))variants.push(clean+', Italia');
+  const street=clean.replace(/^(viale|via|piazza|corso|strada)\s+/i,'');
+  if(street!==clean)variants.push(street);
+  let matches=[];
+  for(const query of [...new Set(variants)]){
+   matches=await searchAddress(query);
+   if(matches.length)break;
+  }
+  if(!matches.length)throw Error('Indirizzo non trovato: '+address+'. Prova «Viale della Cooperazione, Rovigo» oppure una via vicina');
+  const best=matches[0];
+  return {lng:Number(best.lon),lat:Number(best.lat),label:best.display_name};
  }
  $('trip-gps').addEventListener('click',()=>{
   output.textContent='Acquisizione posizione in corso…';
@@ -41,8 +67,6 @@
   button.disabled=true;output.textContent='Cerco gli indirizzi e calcolo il percorso stradale…';
   try{
    const start=await geocode(from);
-   // Public Nominatim usage policy: at most one request per second.
-   await new Promise(resolve=>setTimeout(resolve,1100));
    const end=await geocode(to);
    const response=await fetch(ROUTES_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({from:[start.lng,start.lat],to:[end.lng,end.lat]}),signal:AbortSignal.timeout(22000)});
    const route=await response.json().catch(()=>({}));
