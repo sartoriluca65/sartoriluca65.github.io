@@ -1,5 +1,3 @@
-const ASSETS = __SITE_ASSETS__;
-
 const allowedOrigins = new Set(["https://sticker-studio.sartori-luca65.chatgpt.site", "https://sartoriluca65.github.io"]);
 const json = (value, status = 200, origin = null) => new Response(JSON.stringify(value), {
   status,
@@ -73,11 +71,6 @@ export default {
       return json({ image: generatedData.data, mimeType: generatedData.mimeType || generatedData.mime_type || "image/png" }, 200, origin);
     }
 
-    if (request.method !== "GET" && request.method !== "HEAD") return new Response("Method not allowed", { status: 405 });
-    const path = url.pathname === "/" ? "/index.html" : url.pathname;
-    const asset = ASSETS[path];
-    if (!asset) return new Response("Not found", { status: 404, headers: { "cache-control": "no-store" } });
-    const body = request.method === "HEAD" ? null : asset.body;
-    return new Response(body, { headers: { "content-type": asset.type, "cache-control": "no-cache" } });
+    return json({ error: "Endpoint non disponibile." }, 404, origin);
   },
 };
