@@ -27,7 +27,7 @@ let packs = (Array.isArray(savedPacks) ? savedPacks : examplePacks).map(pack => 
   author: pack.author || (builtInPackIds.has(pack.id) ? undefined : 'tu'),
 }));
 let stickers = readStore('ss-stickers', exampleStickers);
-let currentView = 'home', currentFilter = '', uploadImage = null, originalUploadImage = null, uploadName = '', activeStyle = 'comic', localBackgroundPipeline = null, localBackgroundPipelinePromise = null, uploadHasLocalCutout = false, connectedGeminiKey = '', aiStickerImage = null, aiGenerating = false;
+let currentView = 'home', currentFilter = '', uploadImage = null, originalUploadImage = null, uploadName = '', activeStyle = 'comic', localBackgroundPipeline = null, localBackgroundPipelinePromise = null, uploadHasLocalCutout = false, connectedGeminiKey = 'server', aiStickerImage = null, aiGenerating = false;
 let styleStrength = 46, lineStrength = 24, toastTimer, targetPack = '', targetPlatform = 'whatsapp', uploadMode = 'single', sheetSegments = [], cameraStream = null, modalHistory = [];
 
 let stickerDbPromise;
@@ -562,12 +562,12 @@ function openEditor() {
   const destinationOptions = Object.entries(platformPresets).map(([id, item]) => `<option value="${id}" ${targetPlatform === id ? 'selected' : ''}>${item.icon} ${item.label}</option>`).join('');
   const platform = platformPresets[targetPlatform];
   aiStickerImage = null;
-  setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="section-overline">EDITOR STICKER · ${uploadImage.naturalWidth} × ${uploadImage.naturalHeight}</div><h2 id="modal-title">Trasformazione fumetto</h2><p>Scegli un look: con Gemini collegato l’IA crea una nuova illustrazione partendo dalla foto.</p><div class="editor-layout"><div class="editor-stage"><canvas id="preview-canvas" width="512" height="512"></canvas></div><div class="editor-controls"><div class="ai-connection-box"><button class="secondary-button" id="editor-connect-ai">${connectedGeminiKey ? '✓ Gemini collegato · Gestisci' : '✦ Collega la tua AI'}</button><small id="editor-ai-status">${connectedGeminiKey ? 'La prossima direzione artistica verrà generata con Gemini.' : 'Collega la tua chiave Gemini per generare il look con l’IA.'}</small></div><div class="local-ai-control"><button class="secondary-button" id="local-cutout">✦ Rimuovi sfondo</button><small id="local-cutout-status">Lo sfondo viene rimosso prima del salvataggio. Elaborazione sul dispositivo, senza inviare la foto.</small></div><div class="control-group"><label>Direzione artistica <small>scegli il look</small></label><div class="style-options">${styleButtons}</div></div><div class="control-group"><label for="intensity">Intensità <small id="intensity-value">${styleStrength}%</small></label><input id="intensity" class="range" type="range" min="20" max="100" value="${styleStrength}" /></div><div class="control-group"><label for="outline">Contorni fumetto <small id="outline-value">${lineStrength}%</small></label><input id="outline" class="range" type="range" min="0" max="100" value="${lineStrength}" /></div><div class="control-group"><label for="caption">Emoji o scritta <small>facoltativa</small></label><input class="caption-input" id="caption" maxlength="26" placeholder="es. Ciao bella! ✨" /></div><div class="control-group"><label for="platform-select">Crea per la piattaforma</label><select id="platform-select" class="caption-input">${destinationOptions}</select><small id="platform-format" class="platform-format">${platform.format}</small><div id="platform-tip" class="platform-tip">${platform.tip}</div></div><div class="control-group"><label for="pack-select">Salva nel pacchetto</label><select id="pack-select" class="caption-input">${packOptions}</select></div><div class="editor-actions"><button class="secondary-button" id="share-sticker">↗ Esporta ${platform.label}</button><button class="create-button" id="save-sticker">Salva sticker <span>→</span></button></div><div class="share-note">Gemini usa la foto caricata per generare il look. Lo scontorno locale rimane disponibile; il modello locale non crea nuove pose.</div></div></div>`, 'modal editor-modal');
+  setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="section-overline">EDITOR STICKER · ${uploadImage.naturalWidth} × ${uploadImage.naturalHeight}</div><h2 id="modal-title">Trasformazione fumetto</h2><p>Scegli un look: con Gemini collegato l’IA crea una nuova illustrazione partendo dalla foto.</p><div class="editor-layout"><div class="editor-stage"><canvas id="preview-canvas" width="512" height="512"></canvas></div><div class="editor-controls"><div class="ai-connection-box"><button class="secondary-button" id="editor-connect-ai">${connectedGeminiKey ? '✦ Informazioni Gemini' : '✦ Collega la tua AI'}</button><small id="editor-ai-status">${connectedGeminiKey ? 'La prossima direzione artistica verrà generata con Gemini.' : 'La generazione Gemini usa il servizio protetto di LucaStickers.'}</small></div><div class="local-ai-control"><button class="secondary-button" id="local-cutout">✦ Rimuovi sfondo</button><small id="local-cutout-status">Lo sfondo viene rimosso prima del salvataggio. Elaborazione sul dispositivo, senza inviare la foto.</small></div><div class="control-group"><label>Direzione artistica <small>scegli il look</small></label><div class="style-options">${styleButtons}</div></div><div class="control-group"><label for="intensity">Intensità <small id="intensity-value">${styleStrength}%</small></label><input id="intensity" class="range" type="range" min="20" max="100" value="${styleStrength}" /></div><div class="control-group"><label for="outline">Contorni fumetto <small id="outline-value">${lineStrength}%</small></label><input id="outline" class="range" type="range" min="0" max="100" value="${lineStrength}" /></div><div class="control-group"><label for="caption">Emoji o scritta <small>facoltativa</small></label><input class="caption-input" id="caption" maxlength="26" placeholder="es. Ciao bella! ✨" /></div><div class="control-group"><label for="platform-select">Crea per la piattaforma</label><select id="platform-select" class="caption-input">${destinationOptions}</select><small id="platform-format" class="platform-format">${platform.format}</small><div id="platform-tip" class="platform-tip">${platform.tip}</div></div><div class="control-group"><label for="pack-select">Salva nel pacchetto</label><select id="pack-select" class="caption-input">${packOptions}</select></div><div class="editor-actions"><button class="secondary-button" id="share-sticker">↗ Esporta ${platform.label}</button><button class="create-button" id="save-sticker">Salva sticker <span>→</span></button></div><div class="share-note">Gemini usa la foto caricata per generare il look. Lo scontorno locale rimane disponibile; il modello locale non crea nuove pose.</div></div></div>`, 'modal editor-modal');
   qsa('.style-option').forEach(button => button.onclick = () => {
     if (aiGenerating) return;
     activeStyle = button.dataset.style; qsa('.style-option').forEach(item => item.classList.toggle('selected', item === button));
     qs('#modal-title').textContent = activeStyle === 'comic' ? 'Trasformazione fumetto' : `Stile ${styleOptions.find(style => style.id === activeStyle).label.toLowerCase()}`;
-    if (connectedGeminiKey) generateStickerWithGemini(activeStyle);
+    if (connectedGeminiKey) openGeminiConnectionModal(activeStyle);
     else { drawPreview(); openGeminiConnectionModal(activeStyle); }
   });
   qs('#intensity').oninput = event => { styleStrength = Number(event.target.value); qs('#intensity-value').textContent = `${styleStrength}%`; drawPreview(); };
@@ -585,27 +585,19 @@ function openEditor() {
 function syncGeminiConnectionUI() {
   const connected = Boolean(connectedGeminiKey);
   const cardButton = qs('#connect-gemini'), cardStatus = qs('#gemini-card-status');
-  if (cardButton) cardButton.textContent = connected ? 'Gemini collegato · Gestisci' : 'Collega Gemini';
-  if (cardStatus) cardStatus.textContent = connected ? 'Pronto per questa sessione. La chiave non viene salvata.' : 'Collega la tua chiave Gemini per creare look illustrati dalla foto.';
+  if (cardButton) cardButton.textContent = connected ? 'Informazioni Gemini' : 'Collega Gemini';
+  if (cardStatus) cardStatus.textContent = connected ? 'Gemini configurato sul server.' : 'Gemini è disponibile tramite il servizio di LucaStickers.';
   const editorButton = qs('#editor-connect-ai'), editorStatus = qs('#editor-ai-status');
-  if (editorButton) editorButton.textContent = connected ? '✓ Gemini collegato · Gestisci' : '✦ Collega la tua AI';
-  if (editorStatus) editorStatus.textContent = connected ? 'Scegli una direzione artistica: Gemini genererà lo sticker.' : 'Collega la tua chiave Gemini per generare il look con l’IA.';
+  if (editorButton) editorButton.textContent = connected ? '✦ Informazioni Gemini' : '✦ Collega la tua AI';
+  if (editorStatus) editorStatus.textContent = connected ? 'Scegli una direzione artistica: Gemini genererà lo sticker.' : 'La generazione Gemini usa il servizio protetto di LucaStickers.';
 }
 
 function openGeminiConnectionModal(styleAfterConnect = null) {
-  const styleName = styleAfterConnect ? styleOptions.find(item => item.id === styleAfterConnect)?.label : '';
-  setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="modal-icon">✦</div><div class="section-overline">COLLEGA LA TUA AI</div><h2 id="modal-title">Gemini, con il tuo account</h2><p>Inserisci una chiave API personale di Google AI Studio. Quando scegli un look, Gemini userà la foto per creare uno sticker illustrato${styleName ? ` in stile ${escapeHtml(styleName)}` : ''}.</p><div class="ai-privacy-note"><strong>Prima di collegare</strong><ul><li>La foto viene inviata a Google Gemini per la generazione.</li><li>La chiave viene inoltrata dall’app a Google per la richiesta, solo in memoria e senza essere registrata o salvata.</li><li>La generazione di immagini può essere a pagamento sul tuo account Google: il modello attuale costa circa $0,034 per immagine 1K, oltre ai token d’ingresso. Verifica tariffa e limiti prima di usarlo.</li></ul></div><a class="ai-key-link" href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener noreferrer">Apri Google AI Studio e crea una chiave →</a><form id="gemini-connect-form"><label for="gemini-api-key">Chiave API Gemini</label><input id="gemini-api-key" type="password" autocomplete="off" spellcheck="false" placeholder="Incolla qui la tua chiave" required/><label class="ai-consent"><input id="gemini-consent" type="checkbox" required/><span>Accetto di inviare la foto a Gemini e di usare la quota o l’eventuale credito del mio account.</span></label><button type="submit" class="create-button modal-submit">${styleAfterConnect ? 'Collega e genera sticker' : 'Collega Gemini'} <span>→</span></button></form>${connectedGeminiKey ? '<button type="button" class="secondary-button ai-disconnect" id="gemini-disconnect">Scollega Gemini</button><small class="ai-session-note">Gemini è collegato solo per questa sessione del browser.</small>' : '<small class="ai-session-note">Collegamento temporaneo: la chiave resta solo in memoria finché la pagina è aperta.</small>'}`, 'modal ai-connect-modal');
-  qs('#gemini-connect-form').onsubmit = event => {
-    event.preventDefault();
-    connectedGeminiKey = qs('#gemini-api-key').value.trim();
-    if (!connectedGeminiKey || !qs('#gemini-consent').checked) return;
-    goBackModal(); syncGeminiConnectionUI();
+  setModal('<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><h2 id="modal-title">Gemini per gli sticker</h2><p>Gemini utilizza il servizio protetto di LucaStickers. Non serve inserire una chiave API. Quando generi un look, la foto viene inviata a Google per elaborarla. Il servizio può avere limiti di utilizzo.</p><button class="create-button" id="gemini-confirm">Ho capito · Continua</button>', 'modal ai-connect-modal');
+  qs('#gemini-confirm').onclick = () => {
+    goBackModal();
     if (styleAfterConnect) generateStickerWithGemini(styleAfterConnect);
-    else toast('Gemini collegato per questa sessione');
   };
-  qs('#gemini-disconnect')?.addEventListener('click', () => {
-    connectedGeminiKey = ''; aiStickerImage = null; goBackModal(); syncGeminiConnectionUI(); drawPreview(); toast('Gemini scollegato');
-  });
 }
 
 const geminiArtDirections = {
@@ -637,10 +629,8 @@ async function generateStickerWithGemini(styleId) {
   if (save) save.disabled = true; if (share) share.disabled = true;
   qsa('.style-option').forEach(button => { button.disabled = true; });
   try {
-    const apiEndpoint = location.hostname === 'sartoriluca65.github.io'
-      ? 'https://sticker-studio.sartori-luca65.chatgpt.site/api/ai/sticker'
-      : '/api/ai/sticker';
-    const response = await fetch(apiEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ apiKey: connectedGeminiKey, prompt, image: { mimeType, data: base64 } }) });
+    const apiEndpoint = 'https://luki-stickers-gemini.sartori-luca65.workers.dev/api/ai/sticker';
+    const response = await fetch(apiEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt, image: { mimeType, data: base64 } }) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || `Gemini non disponibile (${response.status}).`);
     const image = new Image();

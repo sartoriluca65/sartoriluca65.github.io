@@ -1,0 +1,11 @@
+name = "luki-stickers-gemini"
+main = "stickers/worker/index.js"
+compatibility_date = "2026-10-01"
+
+# The Gemini key must be added as a Cloudflare secret, never committed here.
+# Fail closed until the rate limiting binding is provisioned.
+[[unsafe.bindings]]
+name = "AI_RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 3, period = 60 }
