@@ -629,9 +629,7 @@ async function generateStickerWithGemini(styleId) {
   if (save) save.disabled = true; if (share) share.disabled = true;
   qsa('.style-option').forEach(button => { button.disabled = true; });
   try {
-    const apiEndpoint = location.hostname === 'sartoriluca65.github.io'
-      ? 'https://sticker-studio.sartori-luca65.chatgpt.site/api/ai/sticker'
-      : '/api/ai/sticker';
+    const apiEndpoint = 'https://luki-stickers-gemini.sartori-luca65.workers.dev/api/ai/sticker';
     const response = await fetch(apiEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt, image: { mimeType, data: base64 } }) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || `Gemini non disponibile (${response.status}).`);
