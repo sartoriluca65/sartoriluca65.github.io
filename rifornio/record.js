@@ -23,5 +23,6 @@
  });
  stop.addEventListener('click',finish);
  window.addEventListener('pagehide',()=>{if(active){navigator.geolocation.clearWatch(watch);watch=null;active=false}});
+ window.addEventListener('pienosmart:garage-updated',()=>{if(!active)populate()});
  populate();vehicle.addEventListener('change',()=>{const v=vehicleById(vehicle.value);price.value=v?.fuel==='Elettricità'?'0.60':'1.75'});
 })();
