@@ -99,13 +99,16 @@
     container.replaceChildren();
     if(!rows.length){const message=document.createElement('p');message.textContent='Nessuna stazione con orari mappati che risulti aperta lungo questo percorso.';container.append(message)}
     const list=document.createElement('div');list.style.cssText='display:grid;gap:10px;margin-top:12px';
-    const title=document.createElement('strong');title.textContent=(idx===0?'★ Migliore sul viaggio · ':'')+s.name;
-    const address=document.createElement('div');address.style.cssText='font-size:13px;margin-top:5px';address.textContent=s.address;
-    const priceLine=document.createElement('div');priceLine.style.cssText='font-size:13px;margin-top:7px';priceLine.textContent=euro(s.price)+' / '+unit+' · '+fmt(s.offRouteKm,1)+' km di deviazione stimata';
-    const costLine=document.createElement('div');costLine.style.cssText='font-size:13px;margin-top:4px';costLine.textContent='Energia stimata: '+fmt(s.needed,2)+' '+unit+' · costo viaggio stimato a questo prezzo: '+euro(s.cost);
-    const total=document.createElement('b');total.textContent=euro(s.cost);costLine.append(' ',total);
-    const statusLine=document.createElement('div');statusLine.style.cssText='font-size:12px;margin-top:5px;color:'+(s.openStatus?.state==='open'?'#17664b':'#875a20');statusLine.textContent=openLabel;
-    card.append(title,address,priceLine,costLine,statusLine);
+    visible.forEach((s,idx)=>{
+     const card=document.createElement('article');card.style.cssText='padding:14px;border:1px solid #e1e9e2;border-radius:12px;background:#fff';
+     const title=document.createElement('strong');title.textContent=(idx===0&&s.openStatus?.state==='open'?'★ Migliore sul viaggio · ':'')+(s.name||s.brand||'Distributore');
+     const address=document.createElement('div');address.style.cssText='font-size:13px;margin-top:5px';address.textContent=s.address||'Posizione sulla mappa';
+     const priceLine=document.createElement('div');priceLine.style.cssText='font-size:13px;margin-top:7px';priceLine.textContent=euro(s.price)+' / '+unit+' · '+fmt(s.offRouteKm,1)+' km di deviazione stimata';
+     const costLine=document.createElement('div');costLine.style.cssText='font-size:13px;margin-top:4px';costLine.textContent='Consumo totale stimato, viaggio e deviazione: '+fmt(s.needed,2)+' '+unit+' · costo: '+euro(s.cost);
+     const statusLine=document.createElement('div');statusLine.style.cssText='font-size:12px;margin-top:5px;color:'+(s.openStatus?.state==='open'?'#17664b':'#875a20');
+     statusLine.textContent=s.openStatus?.state==='open'?'Aperto secondo gli orari OpenStreetMap · verifica sul posto':'Orario di apertura non verificabile · verifica prima di partire';
+     card.append(title,address,priceLine,costLine,statusLine);list.append(card);
+    });
     container.append(list);
     if(rows.length>5&&!showAll){const more=document.createElement('button');more.type='button';more.className='outline-button';more.textContent='Mostra tutte le '+rows.length+' opzioni';more.onclick=()=>{showAll=true;render()};container.append(more)}
     if(unknown.length&&!showUnknown){const more=document.createElement('button');more.type='button';more.className='outline-button';more.style.marginLeft='8px';more.textContent='Mostra '+unknown.length+' con stato non verificabile';more.onclick=()=>{showUnknown=true;render()};container.append(more)}
