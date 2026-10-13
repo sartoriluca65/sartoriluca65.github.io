@@ -147,7 +147,7 @@ function refresh(){renderVehicleSelect();renderGarage();renderDashboard();render
         const data=await response.json();
         if(!response.ok)throw Error(data.error||'Servizio non disponibile');
         output.textContent=data.answer||'Nessuna risposta disponibile.';
-      }catch(error){output.textContent='Assistente temporaneamente non disponibile: '+error.message}
+      }catch(error){output.textContent='Assistente non disponibile al momento. Riprova più tardi.'}
       finally{button.disabled=false}
     });
     panel.append(title,note,button,output);
