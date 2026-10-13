@@ -41,7 +41,7 @@ body{background:#f1f4ee}.sidebar{background:#143c30;color:#ecf5ec;border:0;paddi
 .page-arrows button:disabled{opacity:.35;cursor:default}
 @media(max-width:760px){.page-arrows button{padding:10px 8px;font-size:11px}.topbar .crumb{display:none}}
 
-.station-status{margin:8px 0 4px;padding:7px 9px;border-radius:7px;font-size:10px;font-weight:700}.station-status.is-open{background:#e8f4e9;color:#17664b}.station-status.is-unknown{background:#fff5e8;color:#8e5d20}.show-more-results{width:100%;margin:10px 0;padding:11px 14px;border:1px solid #cfe0d3;border-radius:9px;background:#f4faf4;color:#17664b;font-weight:700;font-size:12px}.show-more-results:hover{background:#e7f3e8}.secondary-show{background:#fff8ee;border-color:#ead6b5;color:#855a23}
+.station-status{margin:6px 0 3px;padding:5px 7px;border-radius:6px;font-size:9px;font-weight:600}.station-status.is-open{background:#e8f4e9;color:#17664b}.station-status.is-unknown{background:#fff5e8;color:#8e5d20}.show-more-results{width:100%;margin:10px 0;padding:11px 14px;border:1px solid #cfe0d3;border-radius:9px;background:#f4faf4;color:#17664b;font-weight:700;font-size:12px}.show-more-results:hover{background:#e7f3e8}.secondary-show{background:#fff8ee;border-color:#ead6b5;color:#855a23}
 
 .sidebar-copyright{display:block;margin:8px 2px 0;color:#b0c7b7;font-size:10px;line-height:1.5}
 @media(max-width:760px){.sidebar-copyright{font-size:9px}}
