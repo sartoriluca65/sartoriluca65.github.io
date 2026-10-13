@@ -107,7 +107,7 @@ document.getElementById('vehicle-select').onchange=()=>{syncFuel();updateRoadRou
  if(isLocating){status.textContent='Attendi il completamento della localizzazione prima del confronto.';return}
  if(!raw){status.textContent='Inserisci una località, un indirizzo o le coordinate di partenza.';return}
  if(raw!==resolvedOriginInput){
-  const coords=raw.match(/(-?\\d+(?:\\.\\d+)?)\\s*[,;]\\s*(-?\\d+(?:\\.\\d+)?)/);
+  const coords=raw.match(/(-?\d+(?:\.\d+)?)\s*[,;]\s*(-?\d+(?:\.\d+)?)/);
   if(coords){
    const lat=Number(coords[1]),lng=Number(coords[2]);
    if(Math.abs(lat)>90||Math.abs(lng)>180){status.textContent='Coordinate non valide. Usa latitudine e longitudine.';return}
