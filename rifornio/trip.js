@@ -23,20 +23,21 @@
   if(officialPricesActive&&prices.length)price.value=(prices.reduce((a,b)=>a+b,0)/prices.length).toFixed(3);
   else price.value=v.fuel==='Elettricità'?'0.60':'1.75';
  }
- let lastSearch=0;
+ let lastSearch=0,selectedDestination=null;
  async function searchAddress(query){
   const delay=Math.max(0,1100-(Date.now()-lastSearch));
   if(delay)await new Promise(resolve=>setTimeout(resolve,delay));
   lastSearch=Date.now();
   const url=new URL('https://nominatim.openstreetmap.org/search');
   url.searchParams.set('q',query);url.searchParams.set('format','jsonv2');
-  url.searchParams.set('limit','3');url.searchParams.set('countrycodes','it');
+  url.searchParams.set('limit','5');url.searchParams.set('countrycodes','it');
   url.searchParams.set('accept-language','it');
   const response=await fetch(url,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(15000)});
   if(!response.ok)throw Error('Servizio indirizzi momentaneamente non disponibile');
   return response.json();
  }
  async function geocode(address){
+  if(selectedDestination&&$('trip-to').value.trim()===address)return selectedDestination;
   const coords=address.split(',').map(s=>Number(s.trim()));
   if(coords.length===2&&coords.every(Number.isFinite)&&Math.abs(coords[0])<=90&&Math.abs(coords[1])<=180)return {lat:coords[0],lng:coords[1],label:'Posizione GPS'};
   const clean=address.replace(/\s+/g,' ').trim();
@@ -58,6 +59,26 @@
   const best=matches[0];
   return {lng:Number(best.lon),lat:Number(best.lat),label:best.display_name};
  }
+ $('trip-to').addEventListener('input',()=>{selectedDestination=null;$('trip-to-options').replaceChildren()});
+ $('trip-to-search').addEventListener('click',async()=>{
+  const query=$('trip-to').value.trim(),results=$('trip-to-options');
+  if(!query){results.textContent='Inserisci il nome del luogo e, se utile, la città.';return}
+  results.textContent='Cerco luoghi e attività…';
+  try{
+   const matches=await searchAddress(query);
+   results.replaceChildren();
+   if(!matches.length){results.textContent='Nessun luogo trovato. Prova ad aggiungere la città o un indirizzo.';return}
+   matches.forEach(match=>{
+    const option=document.createElement('button');option.type='button';option.className='outline-button';option.style.cssText='display:block;width:100%;text-align:left;margin:6px 0;white-space:normal';
+    option.textContent=match.display_name;
+    option.addEventListener('click',()=>{
+     selectedDestination={lat:Number(match.lat),lng:Number(match.lon),label:match.display_name};
+     $('trip-to').value=match.display_name;storeDraft();results.replaceChildren();
+    });
+    results.append(option);
+   });
+  }catch(error){results.textContent='Ricerca non disponibile: '+error.message}
+ });
  $('trip-gps').addEventListener('click',()=>{
   output.textContent='Acquisizione posizione in corso…';
   navigator.geolocation.getCurrentPosition(
