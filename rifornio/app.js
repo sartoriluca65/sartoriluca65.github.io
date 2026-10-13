@@ -61,7 +61,7 @@ async function updateOfficialPrices(){
     const url=new URL(MIMIT_ENDPOINT);
     url.searchParams.set('lat',origin.lat);
     url.searchParams.set('lng',origin.lng);
-    const response=await fetch(url.toString(),{signal:AbortSignal.timeout(15000)});
+    let response;try{response=await fetch(url.toString(),{signal:AbortSignal.timeout(20000)})}catch(firstError){await new Promise(resolve=>setTimeout(resolve,900));response=await fetch(url.toString(),{signal:AbortSignal.timeout(25000)})}
     if(!response.ok)throw Error('Servizio prezzi non disponibile (HTTP '+response.status+')');
     const payload=await response.json();
     if(!Array.isArray(payload.stations))throw Error('Formato della risposta non valido');
