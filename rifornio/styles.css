@@ -40,3 +40,5 @@ body{background:#f1f4ee}.sidebar{background:#143c30;color:#ecf5ec;border:0;paddi
 .page-arrows button{border:1px solid #bad8c7;border-radius:10px;background:#e7f5ec;color:#124932;font-size:12px;font-weight:800;padding:10px 12px;white-space:nowrap}
 .page-arrows button:disabled{opacity:.35;cursor:default}
 @media(max-width:760px){.page-arrows button{padding:10px 8px;font-size:11px}.topbar .crumb{display:none}}
+
+.station-status{margin:8px 0 4px;padding:7px 9px;border-radius:7px;font-size:10px;font-weight:700}.station-status.is-open{background:#e8f4e9;color:#17664b}.station-status.is-unknown{background:#fff5e8;color:#8e5d20}.show-more-results{width:100%;margin:10px 0;padding:11px 14px;border:1px solid #cfe0d3;border-radius:9px;background:#f4faf4;color:#17664b;font-weight:700;font-size:12px}.show-more-results:hover{background:#e7f3e8}.secondary-show{background:#fff8ee;border-color:#ead6b5;color:#855a23}
