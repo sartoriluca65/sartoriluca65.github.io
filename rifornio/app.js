@@ -78,7 +78,7 @@ async function updateOfficialPrices(){
     ++routesRequest;
     STATIONS=DEMO_STATIONS.map(s=>({...s,prices:{...s.prices}}));
     // Never display fictional demo prices as though they came from the Ministry.
-    if(status)status.textContent='Prezzi ufficiali non raggiungibili in questo momento. I prezzi DEMO coprono solo Milano e non sono prezzi reali. Riprova più tardi.';
+    if(status){status.textContent='Prezzi ufficiali non raggiungibili in questo momento. I prezzi DEMO coprono solo Milano e non sono prezzi reali. ';const retry=document.createElement('button');retry.type='button';retry.textContent='Riprova';retry.setAttribute('aria-label','Riprova a caricare i prezzi ufficiali');retry.onclick=updateOfficialPrices;status.append(retry)}
     renderResults();
   }
 }
