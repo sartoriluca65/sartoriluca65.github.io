@@ -1,0 +1,1 @@
+import fs from 'node:fs';import {gunzipSync} from 'node:zlib';const parts=JSON.parse(fs.readFileSync(new URL('../assets/fonts-parts.json',import.meta.url)));const chunks=parts.map(p=>fs.readFileSync(new URL('../'+p,import.meta.url)));fs.writeFileSync(new URL('../src/fonts.ts',import.meta.url),gunzipSync(Buffer.concat(chunks)));
