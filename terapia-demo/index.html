@@ -203,6 +203,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       <button class="tab" data-tab="esami">🧪 Esami da fare</button>
       <button class="tab" data-tab="farmaci">💊 Farmaci</button>
       <button class="tab" data-tab="integratori">🌿 Integratori</button>
+      <button class="tab" data-tab="vaccinazioni">💉 Vaccinazioni</button>
       <button class="tab" data-tab="cartella">📋 Cartella</button>
       <button class="tab" data-tab="archivio">🗂️ Archivio</button>
       <button class="tab" data-tab="storico">📜 Storico</button>
@@ -210,6 +211,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       <button class="tab" data-tab="backup">💾 Backup / Ripristino</button>
     </div>
 
+    <section class="panel" id="panel-vaccinazioni"><div class="card"><div class="day-header"><h2>💉 Vaccinazioni</h2><span id="vaccinationCount"></span></div><p style="color:var(--muted);margin-bottom:1rem">Registra le vaccinazioni effettuate e le date di richiamo indicate dal medico o dalla struttura.</p><div class="actions"><button class="btn btn-primary" onclick="apriVaccinazione()">＋ Aggiungi vaccinazione</button><button class="btn btn-outline" onclick="stampaVaccinazioni()">🖨️ Stampa / Salva PDF</button></div></div><div id="listaVaccinazioni"></div></section>
     <!-- OGGI -->
     <div class="panel active" id="panel-oggi">
       <div class="stats no-print" id="statsOggi"></div>
@@ -397,7 +399,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
           <div class="form-group">
             <label>Tipo</label>
             <select id="tipoStampa" onchange="preparaStampa()">
-              <option value="elenco">Elenco farmaci</option><option value="integratori">Integratori</option>
+              <option value="elenco">Elenco farmaci</option><option value="integratori">Integratori</option><option value="vaccinazioni">Vaccinazioni</option>
               <option value="giorno">Scheda giornaliera</option>
               <option value="settimana">Settimana</option>
               <option value="cartella">Cartella / Eventi</option>
@@ -485,6 +487,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         <div class="form-group"><label>Cognome</label><input type="text" id="pCognome"></div>
         <div class="form-group"><label>Data nascita</label><input type="date" id="pNascita"></div>
         <div class="form-group"><label>CF</label><input type="text" id="pCF"></div>
+        <div class="form-group"><label for="pGruppoSanguigno">Gruppo sanguigno e fattore Rh</label><select id="pGruppoSanguigno"><option value="">Non indicato</option><option value="A+">A Rh positivo (+)</option><option value="A-">A Rh negativo (−)</option><option value="B+">B Rh positivo (+)</option><option value="B-">B Rh negativo (−)</option><option value="AB+">AB Rh positivo (+)</option><option value="AB-">AB Rh negativo (−)</option><option value="0+">0 (O) Rh positivo (+)</option><option value="0-">0 (O) Rh negativo (−)</option></select></div>
         <div class="form-group" style="grid-column:1/-1"><label>Indirizzo</label><input type="text" id="pIndirizzo"></div>
         <div class="form-group"><label>Telefono</label><input type="text" id="pTelefono"></div>
         <div class="form-group"><label>Medico</label><input type="text" id="pMedico"></div>
@@ -497,6 +500,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     </div>
   </div>
 
+  <div class="modal-overlay" id="modalVaccinazione"><div class="modal"><h3 id="vaccinationModalTitle">Aggiungi vaccinazione</h3><input type="hidden" id="vId"><div class="form-grid"><div class="form-group" style="grid-column:1/-1"><label for="vNome">Vaccino *</label><input id="vNome" maxlength="180" autocomplete="off" placeholder="Nome del vaccino"></div><div class="form-group"><label for="vData">Data vaccinazione *</label><input type="date" id="vData"></div><div class="form-group"><label for="vDose">Dose / richiamo</label><input id="vDose" maxlength="100" placeholder="Es. 1ª dose, 2ª dose, richiamo"></div><div class="form-group"><label for="vRichiamo">Data prossimo richiamo</label><input type="date" id="vRichiamo"></div><div class="form-group"><label for="vLotto">Lotto</label><input id="vLotto" maxlength="100"></div><div class="form-group" style="grid-column:1/-1"><label for="vStruttura">Struttura / medico</label><input id="vStruttura" maxlength="250"></div><div class="form-group" style="grid-column:1/-1"><label for="vNote">Note</label><textarea id="vNote" rows="3"></textarea></div></div><div class="modal-actions"><button class="btn btn-outline" onclick="chiudiModal('modalVaccinazione')">Annulla</button><button class="btn btn-primary" onclick="salvaVaccinazione()">Salva vaccinazione</button></div></div></div>
   <!-- MODAL EVENTO -->
   <div class="modal-overlay" id="modalEvento">
     <div class="modal">
@@ -588,6 +592,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
   <script src="./backup-core.js"></script>
   <script src="local-files.js"></script>
   <script src="./supplement-core.js"></script>
+  <script src="./vaccinations.js?v=20261018"></script>
   <script src="./supplement-scan.js"></script>
   <script>
     const STORAGE_KEY = 'terapia_demo_github_v1'; window.STORAGE_KEY = STORAGE_KEY;
@@ -646,6 +651,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
         if (btn.dataset.tab==='farmaci') renderFarmaci();
         if(btn.dataset.tab==='integratori')renderIntegratori();
+        if(btn.dataset.tab==='vaccinazioni')renderVaccinazioni();
         if(btn.dataset.tab==='backup')recoveryButton();
         if (btn.dataset.tab==='cartella') { popolaFiltriPat(); renderCartella(); }
         if (btn.dataset.tab==='cartella') renderDocumentiClinici();
@@ -664,6 +670,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       let info = [];
       if (p.nascita) { const eta = calcolaEta(p.nascita); info.push('Nato '+formatData(p.nascita)+(eta?' ('+eta+' anni)':'')); }
       if (p.cf) info.push(p.cf);
+      info.push('Gruppo sanguigno: '+(p.gruppoSanguigno||'non indicato'));
       document.getElementById('pazienteInfo').textContent = info.join(' · ');
     }
     function calcolaEta(iso) {
@@ -680,10 +687,12 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         const map = {Nome:'nome',Cognome:'cognome',Nascita:'nascita',CF:'cf',Indirizzo:'indirizzo',Telefono:'telefono',Medico:'medico',Note:'note'};
         document.getElementById('p'+k).value = p[map[k]]||'';
       });
+      document.getElementById('pGruppoSanguigno').value=p.gruppoSanguigno||'';
       document.getElementById('modalPaziente').classList.add('open');
     }
     function salvaPaziente() {
       data.paziente = {
+        ...data.paziente, gruppoSanguigno:document.getElementById('pGruppoSanguigno').value,
         nome: pNome.value.trim(), cognome: pCognome.value.trim(), nascita: pNascita.value,
         cf: pCF.value.trim(), indirizzo: pIndirizzo.value.trim(), telefono: pTelefono.value.trim(),
         medico: pMedico.value.trim(), note: pNote.value.trim()
@@ -1113,8 +1122,9 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       const p = data.paziente;
       let html = `<div class="card print-only" style="margin-bottom:1rem">
         <h2 style="margin:0 0 .25rem">Terapia & Cartella – ${esc(p.nome)} ${esc(p.cognome||'')}</h2>
-        <div>${p.nascita?'Nato '+formatData(p.nascita):''}${p.cf?' · '+esc(p.cf):''}</div>
+        <div>${p.nascita?'Nato '+formatData(p.nascita):''}${p.cf?' · '+esc(p.cf):''}${p.gruppoSanguigno?' · Gruppo sanguigno: '+esc(p.gruppoSanguigno):''}</div>
         <div style="font-size:.8rem;color:#666">Stampato ${formatData(new Date().toISOString().slice(0,10))}</div></div>`;
+      if(['vaccinazioni','completo','cartella_completa'].includes(tipo))html+=vaccinazioniReportHtml();
       if(['integratori','completo','cartella_completa'].includes(tipo)||(tipo==='elenco'&&document.getElementById('includiIntegratori').checked)){
         html+='<div class="card"><h2>Integratori</h2><table><thead><tr><th>Integratore</th><th>Dose / modalità</th><th>Orari</th><th>Inizio</th><th>Fine</th><th>Stato</th></tr></thead><tbody>';
         supplementList().forEach(s=>{html+=`<tr><td>${esc(s.nome)}</td><td>${esc(s.dosaggio||'')}</td><td>${esc((s.orari||[]).join(', '))}</td><td>${formatData(s.inizio)}</td><td>${formatData(s.fine)}</td><td>${TerapiaSupplements.status(s)}</td></tr>`;});
@@ -1494,6 +1504,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       if(active==='oggi')caricaGiorno();
       if(active==='farmaci')renderFarmaci();
       if(active==='integratori')renderIntegratori();
+      if(active==='vaccinazioni')renderVaccinazioni();
       if(active==='cartella'){popolaFiltriPat();renderCartella();renderDocumentiClinici();}
       if(active==='archivio'){renderArchivio();refreshArchiveDetail();}
       if(active==='controlli')renderControlli();
@@ -1524,7 +1535,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       finally{uploadsPending--;transferLock(false);syncNow();}
     }
     function openBackupPanel(){const tab=document.querySelector('.tab[data-tab="backup"]');if(tab)tab.click();}
-    function backupCounts(d){return [['Farmaci',d.farmaci],['Integratori',d.integratori||[]],['Assunzioni',d.assunzioni],['Visite ed eventi',d.eventi],['Documenti',d.documenti],['Controlli',d.controlli],['Esami',d.esamiRoutine]].map(([name,list])=>`${name}: ${list.length}`).join(' · ');}
+    function backupCounts(d){return [['Farmaci',d.farmaci],['Integratori',d.integratori||[]],['Vaccinazioni',d.vaccinazioni||[]],['Assunzioni',d.assunzioni],['Visite ed eventi',d.eventi],['Documenti',d.documenti],['Controlli',d.controlli],['Esami',d.esamiRoutine]].map(([name,list])=>`${name}: ${list.length}`).join(' · ');}
     async function importBackup(ev){
       const file=ev.target.files?.[0];if(!file)return;if(backupBusy||uploadsPending){alert('Attendi il termine dei caricamenti');ev.target.value='';return;}
       openBackupPanel();transferLock(true);uploadsPending++;backupStatus('Controllo del file di backup…');

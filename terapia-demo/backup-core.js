@@ -6,8 +6,10 @@
  function valid(data){
   if(!data||typeof data.paziente!=='object'||data.paziente===null)return false;
   const arrays=['farmaci','eventi','assunzioni','documenti','controlli','esamiRoutine'];
-  if(!arrays.every(k=>Array.isArray(data[k]))||(data.integratori!==undefined&&!Array.isArray(data.integratori)))return false;
-  for(const key of [...arrays,'integratori']){const ids=new Set();for(const row of data[key]||[]){if(!row||typeof row!=='object'||typeof row.id!=='string'||!/^[a-zA-Z0-9_-]{1,160}$/.test(row.id)||ids.has(row.id))return false;ids.add(row.id);if(row.orari!==undefined&&(!Array.isArray(row.orari)||row.orari.some(x=>typeof x!=='string')))return false;if(row.allegati!==undefined&&!Array.isArray(row.allegati))return false;}}
+  if(!arrays.every(k=>Array.isArray(data[k]))||['integratori','vaccinazioni'].some(k=>data[k]!==undefined&&!Array.isArray(data[k])))return false;
+  if(data.paziente.gruppoSanguigno!==undefined&&!['','A+','A-','B+','B-','AB+','AB-','0+','0-'].includes(data.paziente.gruppoSanguigno))return false;
+  for(const key of [...arrays,'integratori','vaccinazioni']){const ids=new Set();for(const row of data[key]||[]){if(!row||typeof row!=='object'||typeof row.id!=='string'||!/^[a-zA-Z0-9_-]{1,160}$/.test(row.id)||ids.has(row.id))return false;ids.add(row.id);if(row.orari!==undefined&&(!Array.isArray(row.orari)||row.orari.some(x=>typeof x!=='string')))return false;if(row.allegati!==undefined&&!Array.isArray(row.allegati))return false;}}
+  if((data.vaccinazioni||[]).some(v=>typeof v.nome!=='string'||!v.nome.trim()||typeof v.data!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v.data)||(v.richiamo!==undefined&&(typeof v.richiamo!=='string'||(v.richiamo&&(!/^\d{4}-\d{2}-\d{2}$/.test(v.richiamo)||v.richiamo<v.data))))))return false;
   if(data.eventi.some(e=>typeof e.data!=='string'))return false;
   return true;
  }
