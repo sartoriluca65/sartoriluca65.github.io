@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terapia & Cartella – Demo</title>
+  <link rel="stylesheet" href="./navigation.css?v=20261018-back">
   <style>
     :root {
       --primary: #1a5f7a; --primary-light: #e8f4f8; --accent: #159895;
@@ -409,7 +410,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
             <input type="date" id="stampaData" onchange="preparaStampa()">
           </div>
         </div>
-        <label id="includiIntegratoriWrap" class="no-print" style="display:block;margin:.4rem 0 1rem"><input type="checkbox" id="includiIntegratori" onchange="preparaStampa()"> Includi gli integratori nel report farmaci</label><button class="btn btn-primary" onclick="stampaReport()">🖨️ Stampa / Salva PDF</button><p style="font-size:.85rem;color:var(--muted);margin-top:.7rem">Si apre un PDF: usa Condividi per salvarlo in File o stamparlo. Se necessario, apri l’app in Safari.</p>
+        <label id="includiIntegratoriWrap" class="no-print" style="display:block;margin:.4rem 0 1rem"><input type="checkbox" id="includiIntegratori" onchange="preparaStampa()"> Includi gli integratori nel report farmaci</label><button class="btn btn-primary" onclick="stampaReport()">🖨️ Stampa / Salva PDF</button><p style="font-size:.85rem;color:var(--muted);margin-top:.7rem">L’anteprima resta nell’app. Usa “Indietro” per tornare, oppure “Stampa” e “Salva PDF”. Su iPhone si usa anche il menu Condividi.</p>
       </div>
       <div id="areaStampa" class="print-panel"></div>
     </div>
@@ -1093,14 +1094,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       }
       visit(areaStampa);
       const report={title:tipoStampa.value==='elenco'&&document.getElementById('includiIntegratori').checked?'Farmaci e integratori':tipoStampa.options[tipoStampa.selectedIndex].textContent,patient:(data.paziente.nome||'')+' '+(data.paziente.cognome||''),date:new Date().toLocaleDateString('it-IT'),blocks};
-      const tab=window.open('about:blank','_blank');
-      if(tab)tab.document.body.textContent='Preparazione PDF…';
-      loadDemoReport().then(lib=>lib.renderReport(report)).then(bytes=>{
-        const blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob);
-        if(tab)tab.location.href=url;else saveDownload(blob,'report-demo.pdf');
-        mostraToast('PDF pronto: puoi salvarlo o stamparlo.');
-        setTimeout(()=>URL.revokeObjectURL(url),180000);
-      }).catch(error=>{if(tab)tab.close();alert('PDF non creato: '+error.message);});
+      showReportPreview(report,areaStampa.innerHTML,loadDemoReport);
     }
 
     function decorateReport(){
@@ -1222,8 +1216,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     }
 
     function creaCartellaClinicaMedica() {
-      document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === 'stampa'));
-      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-stampa'));
+      navigateToSection('stampa');
       tipoStampa.value = 'cartella_completa';
       preparaStampa();
       mostraToast('Cartella clinica organizzata per area medica pronta per stampa o PDF');
@@ -1305,7 +1298,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       if(a.fileKey)return `<div class="attach-item"><a href="${demoFileUrl(a.fileKey)}" target="_blank" rel="noopener">📎 ${esc(a.nome||'Documento')}</a><a href="${demoFileUrl(a.fileKey)}" download="${esc(a.nome)}">Scarica</a>${deleteFileButton(a.fileKey)}</div>`;
       return `<button class="btn btn-outline" onclick="openSupplementAttachment('${id}',${index})">📎 ${esc(a.nome||'Allegato')}</button><button class="btn btn-danger btn-sm no-print" onclick="rinominaAllegatoLocale('integratori','${id}',${index})">✏️ Rinomina</button><button class="btn btn-danger btn-sm no-print" onclick="deleteInlineAttachment('integratori','${id}',${index})">🗑️ Elimina allegato</button>`;
     }
-    function openSupplementAttachment(id,index){const a=supplementList().find(s=>s.id===id)?.allegati?.[index];if(!a?.data)return;const match=a.data.match(/^data:(application\/pdf|image\/(?:jpeg|png));base64,([\s\S]+)$/);if(!match){alert('Allegato non disponibile');return;}const url=URL.createObjectURL(new Blob([Uint8Array.from(atob(match[2]),c=>c.charCodeAt(0))],{type:match[1]}));window.open(url,'_blank');setTimeout(()=>URL.revokeObjectURL(url),120000);}
+    function openSupplementAttachment(id,index){const a=supplementList().find(s=>s.id===id)?.allegati?.[index];if(!a?.data)return;const match=a.data.match(/^data:(application\/pdf|image\/(?:jpeg|png));base64,([\s\S]+)$/);if(!match){alert('Allegato non disponibile');return;}showDocumentPreview(new Blob([Uint8Array.from(atob(match[2]),c=>c.charCodeAt(0))],{type:match[1]}),a.nome||'Allegato');}
     function renderIntegratori(){
       el('listaIntegratori').innerHTML=supplementList().map((s,index)=>`<div class="card"><h3>${esc(s.nome)} <span class="badge badge-active">${TerapiaSupplements.status(s)}</span></h3><p>${esc(s.dosaggio||'Dose non indicata')}${s.orari?.length?' · '+esc(s.orari.join(', ')):''}</p><p>Dal <strong>${formatData(s.inizio)||'—'}</strong>${s.fine?' al <strong>'+formatData(s.fine)+'</strong>':' · senza data di fine'}</p>${s.note?'<p style="white-space:pre-wrap">'+esc(s.note)+'</p>':''}${s.testoFonte?'<details><summary>Testo della scansione</summary><p style="white-space:pre-wrap">'+esc(s.testoFonte)+'</p></details>':''}<div class="attach-preview">${(s.allegati||[]).map((a,i)=>supplementAttachment(a,s.id,i)).join('')}</div><div class="actions no-print"><button class="btn btn-outline" onclick="openSupplement(${index})">✏️ Modifica</button><button class="btn btn-danger" onclick="deleteSupplement(${index})">Elimina</button></div></div>`).join('')||'<div class="card empty-state">Nessun integratore registrato. Premi “Aggiungi integratore” o leggi una foto/PDF.</div>';
     }
@@ -1354,9 +1347,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       const match=a.data.match(/^data:([^;,]+);base64,([\s\S]+)$/);
       if(!match||!['application/pdf','image/jpeg','image/png'].includes(match[1])){alert('Formato non supportato');return;}
       const bytes=Uint8Array.from(atob(match[2]),c=>c.charCodeAt(0));
-      const url=URL.createObjectURL(new Blob([bytes],{type:match[1]}));
-      const tab=window.open(url,'_blank');if(!tab){const link=document.createElement('a');link.href=url;link.download=a.nome||'allegato';link.click();}
-      setTimeout(()=>URL.revokeObjectURL(url),120000);
+      showDocumentPreview(new Blob([bytes],{type:match[1]}),a.nome||'Allegato');
     }
     function deleteFileButton(key){return `<button class="btn btn-outline btn-sm no-print" style="margin:.35rem" onclick="rinominaFileCaricato('${esc(key)}')">✏️ Rinomina</button><button class="btn btn-danger btn-sm no-print" style="margin:.35rem" onclick="deleteUploadedFile('${esc(key)}')">🗑️ Elimina file</button>`;}
     function deleteInlineAttachment(group,id,index){
@@ -1370,7 +1361,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       for(const group of [data.eventi,data.integratori])for(const record of group||[])record.allegati=(record.allegati||[]).filter(a=>a.fileKey!==key);
       await syncNow();repaint();refreshArchiveDetail();mostraToast('File eliminato');}catch(e){alert(e.message);}
     }
-    function openDemoDocument(index,download=false){const d=data.documenti[index];if(d.fileKey){openDemoFile(d.fileKey,download);return;}if(!d.data){alert('Documento non disponibile');return;}const encoded=d.data.split(',')[1],bytes=Uint8Array.from(atob(encoded),c=>c.charCodeAt(0));const url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));const a=document.createElement('a');a.href=url;if(download)a.download=d.nome;else {a.target='_blank';a.rel='noopener';}document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);}
+    function openDemoDocument(index,download=false){const d=data.documenti[index];if(d.fileKey){openDemoFile(d.fileKey,download);return;}if(!d.data){alert('Documento non disponibile');return;}const encoded=d.data.split(',')[1],bytes=Uint8Array.from(atob(encoded),c=>c.charCodeAt(0));const blob=new Blob([bytes],{type:'application/pdf'});if(download){saveDownload(blob,d.nome);return;}showDocumentPreview(blob,d.nome);}
     function deleteDemoDocument(index){if(confirm('Eliminare il documento dimostrativo?')){data.documenti.splice(index,1);salvaDati();repaint();refreshArchiveDetail();}}
     function documentLink(index,label){const d=data.documenti[index];return `<a href="#" onclick="openDemoDocument(${index},false);return false">📄 ${esc(label||d.nome)}</a> <a href="#" onclick="openDemoDocument(${index},true);return false">Scarica</a>`+(d.fileKey?deleteFileButton(d.fileKey):`<button class="btn btn-outline btn-sm" onclick="rinominaDocumento(${index})">✏️ Rinomina</button><button class="btn btn-danger btn-sm" onclick="deleteDemoDocument(${index})">🗑️ Elimina file</button>`);}
     function originalLink(path){
@@ -1591,5 +1582,6 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     startSync();
 
   </script>
+<script defer src="./navigation.js?v=20261018-back"></script>
 <script defer src="./analytics-link.js"></script></body>
 </html>
