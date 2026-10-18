@@ -5,7 +5,20 @@
   bar.className = 'luca-actions';
   bar.setAttribute('aria-label', 'Contatto e condivisione');
   bar.innerHTML = '<a class="luca-whatsapp" href="https://wa.me/393332694020?text=Ciao%20Luca%2C%20vorrei%20informazioni%20sulle%20tue%20app." target="_blank" rel="noopener noreferrer" aria-label="Contatta Luca su WhatsApp al 3332694020">' + whatsappIcon + '<span>WhatsApp</span></a><button type="button" id="luca-share">' + shareIcon + '<span>Condividi</span></button>';
-  document.body.append(bar);
+  // Place the actions in the contact section after React mounts it.
+  const placeActions = () => {
+    const contactInfo = document.querySelector('#contatti > div > div');
+    if (!contactInfo) return false;
+    contactInfo.append(bar);
+    return true;
+  };
+  if (!placeActions()) {
+    document.body.append(bar);
+    const observer = new MutationObserver(() => {
+      if (placeActions()) observer.disconnect();
+    });
+    observer.observe(document.getElementById('root') || document.body, {childList: true, subtree: true});
+  }
   const dialog = document.createElement('dialog');
   dialog.className = 'luca-share-dialog';
   dialog.setAttribute('aria-labelledby','luca-share-title');
