@@ -1,0 +1,30 @@
+/* Toolbar and section navigation: shared personal/demo layout. */
+#syncBar {display:block;background:#f3f7fa;color:#254654;border-bottom:1px solid #d7e3ea;padding:18px max(16px,calc((100vw - 1108px)/2));}
+.top-status {display:flex;align-items:center;justify-content:space-between;gap:8px 20px;flex-wrap:wrap;margin-bottom:16px;font-size:.8rem;}
+.top-status strong {display:inline-flex;align-items:center;gap:8px;font-size:.86rem;font-weight:650;}
+.top-status strong:before {content:'';width:8px;height:8px;border-radius:50%;background:#168078;box-shadow:0 0 0 4px #16807812;}
+#syncStatus {color:#526b79;font-size:.79rem;overflow-wrap:anywhere;}
+.top-control-groups {display:grid;grid-template-columns:3fr 2fr;gap:20px;}
+.top-control-group {min-width:0;}
+.top-control-title {font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:#5b7180;font-weight:700;margin:0 0 7px;}
+.top-control-buttons {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.top-control-group:last-child .top-control-buttons {grid-template-columns:repeat(2,minmax(0,1fr));}
+#syncBar .top-button {width:100%;min-width:0;min-height:50px;border:1px solid #ccdae3;border-radius:9px;background:#fff;color:#264b60;padding:10px 12px;display:flex;align-items:center;justify-content:flex-start;gap:9px;font:600 .8rem/1.3 'Segoe UI',system-ui,sans-serif;cursor:pointer;text-align:left;box-shadow:0 1px 2px #173c4d06;transition:background .15s,border-color .15s;}
+#syncBar .top-button:hover {background:#eaf3f7;border-color:#8aafc0;}
+#syncBar .top-button-primary {background:#1a5f7a;color:#fff;border-color:#1a5f7a;}
+#syncBar .top-button-primary:hover {background:#144a5e;}
+.control-icon {width:19px;height:19px;flex:0 0 19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+.top-button:focus-visible,.tabs .tab:focus-visible,.patient-banner .btn:focus-visible {outline:3px solid #399ca6;outline-offset:3px;}
+.tabs {display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;padding:10px;background:#eaf0f4;border:1px solid #dce6ed;border-radius:13px;margin-bottom:18px;}
+.tabs .tab {display:flex;align-items:center;justify-content:flex-start;gap:9px;min-width:0;min-height:54px;padding:10px 12px;background:white;color:#365569;border:1px solid #d9e4eb;border-radius:8px;font:600 .8rem/1.3 'Segoe UI',system-ui,sans-serif;text-align:left;box-shadow:0 1px 2px #173c4d04;}
+.tabs .tab:hover {background:#f1f8fa;border-color:#8fbbc7;color:#154b63;}
+.tabs .tab.active {background:#1a5f7a;border-color:#1a5f7a;color:white;box-shadow:0 2px 5px #174e6720;}
+.tabs .tab span {overflow-wrap:anywhere;}
+.patient-banner .actions {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;}
+.patient-banner .actions .btn {justify-content:center;min-height:44px;font-size:.8rem;text-align:center;}
+.app-navigation {display:grid;grid-template-columns:auto minmax(0,1fr) auto;}
+.app-navigation #appCurrentSection {display:flex;align-items:center;justify-content:center;gap:7px;text-align:center;min-width:0;}
+@media(max-width:960px) {.tabs {grid-template-columns:repeat(4,minmax(0,1fr));}.top-control-groups {gap:12px;}#syncBar .top-button {padding:9px;gap:7px;font-size:.76rem;}}
+@media(max-width:640px) {.top-control-groups {grid-template-columns:1fr;gap:14px;}.top-status {align-items:flex-start;flex-direction:column;gap:5px;margin-bottom:13px;}#syncBar {padding:14px 16px;}.tabs {grid-template-columns:repeat(3,minmax(0,1fr));padding:8px;gap:7px;}.tabs .tab {flex-direction:column;justify-content:center;gap:5px;padding:9px 5px;text-align:center;min-height:70px;font-size:.76rem;}.patient-banner .actions {grid-template-columns:repeat(2,minmax(0,1fr));}.patient-banner .actions .btn:last-child {grid-column:1/-1;}.app-navigation #appCurrentSection .control-icon {display:none;}#syncBar .top-button {min-height:52px;font-size:.78rem;}}
+@media(max-width:360px) {.tabs {grid-template-columns:repeat(2,minmax(0,1fr));}.top-control-buttons {grid-template-columns:repeat(2,minmax(0,1fr));}.top-control-group:first-child .top-button:first-child {grid-column:1/-1;}.top-button .control-icon {width:17px;height:17px;flex-basis:17px;}}
+@media print {#syncBar,.tabs {display:none!important;}}

@@ -164,17 +164,10 @@
     .medicine-leaflet:focus-visible {outline:2px solid var(--accent);outline-offset:2px;}
     @media print {.medicine-leaflet {text-decoration:none;color:inherit;padding:0;min-height:0;}}
   </style>
+<link rel="stylesheet" href="./top-controls.css?v=20261019">
 </head>
 <body>
-<div class="help-box no-print" style="margin:1rem">DEMO FUNZIONANTE · Dati inventati, senza valore clinico. Le modifiche e i file restano nel browser di questo dispositivo. Nessuna sincronizzazione automatica. Usa Backup / Ripristino per trasferire i dati.</div><div id="syncBar" class="no-print" style="padding:12px 16px;background:#e8f2ef;color:#173f36;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-bottom:1px solid #bfd5cc">
-<strong>🧪 Demo · dati fittizi</strong><span id="syncStatus" role="status" aria-live="polite">Connessione…</span>
-<button class="btn" onclick="syncNow()">Salva su questo dispositivo</button>
-<button class="btn" onclick="downloadBackup()">💾 Salva backup completo</button>
-<label class="btn">♻️ Ripristina backup <input type="file" accept=".zip,.json,application/zip,application/json" style="display:none" onchange="importBackup(event)"></label>
-<label class="btn">📱 Carica PDF da iPhone / File <input type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="importOriginalFolder(event)"></label>
-<label class="btn">Importa cartella PDF (Mac) <input type="file" webkitdirectory multiple style="display:none" onchange="importOriginalFolder(event)"></label>
-<input id="originalUpload" type="file" accept="application/pdf,image/jpeg,image/png" style="display:none" onchange="uploadOriginal(event)">
-</div>
+<div class="help-box no-print" style="margin:1rem">DEMO FUNZIONANTE · Dati inventati, senza valore clinico. Le modifiche e i file restano nel browser di questo dispositivo. Nessuna sincronizzazione automatica. Usa Backup / Ripristino per trasferire i dati.</div><div id="syncBar" class="no-print"><div class="top-status"><strong>Demo · dati fittizi</strong><span id="syncStatus" role="status" aria-live="polite">Connessione…</span></div><div class="top-control-groups"><section class="top-control-group" aria-labelledby="archiveToolsTitle"><h2 class="top-control-title" id="archiveToolsTitle">Archivio e backup</h2><div class="top-control-buttons"><button type="button" class="btn top-button" onclick="syncNow()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5 M4 17v-5h5 M6 7a7 7 0 0 1 11-2l3 3 M4 16l3 3a7 7 0 0 0 11-2"/></svg><span>Salva sul dispositivo</span></button><button type="button" class="btn top-button top-button-primary" onclick="downloadBackup()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l4 4v14H3V3h2 M7 3v6h10V3 M7 21v-8h10v8"/></svg><span>Salva backup</span></button><button type="button" class="btn top-button" onclick="document.getElementById('topRestoreInput').click()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v6h6 M5 9a8 8 0 1 1-1 8 M12 7v6l4 2"/></svg><span>Ripristina backup</span></button></div></section><section class="top-control-group" aria-labelledby="documentToolsTitle"><h2 class="top-control-title" id="documentToolsTitle">Documenti</h2><div class="top-control-buttons"><button type="button" class="btn top-button" onclick="document.getElementById('topPdfInput').click()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H5v20h14V7z M14 2v6h5 M8 13h8 M8 17h5"/></svg><span>Carica PDF</span></button><button type="button" class="btn top-button" onclick="document.getElementById('topFolderInput').click()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 3h9v12H3z M3 6V3h7l2 3h7v3"/></svg><span>Importa cartella</span></button></div></section></div><input id="topRestoreInput" type="file" accept=".zip,.json,application/zip,application/json" hidden onchange="importBackup(event)"><input id="topPdfInput" type="file" accept="application/pdf,.pdf" multiple hidden onchange="importOriginalFolder(event)"><input id="topFolderInput" type="file" webkitdirectory multiple hidden onchange="importOriginalFolder(event)"><input id="originalUpload" type="file" accept="application/pdf,image/jpeg,image/png" hidden onchange="uploadOriginal(event)"></div>
 <section id="uploadPanel" class="upload-panel no-print" hidden aria-live="polite"><strong id="uploadFileName">Caricamento documento</strong><p id="uploadMessage"></p><progress id="uploadProgress" max="100" value="0"></progress><small>I file vengono conservati sul dispositivo. Attendi la conferma prima di chiudere.</small><button id="uploadPause" class="btn btn-outline btn-sm" hidden>Metti in pausa</button><button class="btn btn-outline btn-sm" onclick="document.getElementById('uploadPanel').hidden=true">Nascondi</button></section>
 <div id="syncConflict" class="no-print" style="display:none;padding:16px;background:#fff3cd;color:#513b00">
 Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaricala prima di scegliere quale versione utilizzare.
@@ -201,17 +194,17 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     </div>
 
     <div class="tabs no-print">
-      <button class="tab active" data-tab="oggi">📅 Oggi</button>
-      <button class="tab" data-tab="controlli">📆 Prossime visite</button>
-      <button class="tab" data-tab="esami">🧪 Esami da fare</button>
-      <button class="tab" data-tab="farmaci">💊 Farmaci</button>
-      <button class="tab" data-tab="integratori">🌿 Integratori</button>
-      <button class="tab" data-tab="vaccinazioni">💉 Vaccinazioni</button>
-      <button class="tab" data-tab="cartella">📋 Cartella</button>
-      <button class="tab" data-tab="archivio">🗂️ Archivio</button>
-      <button class="tab" data-tab="storico">📜 Storico</button>
-      <button class="tab" data-tab="stampa">🖨️ Stampa</button>
-      <button class="tab" data-tab="backup">💾 Backup / Ripristino</button>
+      <button class="tab active" data-tab="oggi"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v16H4z M8 2v6 M16 2v6 M4 10h16 M8 14h2 M14 14h2 M8 18h2"/></svg><span>Oggi</span></button>
+      <button class="tab" data-tab="controlli"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v16H4z M8 2v6 M16 2v6 M4 10h16 M8 14h2 M14 14h2 M8 18h2"/></svg><span>Prossime visite</span></button>
+      <button class="tab" data-tab="esami"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6 M10 3v7l-5 9q-1 2 2 2h10q3 0 2-2l-5-9V3 M8 15h8"/></svg><span>Esami da fare</span></button>
+      <button class="tab" data-tab="farmaci"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 16l8-8 M5 19a5 5 0 0 1 0-7l7-7a5 5 0 0 1 7 7l-7 7a5 5 0 0 1-7 0"/></svg><span>Farmaci</span></button>
+      <button class="tab" data-tab="integratori"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4C8 2 3 8 5 15s14 5 15-11z M5 21l10-12"/></svg><span>Integratori</span></button>
+      <button class="tab" data-tab="vaccinazioni"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3l6 6 M14 4l6 6 M17 7L6 18H3v-3L14 4 M5 19l-3 3 M8 11l5 5"/></svg><span>Vaccinazioni</span></button>
+      <button class="tab" data-tab="cartella"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6v4H9z M9 6H5v16h14V6h-4 M8 12h8 M8 16h8"/></svg><span>Cartella</span></button>
+      <button class="tab" data-tab="archivio"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 3h9v12H3z M3 6V3h7l2 3h7v3"/></svg><span>Archivio</span></button>
+      <button class="tab" data-tab="storico"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4v6h6 M4 9a9 9 0 1 1-1 8 M12 7v6l4 2"/></svg><span>Storico</span></button>
+      <button class="tab" data-tab="stampa"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V3h10v5 M7 17H3V9h18v8h-4 M7 14h10v8H7z M17 11h1"/></svg><span>Stampa</span></button>
+      <button class="tab" data-tab="backup"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l4 4v14H3V3h2 M7 3v6h10V3 M7 21v-8h10v8"/></svg><span>Backup / Ripristino</span></button>
     </div>
 
     <section class="panel" id="panel-vaccinazioni"><div class="card"><div class="day-header"><h2>💉 Vaccinazioni</h2><span id="vaccinationCount"></span></div><p style="color:var(--muted);margin-bottom:1rem">Registra le vaccinazioni effettuate e le date di richiamo indicate dal medico o dalla struttura.</p><div class="actions"><button class="btn btn-primary" onclick="apriVaccinazione()">＋ Aggiungi vaccinazione</button><button class="btn btn-outline" onclick="stampaVaccinazioni()">🖨️ Stampa / Salva PDF</button></div></div><div id="listaVaccinazioni"></div></section>
