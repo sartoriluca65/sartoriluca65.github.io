@@ -28,3 +28,40 @@
 @media(max-width:640px) {.top-control-groups {grid-template-columns:1fr;gap:14px;}.top-status {align-items:flex-start;flex-direction:column;gap:5px;margin-bottom:13px;}#syncBar {padding:14px 16px;}.tabs {grid-template-columns:repeat(3,minmax(0,1fr));padding:8px;gap:7px;}.tabs .tab {flex-direction:column;justify-content:center;gap:5px;padding:9px 5px;text-align:center;min-height:70px;font-size:.76rem;}.patient-banner .actions {grid-template-columns:repeat(2,minmax(0,1fr));}.patient-banner .actions .btn:last-child {grid-column:1/-1;}.app-navigation #appCurrentSection .control-icon {display:none;}#syncBar .top-button {min-height:52px;font-size:.78rem;}}
 @media(max-width:360px) {.tabs {grid-template-columns:repeat(2,minmax(0,1fr));}.top-control-buttons {grid-template-columns:repeat(2,minmax(0,1fr));}.top-control-group:first-child .top-button:first-child {grid-column:1/-1;}.top-button .control-icon {width:17px;height:17px;flex-basis:17px;}}
 @media print {#syncBar,.tabs {display:none!important;}}
+/* Compact top area: preserve every action and 44px touch targets. */
+@media screen {
+ #syncBar {padding:8px max(12px,calc((100vw - 1108px)/2));}
+ .top-status {margin-bottom:6px;gap:4px 12px;}
+ .top-control-groups {gap:10px;}
+ .top-control-title {margin-bottom:4px;font-size:.62rem;}
+ .top-control-buttons {gap:5px;}
+ #syncBar .top-button {min-height:44px;padding:6px 8px;gap:6px;}
+ body>header {padding:9px max(12px,calc((100vw - 1108px)/2));gap:10px;border-bottom-width:2px;}
+ header h1 {font-size:1.05rem;}
+ header .subtitle {margin-top:2px;font-size:.75rem;}
+ .medical-mark {width:34px;height:34px;border-radius:8px;}
+ .medical-mark svg {width:25px;height:25px;}
+ .container {padding-top:7px;}
+ .app-navigation {margin-bottom:7px;padding:3px 6px;gap:5px;border-radius:8px;}
+ .app-navigation .btn {padding:5px 8px;}
+ .patient-banner {margin-bottom:7px;padding:7px 9px;gap:5px;border-radius:8px;}
+ .patient-banner .actions {gap:5px;}
+ .patient-banner .actions .btn {padding:5px 7px;}
+ .tabs {padding:5px;gap:5px;margin:7px 0 9px;border-radius:9px;}
+ .tabs .tab {min-height:44px;padding:5px 7px;gap:5px;}
+}
+@media screen and (max-width:640px) {
+ .top-status {flex-direction:row;align-items:center;}
+ .top-status strong {font-size:.76rem;}
+ #syncStatus {font-size:.7rem;}
+ .top-control-groups {grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;}
+ .top-control-group,.top-control-buttons,.top-control-group:last-child .top-control-buttons {display:contents;}
+ .top-control-title {display:none;}
+ #syncBar .top-button {font-size:.72rem;line-height:1.2;}
+ .top-control-group:first-child .top-button:first-child {grid-column:auto;}
+ .top-button .control-icon {width:16px;height:16px;flex-basis:16px;}
+ .tabs {grid-template-columns:repeat(3,minmax(0,1fr));}
+ .tabs .tab {flex-direction:row;justify-content:flex-start;min-height:44px;font-size:.7rem;text-align:left;padding:4px 5px;}
+ .tabs .control-icon {width:16px;height:16px;flex-basis:16px;}
+ body>.help-box {margin:6px 12px!important;padding:6px 9px;font-size:.72rem;line-height:1.3;}
+}
