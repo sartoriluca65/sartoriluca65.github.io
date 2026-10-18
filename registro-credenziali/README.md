@@ -8,7 +8,7 @@ Apri `index.html` oppure la pagina pubblicata su GitHub Pages. La cartella conti
 - Aggiungi, modifica o elimina una voce di prova; attendi la conferma del salvataggio automatico.
 - Usa **Elenco completo** per la tabella unica senza paginazione; la ricerca filtra anche questa vista.
 - Le password sono nascoste; puoi mostrarle esplicitamente.
-- **Stampa** e **Salva PDF** consentono di scegliere registro intero o risultati della ricerca. Per il PDF seleziona la destinazione PDF nella finestra di stampa.
+- **Stampa** e **Salva PDF** consentono di scegliere registro intero o risultati della ricerca. Per il PDF premi Crea PDF e poi Scarica PDF: il file viene generato direttamente nel browser. Per la stampa usa la pagina dedicata oppure apri il PDF nel visualizzatore.
 - **Guida all’uso** apre le istruzioni; `GUIDA_USO.html` è consultabile e scaricabile dalla demo.
 - **Esporta copia** scarica un JSON con le password in chiaro.
 - **Ripristina esempi** cancella le prove e ripristina i sei account inventati.
