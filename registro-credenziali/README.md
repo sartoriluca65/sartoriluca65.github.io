@@ -24,3 +24,7 @@ Le prove vengono salvate solo nel localStorage del browser. Non c’è sincroniz
 Al primo accesso scegli PIN (6 cifre) e parola/frase segreta (8-128 caratteri). PIN dimenticato consente di reimpostare il PIN con la parola segreta senza cancellare le voci. La frase ignora maiuscole/minuscole e normalizza gli spazi ripetuti. Entrambi si possono modificare dall’app. Non servono email o servizi esterni.
 
 La demo cifra i dati nel localStorage con una chiave casuale AES-GCM, protetta separatamente dal PIN e dalla parola segreta mediante PBKDF2. Le prove precedenti vengono migrate quando completi la configurazione, senza essere inviate a server. Non è un servizio di account online: niente sincronizzazione e solo dati inventati. Un PIN corto e un blocco tentativi locale non equivalgono a un’autenticazione server. Cancella i dati del browser solo se accetti di perdere la demo locale; dimenticare entrambi i segreti impedisce il recupero automatico dei dati cifrati.
+
+
+## Domanda di recupero
+Il PIN serve per entrare; la risposta alla domanda serve per reimpostarlo. Scegli una domanda predefinita oppure una personale e scrivi due volte la risposta (minimo 8 caratteri). Con PIN dimenticato viene mostrata la domanda memorizzata. La risposta resta protetta e non viene mostrata in chiaro. Il nuovo PIN non cancella le voci salvate. Le configurazioni precedenti senza domanda conservano il vecchio recupero e vengono invitate ad aggiungere una domanda dopo l’accesso. Nella demo la configurazione vale per il singolo browser.
