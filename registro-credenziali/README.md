@@ -18,3 +18,9 @@ Le prove vengono salvate solo nel localStorage del browser. Non c’è sincroniz
 
 ## Proprietà
 ©2026 Luca Sartori. Tutti i diritti riservati. Vietate copia, riproduzione, modifica e distribuzione senza autorizzazione scritta. Consultare LICENSE.txt. La pubblicazione del codice non concede una licenza libera e non impedisce tecnicamente di copiarlo.
+
+
+## PIN e parola segreta
+Al primo accesso scegli PIN (6 cifre) e parola/frase segreta (12-128 caratteri). PIN dimenticato consente di reimpostare il PIN con la parola segreta senza cancellare le voci. La frase ignora maiuscole/minuscole e normalizza gli spazi ripetuti. Entrambi si possono modificare dall’app. Non servono email o servizi esterni.
+
+La demo cifra i dati nel localStorage con una chiave casuale AES-GCM, protetta separatamente dal PIN e dalla parola segreta mediante PBKDF2. Le prove precedenti vengono migrate quando completi la configurazione, senza essere inviate a server. Non è un servizio di account online: niente sincronizzazione e solo dati inventati. Un PIN corto e un blocco tentativi locale non equivalgono a un’autenticazione server. Cancella i dati del browser solo se accetti di perdere la demo locale; dimenticare entrambi i segreti impedisce il recupero automatico dei dati cifrati.
