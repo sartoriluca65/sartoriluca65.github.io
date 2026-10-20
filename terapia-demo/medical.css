@@ -1,0 +1,12 @@
+.medical-attachment {margin:6px 0;overflow-wrap:anywhere;}
+.medical-subsection {margin-top:16px;border-top:1px solid var(--border);padding-top:12px;}
+.medical-subsection h3 {color:var(--primary);margin:12px 0 8px;font-size:1rem;}
+.medical-subsection article {padding:10px 0;border-bottom:1px solid var(--border);}
+.medical-hint {font-size:.8rem;color:#506a76;margin:12px 0;}
+.backup-ready {position:fixed;z-index:1100;bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(94vw,560px);background:white;border:1px solid #91bcbf;border-radius:12px;padding:18px;box-shadow:0 10px 40px #1234;}
+.backup-ready p {margin:8px 0;}.backup-ready .btn {min-height:44px;}
+.panel-close {margin:0 0 10px;min-height:44px;}
+#cMedicalStatus,#vMedicalStatus,#eMedicalStatus {font-size:.85rem;overflow-wrap:anywhere;color:var(--primary);}
+@media print {.backup-ready,.panel-close {display:none!important;}}
+
+.app-navigation-actions {display:flex;gap:5px;align-items:center;}

@@ -15,7 +15,7 @@
     const f=medicine(id);if(!f)return;
     busy=true;uploadsPending++;
     try{
-      if(!file.size||file.size>100*1024*1024)throw Error('Scegli un PDF non vuoto, fino a 100 MB.');
+      if(!file.size||file.size>1024*1024*1024)throw Error('Scegli un PDF non vuoto, fino a 1 GB.');
       if(await file.slice(0,5).text()!=='%PDF-')throw Error('Il file non è un PDF valido.');
       if(!confirm('Associa “'+file.name+'” a '+f.nome+'? Verifica che nome, dosaggio e formulazione del medicinale corrispondano.'+(f.bugiardino?.fileKey?' Il collegamento precedente sarà sostituito.':'')))return;
       const a=await uploadFile(file),current=medicine(id);

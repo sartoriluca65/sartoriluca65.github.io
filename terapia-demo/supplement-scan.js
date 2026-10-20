@@ -1,18 +1,28 @@
+/* Read only PDF ranges needed for the selected pages. */
+globalThis.terapiaPdfTask=async function(lib,file){
+ const initial=new Uint8Array(await file.slice(0,65536).arrayBuffer());let task,stopped=false;
+ class FileRange extends lib.PDFDataRangeTransport {
+  requestDataRange(begin,end){if(stopped)return;file.slice(begin,end).arrayBuffer().then(bytes=>{if(!stopped)this.onDataRange(begin,new Uint8Array(bytes));}).catch(()=>{stopped=true;task?.destroy();});}
+  abort(){stopped=true;}
+ }
+ const range=new FileRange(file.size,initial,true);
+ task=lib.getDocument({range,length:file.size,rangeChunkSize:65536,disableAutoFetch:true,disableStream:true,isEvalSupported:false,useSystemFonts:true});return task;
+};
 (function(root){
  let loading;
- function loadTesseract(){if(root.Tesseract)return Promise.resolve();return loading??=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js';s.onload=resolve;s.onerror=()=>{loading=null;reject(Error('Lettura foto non disponibile. Controlla la connessione e riprova.'));};document.head.append(s);});}
+ function loadTesseract(){if(root.Tesseract)return Promise.resolve();return loading??=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='./vendor/tesseract.min.js';s.onload=resolve;s.onerror=()=>{loading=null;reject(Error('Lettura foto non disponibile. Controlla la connessione e riprova.'));};document.head.append(s);});}
  root.readSupplementDocument=async function(file,progress=()=>{}){
   let worker,documentPdf;
-  async function recognize(image){if(!worker){await loadTesseract();const base=new URL('.',location.href).href.replace(/\/$/,'');worker=await root.Tesseract.createWorker('ita',1,{workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/worker.min.js',corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0',langPath:'https://cdn.jsdelivr.net/npm/@tesseract.js-data/ita@1.0.0/4.0.0',workerBlobURL:true,logger:m=>{if(m.status==='recognizing text')progress('Lettura testo '+Math.round((m.progress||0)*100)+'%');}});}const r=await worker.recognize(image);return r.data.text;}
+  async function recognize(image){if(!worker){await loadTesseract();const base=new URL('.',location.href).href.replace(/\/$/,'');worker=await root.Tesseract.createWorker('ita',1,{workerPath:base+'/vendor/worker.min.js',corePath:base+'/vendor/ocr',langPath:base+'/vendor/lang',workerBlobURL:false,logger:m=>{if(m.status==='recognizing text')progress('Lettura testo '+Math.round((m.progress||0)*100)+'%');}});}const r=await worker.recognize(image);return r.data.text;}
   try{
-   if(file.size>20*1024*1024)throw Error('File oltre 20 MB');
+   if(file.size>1024*1024*1024)throw Error('File oltre 1 GB');
    if(file.type==='application/pdf'||/\.pdf$/i.test(file.name)){
-    progress('Apertura PDF…');const pdfjs=await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs');pdfjs.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
-    documentPdf=await pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false,useSystemFonts:true}).promise;
+    progress('Apertura PDF…');const pdfjs=await import('./vendor/pdf.mjs');pdfjs.GlobalWorkerOptions.workerSrc='./vendor/pdf.worker.mjs';
+    const task=await root.terapiaPdfTask(pdfjs,file);documentPdf=await task.promise;
     let text='';const count=Math.min(documentPdf.numPages,5);
     for(let n=1;n<=count;n++){
      progress(`Lettura pagina ${n} di ${count}…`);const page=await documentPdf.getPage(n),content=await page.getTextContent();let pageText='';for(const item of content.items){pageText+=item.str+(item.hasEOL?'\n':' ');}
-     if(pageText.trim().length<25){const viewport=page.getViewport({scale:1.7}),canvas=document.createElement('canvas');canvas.width=Math.round(viewport.width);canvas.height=Math.round(viewport.height);await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;pageText=await recognize(canvas);canvas.width=canvas.height=0;}
+     if(pageText.trim().length<25){const baseViewport=page.getViewport({scale:1}),scale=Math.min(1.7,2200/baseViewport.width,2600/baseViewport.height),viewport=page.getViewport({scale}),canvas=document.createElement('canvas');canvas.width=Math.round(viewport.width);canvas.height=Math.round(viewport.height);await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;pageText=await recognize(canvas);canvas.width=canvas.height=0;}
      text+=pageText+'\n\n';page.cleanup();
     }
     return {text,pages:count,totalPages:documentPdf.numPages};
