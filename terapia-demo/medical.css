@@ -10,3 +10,4 @@
 @media print {.backup-ready,.panel-close {display:none!important;}}
 
 .app-navigation-actions {display:flex;gap:5px;align-items:center;}
+.archivio-grid .arch-card {text-align:left;font-family:inherit;color:inherit;appearance:none;-webkit-appearance:none;}

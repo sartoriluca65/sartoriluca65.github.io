@@ -86,11 +86,11 @@
    if(now>=due&&now-due<60000&&!notified.has(key)){notified.add(key);mostraToast('Promemoria: '+c.titolo+' alle '+c.ora);if(root.Notification&&Notification.permission==='granted')try{new Notification('Promemoria visita',{body:c.titolo+' · '+c.ora});}catch{}}
   }
  }
- function medicalSummary(){return '<section class="medical-subsection"><h3>Medico · Visite</h3>'+((data.controlli||[]).map(c=>'<article><strong>'+esc(c.titolo)+'</strong> · '+esc(c.data?formatData(c.data):'Data da definire')+(c.ora?' · '+esc(c.ora):'')+'<p>'+esc([c.tipoVisita,c.medico,c.struttura].filter(Boolean).join(' · '))+'</p>'+links(c.allegati)+'<button class="btn btn-outline btn-sm no-print" onclick="navigateToSection(\'controlli\');modificaControllo(\''+c.id+'\')">Apri visita</button></article>').join('')||'<p>Nessuna visita registrata.</p>')+'</section>';}
- function vaccinationArchiveHtml(){return '<section class="medical-subsection"><h3>Vaccinazioni</h3>'+((data.vaccinazioni||[]).map(v=>'<article><strong>'+esc(v.nome)+'</strong> · '+esc(formatData(v.data))+' · '+esc(v.dose||'')+(v.richiamo?'<p>Richiamo: '+esc(formatData(v.richiamo))+'</p>':'')+links(v.allegati)+'<button class="btn btn-outline btn-sm no-print" onclick="apriVaccinazione(\''+v.id+'\')">Apri vaccinazione</button></article>').join('')||'<p>Nessuna vaccinazione registrata.</p>')+'</section>';}
+ function medicalSummary(){return '<section class="medical-subsection"><h3>Medico</h3><div class="actions no-print"><button class="btn btn-outline btn-sm" onclick="MedicalDocs.attach(\'controlli\')">Aggiungi visita / Carica PDF</button></div>'+((data.controlli||[]).map(c=>'<article><strong>'+esc(c.titolo)+'</strong> · '+esc(c.data?formatData(c.data):'Data da definire')+(c.ora?' · '+esc(c.ora):'')+'<p>'+esc([c.tipoVisita,c.medico,c.struttura].filter(Boolean).join(' · '))+'</p>'+links(c.allegati)+'<div class="actions no-print"><button class="btn btn-outline btn-sm" onclick="navigateToSection(\'controlli\');modificaControllo(\''+c.id+'\')">Apri visita</button><button class="btn btn-outline btn-sm" onclick="MedicalDocs.attach(\'controlli\',\''+c.id+'\')">Carica PDF</button></div></article>').join('')||'<p>Nessuna visita registrata.</p>')+'</section>';}
+ function vaccinationArchiveHtml(){return '<section class="medical-subsection"><h3>Vaccinazioni</h3><div class="actions no-print"><button class="btn btn-outline btn-sm" onclick="MedicalDocs.attach(\'vaccinazioni\')">Aggiungi vaccinazione / Carica PDF</button></div>'+((data.vaccinazioni||[]).map(v=>'<article><strong>'+esc(v.nome)+'</strong> · '+esc(formatData(v.data))+' · '+esc(v.dose||'')+(v.richiamo?'<p>Richiamo: '+esc(formatData(v.richiamo))+'</p>':'')+links(v.allegati)+'<div class="actions no-print"><button class="btn btn-outline btn-sm" onclick="apriVaccinazione(\''+v.id+'\')">Apri vaccinazione</button><button class="btn btn-outline btn-sm" onclick="MedicalDocs.attach(\'vaccinazioni\',\''+v.id+'\')">Carica PDF</button></div></article>').join('')||'<p>Nessuna vaccinazione registrata.</p>')+'</section>';}
 
  function renderMedicalViews(){
-  const card=$('medicalCartella');if(card)card.innerHTML=medicalSummary();
+  const selected=$('filtroPatEvento')?.value||'',card=$('medicalCartella');if(card)card.innerHTML=(!selected||selected==='Medico'?medicalSummary():'')+(!selected||selected==='Vaccinazioni'?vaccinationArchiveHtml():'');
   if($('archivioDettaglio')?.style.display==='block'){
    if($('archTitolo')?.textContent==='Medico'){const target=$('medicalArchive');if(target)target.innerHTML=medicalSummary();}
    if($('archTitolo')?.textContent==='Vaccinazioni'){const target=$('vaccinationArchive');if(target)target.innerHTML=vaccinationArchiveHtml();}
@@ -99,6 +99,7 @@
  function installViews(){
   const cartella=$('listaEventi');if(cartella)cartella.insertAdjacentHTML('afterend','<div id="medicalCartella"></div>');
   const oldCartella=root.renderCartella;root.renderCartella=function(){oldCartella();renderMedicalViews();};
+  const oldFilters=root.popolaFiltriPat;if(oldFilters)root.popolaFiltriPat=function(){const select=$('filtroPatEvento'),selected=select.value;oldFilters();for(const label of ['Medico','Vaccinazioni'])if(![...select.options].some(o=>o.value===label))select.add(new Option(label,label));if(['Medico','Vaccinazioni'].includes(selected))select.value=selected;};
   const oldArchive=root.renderArchivio;root.renderArchivio=function(){
    oldArchive();const grid=$('archivioGrid'),headings=[...grid.querySelectorAll('h3')].map(h=>h.textContent);
    if(!headings.includes('Medico'))grid.insertAdjacentHTML('beforeend','<button type="button" class="arch-card" onclick="apriArchivioDettaglio(\'Medico\')"><h3>Medico</h3><div class="cnt">'+(data.controlli||[]).length+' visite</div></button>');
@@ -111,7 +112,13 @@
  }
  function offerBackupDownload(file,name,cleanup){
   const old=$('backupReady');if(old)old.remove();const panel=document.createElement('section');panel.id='backupReady';panel.className='backup-ready no-print';panel.setAttribute('role','status');panel.innerHTML='<strong>Backup completo verificato</strong><p>Salva il file sul dispositivo o sul NAS.</p><div class="actions"><button type="button" class="btn btn-primary">Salva backup in File</button><button type="button" class="btn btn-outline">Chiudi</button></div>';
-  const buttons=panel.querySelectorAll('button');buttons[0].onclick=()=>{saveDownload(file,name);backupStatus('Download del backup avviato. Verifica il file nella destinazione scelta prima di chiudere.');};buttons[1].onclick=()=>{panel.remove();setTimeout(()=>cleanup().catch(()=>{}),120000);};document.body.append(panel);
+  const buttons=panel.querySelectorAll('button');let sharing=false;buttons[0].onclick=async()=>{
+   if(sharing)return;const output=new File([file],name,{type:'application/octet-stream'});sharing=true;buttons[0].disabled=buttons[1].disabled=true;
+   try{if(navigator.share&&navigator.canShare?.({files:[output]})){await navigator.share({files:[output],title:'Backup completo Terapia'});backupStatus('Condivisione completata. Verifica il backup nella destinazione scelta in File.');}
+    else{saveDownload(output,name);backupStatus('Download del backup avviato. Verifica il file nella destinazione scelta.');}}
+   catch(e){if(e.name==='AbortError')backupStatus('Salvataggio annullato. Il backup verificato resta pronto: premi nuovamente Salva backup in File.');else{backupStatus('Condivisione non disponibile. Avvio del download: controlla File / Download.');saveDownload(output,name);}}
+   finally{sharing=false;buttons[0].disabled=buttons[1].disabled=false;}
+  };buttons[1].onclick=()=>{if(sharing)return;panel.remove();setTimeout(()=>cleanup().catch(()=>{}),120000);};document.body.append(panel);
  }
  async function eventUpload(ev){
   const token=generation.e,files=[...(ev.target.files||[])];if(uploadsPending||backupBusy){alert('Attendi il termine delle operazioni in corso.');return;}uploadsPending++;
@@ -121,7 +128,12 @@
    try{await scan(file,'e',t=>{if(token===generation.e)$('eMedicalStatus').textContent=t;},()=>token===generation.e);}catch(e){if(token===generation.e)$('eMedicalStatus').textContent='Documento allegato. Lettura automatica non riuscita: '+e.message;}
   }}catch(e){alert(e.message);}finally{uploadsPending--;ev.target.value='';syncNow();}
  }
- Object.assign(root,{offerBackupDownload,beginBackupTransfer,MedicalDocs:{links,open,reset,remove,upload,parse,fingerprint,scan,draft:scope=>structuredClone(drafts[scope]),calendar,calendarText,renderMedicalViews,cancelControl(){resetControl();goBackInApp();}}});
+ function attach(group,id=''){
+  if(uploadsPending||backupBusy){alert('Attendi il termine delle operazioni in corso.');return;}
+  if(group==='vaccinazioni'){apriVaccinazione(id);$('vMedicalPdf').value='';$('vMedicalPdf').click();}
+  else{navigateToSection('controlli');if(id)editControl(id);else resetControl();$('cMedicalPdf').value='';$('cMedicalPdf').click();}
+ }
+ Object.assign(root,{offerBackupDownload,beginBackupTransfer,MedicalDocs:{links,open,reset,remove,upload,parse,fingerprint,scan,attach,draft:scope=>structuredClone(drafts[scope]),calendar,calendarText,renderMedicalViews,cancelControl(){resetControl();goBackInApp();}}});
  controlFields();Object.assign(root,{renderControlli:renderControls,salvaControllo:saveControl,modificaControllo:editControl});installViews();
  const oldDelete=root.eliminaControllo;root.eliminaControllo=function(id){oldDelete(id);renderMedicalViews();};
  const oldEvent=root.apriModalEvento;root.apriModalEvento=function(id=null,tipo=null){generation.e++;oldEvent(id,tipo);const e=(data.eventi||[]).find(x=>x.id===id)||{};for(const [field,key] of Object.entries({eOra:'ora',eMedico:'medico',eTipoVisita:'tipoVisita',eRamo:'ramo',eReminder:'promemoria'}))if($(field))$(field).value=e[key]??(field==='eRamo'?'Medico':'');if($('eMedicalStatus'))$('eMedicalStatus').textContent='';};root.gestisciFile=eventUpload;

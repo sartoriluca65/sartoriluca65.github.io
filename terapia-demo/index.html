@@ -165,7 +165,7 @@
     @media print {.medicine-leaflet {text-decoration:none;color:inherit;padding:0;min-height:0;}}
   </style>
 <link rel="stylesheet" href="./top-controls.css?v=20261019-compact">
-<link rel="stylesheet" href="./medical.css?v=20261020">
+<link rel="stylesheet" href="./medical.css?v=20261020-iphone-fix">
 </head>
 <body>
 <div class="help-box no-print" style="margin:1rem">DEMO FUNZIONANTE · Dati inventati, senza valore clinico. Le modifiche e i file restano nel browser di questo dispositivo. Nessuna sincronizzazione automatica. Usa Backup / Ripristino per trasferire i dati.</div><div id="syncBar" class="no-print"><div class="top-status"><strong>Demo · dati fittizi</strong><span id="syncStatus" role="status" aria-live="polite">Connessione…</span></div><div class="top-control-groups"><section class="top-control-group" aria-labelledby="archiveToolsTitle"><h2 class="top-control-title" id="archiveToolsTitle">Archivio e backup</h2><div class="top-control-buttons"><button type="button" class="btn top-button" onclick="syncNow()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5 M4 17v-5h5 M6 7a7 7 0 0 1 11-2l3 3 M4 16l3 3a7 7 0 0 0 11-2"/></svg><span>Salva sul dispositivo</span></button><button type="button" class="btn top-button top-button-primary" onclick="downloadBackup()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l4 4v14H3V3h2 M7 3v6h10V3 M7 21v-8h10v8"/></svg><span>Salva backup</span></button><button type="button" class="btn top-button" onclick="document.getElementById('topRestoreInput').click()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v6h6 M5 9a8 8 0 1 1-1 8 M12 7v6l4 2"/></svg><span>Ripristina backup</span></button></div></section><section class="top-control-group" aria-labelledby="documentToolsTitle"><h2 class="top-control-title" id="documentToolsTitle">Documenti</h2><div class="top-control-buttons"><button type="button" class="btn top-button" onclick="document.getElementById('topPdfInput').click()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H5v20h14V7z M14 2v6h5 M8 13h8 M8 17h5"/></svg><span>Carica PDF</span></button><button type="button" class="btn top-button" onclick="document.getElementById('topFolderInput').click()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 3h9v12H3z M3 6V3h7l2 3h7v3"/></svg><span>Importa cartella</span></button></div></section></div><input id="topRestoreInput" type="file" accept=".tlbackup,.zip,.json,application/octet-stream,application/zip,application/json" hidden onchange="importBackup(event)"><input id="topPdfInput" type="file" accept="application/pdf,.pdf" multiple hidden onchange="importOriginalFolder(event)"><input id="topFolderInput" type="file" webkitdirectory multiple hidden onchange="importOriginalFolder(event)"><input id="originalUpload" type="file" accept="application/pdf,image/jpeg,image/png" hidden onchange="uploadOriginal(event)"></div>
@@ -860,7 +860,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       const tipo = filtroTipoEvento.value, pat = filtroPatEvento.value;
       let lista = data.eventi.slice().sort((a,b)=>b.data.localeCompare(a.data));
       if (tipo) lista = lista.filter(e=>e.tipo===tipo);
-      if (pat) lista = lista.filter(e=>(e.patologia||'')===pat);
+      if (pat) lista = lista.filter(e=>pat==='Medico'?(e.ramo==='Medico'||(!e.ramo&&e.tipo==='visita')):(e.patologia||'')===pat);
       const badgeMap = {visita:'badge-visita',esame:'badge-esame',terapia:'badge-terapia',altro:'badge-altro'};
       if (!lista.length) { listaEventi.innerHTML = '<div class="empty-state">Nessun evento</div>'; return; }
       listaEventi.innerHTML = lista.map(e => `
@@ -1526,7 +1526,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     async function downloadBackup(){
       if(!data||backupBusy||uploadsPending){alert('Attendi il termine delle operazioni in corso');return;}
       const name='terapia-demo-backup-completo-'+TerapiaSupplements.today()+'.tlbackup';let sink;
-      try{sink=await TerapiaBackupStream.createSink(name);}catch(e){if(e.name!=='AbortError')alert(e.message);return;}
+      backupBusy=true;try{sink=await TerapiaBackupStream.createSink(name);}catch(e){backupBusy=false;if(e.name!=='AbortError')alert(e.message);return;}
       openBackupPanel();transferLock(true);uploadsPending++;sink.controller=new AbortController();const endTransfer=beginBackupTransfer(sink);
       try{
         const snapshot=structuredClone(data);
@@ -1544,9 +1544,10 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       const file=ev.target.files?.[0];if(!file)return;if(backupBusy||uploadsPending){alert('Attendi il termine dei caricamenti');ev.target.value='';return;}
       openBackupPanel();transferLock(true);uploadsPending++;backupStatus('Controllo del file di backup…');
       try{
+        if(preparedBackup?.dispose)await preparedBackup.dispose();preparedBackup=null;
         if(file.size>TerapiaBackupStream.MAX)throw Error('Backup oltre 8 GB');
         if(/\.tlbackup$/i.test(file.name)){preparedBackup=await TerapiaBackupStream.unpack(file,p=>backupStatus('Verifica allegato '+p.index+'/'+p.count+' · '+(p.total/1024/1024).toFixed(1)+' MB'));}
-        else if(/\.zip$/i.test(file.name)){if(file.size>200*1024*1024)throw Error('Il vecchio formato ZIP supporta fino a 200 MB. Per backup grandi usa il nuovo formato .tlbackup.');preparedBackup=await TerapiaBackup.unpack(new Uint8Array(await file.arrayBuffer()));}
+        else if(/\.zip$/i.test(file.name)){preparedBackup=await TerapiaBackupZip.unpack(file,p=>backupStatus('Verifica ZIP · '+(p.total/1024/1024).toFixed(1)+' / '+(p.size/1024/1024).toFixed(1)+' MB'));}
         else{if(file.size>15*1024*1024)throw Error('Backup JSON oltre 15 MB');const d=JSON.parse(await file.text());if(!TerapiaBackup.valid(d))throw Error('Questo JSON non è un backup valido dell’app');preparedBackup={data:d,files:new Map(),legacy:true};}
         preparedBackup.name=file.name;
         el('restoreSummary').textContent=backupCounts(preparedBackup.data)+` · Allegati da recuperare: ${TerapiaBackup.refs(preparedBackup.data).length}`+(preparedBackup.legacy?' · Vecchio formato JSON: i file collegati devono essere ancora disponibili nell’archivio locale.':' · Tutti gli allegati del backup sono stati verificati.');
@@ -1554,7 +1555,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       }catch(e){preparedBackup=null;el('restoreReview').hidden=true;backupStatus('Backup non caricato: '+e.message);alert(e.message);}
       finally{uploadsPending--;transferLock(false);ev.target.value='';syncNow();}
     }
-    function cancelPreparedBackup(){if(backupBusy)return;preparedBackup=null;el('restoreReview').hidden=true;backupStatus('Ripristino annullato.');}
+    function cancelPreparedBackup(){if(backupBusy)return;preparedBackup?.dispose?.().catch(()=>{});preparedBackup=null;el('restoreReview').hidden=true;backupStatus('Ripristino annullato.');}
     async function recoveryWrite(state){await cacheQueue;await cachePut('beforeRestore',state);}
     async function recoveryRead(){try{return await cacheGet('beforeRestore');}catch{return null;}}
     async function recoveryButton(){el('undoRestoreButton').hidden=!(await recoveryRead());}
@@ -1571,7 +1572,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         await recoveryWrite({data:structuredClone(data),savedAt:new Date().toISOString()});
         const restored=TerapiaBackup.replaceRefs(source.data,mapping);restored.integratori ||= [];
         data=restored;syncBase=remote.data?structuredClone(remote.data):null;syncVersion=remote.version;syncConflict=false;document.getElementById('syncConflict').style.display='none';syncDirty=true;await cacheWrite();repaint();
-        preparedBackup=null;el('restoreReview').hidden=true;el('undoRestoreButton').hidden=false;backupStatus('Dati e allegati ripristinati. Salvataggio locale in corso…');
+        await source.dispose?.();preparedBackup=null;el('restoreReview').hidden=true;el('undoRestoreButton').hidden=false;backupStatus('Dati e allegati ripristinati. Salvataggio locale in corso…');
       }catch(e){backupStatus('Ripristino non completato: '+e.message);alert(e.message);}
       finally{uploadsPending--;transferLock(false);await syncNow();if(syncDirty)backupStatus('Dati locali conservati: attendi “Salvato sul dispositivo” prima di chiudere la pagina.');else if(!preparedBackup)backupStatus('Ripristino completato e salvato sul dispositivo. La copia precedente resta recuperabile su questo dispositivo.');}
     }
@@ -1600,8 +1601,9 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
   </script>
 <script defer src="./navigation.js?v=20261020-exit"></script>
 <script defer src="./analytics-link.js"></script><script defer src="./leaflets.js?v=20261020-medical"></script>
-<script defer src="./backup-stream.js?v=20261020"></script>
-<script defer src="./medical.js?v=20261020-vaccinazioni"></script>
+<script defer src="./backup-stream.js?v=20261020-iphone-fix"></script>
+  <script defer src="./backup-zip-stream.js?v=20261020-iphone-fix"></script>
+<script defer src="./medical.js?v=20261020-iphone-fix"></script>
 <script defer src="./exit-app.js?v=20261020"></script>
 </body>
 </html>

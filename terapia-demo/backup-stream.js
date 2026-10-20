@@ -3,20 +3,40 @@
  'use strict';
  const CHUNK=1024*1024,MAX=8*1024**3,MAX_FILE=1024**3,HEADER=16*1024**2;
  const enc=new TextEncoder(),dec=new TextDecoder(),MAGIC=enc.encode('TLBACK2\n'),END=enc.encode('TLEND2\n');
+ const workerUrl=new URL('backup-opfs-worker.js?v=20261020-iphone',typeof document!=='undefined'&&document.currentScript?.src||typeof location!=='undefined'&&location.href||'https://localhost/').href;
  const number=n=>{const b=new Uint8Array(4);new DataView(b.buffer).setUint32(0,n,true);return b;};
  const digest=async b=>new Uint8Array(await crypto.subtle.digest('SHA-256',b));
  const equal=(a,b)=>a.length===b.length&&a.every((x,i)=>x===b[i]);
- async function createSink(name){
-  if(root.showSaveFilePicker){
-   const handle=await root.showSaveFilePicker({suggestedName:name,types:[{description:'Backup Terapia completo',accept:{'application/octet-stream':['.tlbackup']}}]});
-   const writer=await handle.createWritable();return {writer,native:true,async file(){return handle.getFile();},async cleanup(){}};
+ async function workerSink(directory,temp){
+  const worker=new Worker(workerUrl),pending=new Map();let seq=0,closed=false,file;
+  function rejectAll(error){for(const p of pending.values()){clearTimeout(p.timer);p.reject(error);}pending.clear();}
+  worker.onmessage=({data:r})=>{const p=pending.get(r.id);if(!p)return;pending.delete(r.id);clearTimeout(p.timer);if(r.ok)p.resolve(r);else{const error=Error(r.error||'Salvataggio non riuscito');error.name=r.name||'Error';p.reject(error);}};
+  worker.onerror=()=>rejectAll(Error('Il motore di salvataggio non è disponibile. Ricarica l’app e riprova.'));
+  function send(type,extra={},transfer=[]){return new Promise((resolve,reject)=>{const id=++seq,timer=setTimeout(()=>{pending.delete(id);reject(Error('Salvataggio interrotto: riprova mantenendo l’app aperta.'));},30000);pending.set(id,{resolve,reject,timer});try{worker.postMessage({id,type,...extra},transfer);}catch(e){pending.delete(id);clearTimeout(timer);reject(e);}});}
+  try{await send('init',{name:temp});}catch(e){worker.terminate();await directory.removeEntry(temp).catch(()=>{});throw e;}
+  return {native:false,mode:'opfs-worker',writer:{async write(bytes){if(closed)throw Error('Backup già chiuso');const buffer=bytes.slice().buffer;await send('write',{buffer},[buffer]);},async close(){const result=await send('close');file=result.file;closed=true;worker.terminate();},async abort(){if(!closed)try{await send('abort');}finally{closed=true;worker.terminate();}}},async file(){if(!closed||!file)throw Error('Backup non completato');return file;},async cleanup(){if(!closed){closed=true;worker.terminate();rejectAll(Error('Backup annullato'));}await directory.removeEntry(temp).catch(()=>{});}};
+ }
+ async function databaseSink(){
+  if(!root.indexedDB)throw Error('Memoria locale non disponibile: apri l’app in Safari e riprova.');
+  const name='terapia-backup-temp-'+crypto.randomUUID(),db=await new Promise((resolve,reject)=>{const r=indexedDB.open(name,1);r.onupgradeneeded=()=>r.result.createObjectStore('chunks');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});let count=0,parts=[],length=0,closed=false,file;
+  async function store(){if(!parts.length)return;const blob=new Blob(parts);parts=[];length=0;const key=count++;await new Promise((resolve,reject)=>{const t=db.transaction('chunks','readwrite');t.objectStore('chunks').put(blob,key);t.oncomplete=resolve;t.onerror=()=>reject(t.error);t.onabort=()=>reject(t.error||Error('Scrittura interrotta'));});}
+  async function cleanup(){db.close();await new Promise(resolve=>{const r=indexedDB.deleteDatabase(name);r.onsuccess=r.onerror=r.onblocked=resolve;});}
+  return {native:false,mode:'indexeddb',writer:{async write(bytes){if(closed)throw Error('Backup già chiuso');parts.push(new Blob([bytes]));length+=bytes.length;if(length>=4*1024*1024)await store();},async close(){await store();closed=true;const blobs=await new Promise((resolve,reject)=>{const chunks=[],t=db.transaction('chunks','readonly'),r=t.objectStore('chunks').openCursor();r.onsuccess=()=>{const cursor=r.result;if(cursor){chunks.push(cursor.value);cursor.continue();}};t.oncomplete=()=>resolve(chunks);t.onerror=()=>reject(t.error);});file=new Blob(blobs,{type:'application/octet-stream'});},async abort(){closed=true;parts=[];await cleanup();}},async file(){if(!closed||!file)throw Error('Backup non completato');return file;},cleanup};
+ }
+ async function createSink(name,{temporary=false}={}){
+  if(root.showSaveFilePicker&&!temporary){
+   try{const handle=await root.showSaveFilePicker({suggestedName:name,types:[{description:'Backup Terapia completo',accept:{'application/octet-stream':['.tlbackup']}}]});
+    const writer=await handle.createWritable();return {writer,native:true,mode:'file-picker',async file(){return handle.getFile();},async cleanup(){}};
+   }catch(e){if(e.name==='AbortError')throw e;if(!['SecurityError','NotSupportedError','TypeError'].includes(e.name))throw e;}
   }
   if(navigator.storage?.getDirectory){
-   const directory=await navigator.storage.getDirectory();const temp='terapia-backup-'+crypto.randomUUID()+'.tmp';
-   const handle=await directory.getFileHandle(temp,{create:true});
-   try{const writer=await handle.createWritable();return {writer,native:false,async file(){return handle.getFile();},async cleanup(){await directory.removeEntry(temp).catch(()=>{});}};}catch(e){await directory.removeEntry(temp).catch(()=>{});throw e;}
+   try{const directory=await navigator.storage.getDirectory(),temp='terapia-backup-'+crypto.randomUUID()+'.tmp',handle=await directory.getFileHandle(temp,{create:true});
+    try{if(typeof handle.createWritable==='function'){const writer=await handle.createWritable();return {writer,native:false,mode:'opfs',async file(){return handle.getFile();},async cleanup(){await directory.removeEntry(temp).catch(()=>{});}};}}catch(e){if(e.name==='QuotaExceededError')throw e;}
+    if(typeof Worker!=='undefined')return await workerSink(directory,temp);
+    await directory.removeEntry(temp).catch(()=>{});
+   }catch(e){if(e.name==='QuotaExceededError')throw Error('Spazio sul dispositivo insufficiente per creare il backup completo.');}
   }
-  throw Error('Il browser non consente il salvataggio a blocchi. Apri l’app in Safari aggiornato oppure Chrome/Edge e riprova.');
+  return databaseSink();
  }
  async function packStream(data,source,sink,progress=()=>{}){
   if(!TerapiaBackup.valid(data))throw Error('Archivio non valido');
