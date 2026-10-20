@@ -86,13 +86,25 @@
    if(now>=due&&now-due<60000&&!notified.has(key)){notified.add(key);mostraToast('Promemoria: '+c.titolo+' alle '+c.ora);if(root.Notification&&Notification.permission==='granted')try{new Notification('Promemoria visita',{body:c.titolo+' · '+c.ora});}catch{}}
   }
  }
- function medicalSummary(){return '<section class="medical-subsection"><h3>Medico · Visite</h3>'+((data.controlli||[]).map(c=>'<article><strong>'+esc(c.titolo)+'</strong> · '+esc(c.data?formatData(c.data):'Data da definire')+(c.ora?' · '+esc(c.ora):'')+'<p>'+esc([c.tipoVisita,c.medico,c.struttura].filter(Boolean).join(' · '))+'</p>'+links(c.allegati)+'<button class="btn btn-outline btn-sm no-print" onclick="navigateToSection(\'controlli\');modificaControllo(\''+c.id+'\')">Apri visita</button></article>').join('')||'<p>Nessuna visita registrata.</p>')+'<h3>Medico · Vaccinazioni</h3>'+((data.vaccinazioni||[]).map(v=>'<article><strong>'+esc(v.nome)+'</strong> · '+esc(formatData(v.data))+' · '+esc(v.dose||'')+(v.richiamo?'<p>Richiamo: '+esc(formatData(v.richiamo))+'</p>':'')+links(v.allegati)+'<button class="btn btn-outline btn-sm no-print" onclick="apriVaccinazione(\''+v.id+'\')">Apri vaccinazione</button></article>').join('')||'<p>Nessuna vaccinazione registrata.</p>')+'</section>';}
- function renderMedicalViews(){const card=$('medicalCartella');if(card)card.innerHTML=medicalSummary();if($('archTitolo')?.textContent==='Medico'&&$('archivioDettaglio')?.style.display==='block'){const existing=$('medicalArchive');if(existing)existing.innerHTML=medicalSummary();}}
+ function medicalSummary(){return '<section class="medical-subsection"><h3>Medico · Visite</h3>'+((data.controlli||[]).map(c=>'<article><strong>'+esc(c.titolo)+'</strong> · '+esc(c.data?formatData(c.data):'Data da definire')+(c.ora?' · '+esc(c.ora):'')+'<p>'+esc([c.tipoVisita,c.medico,c.struttura].filter(Boolean).join(' · '))+'</p>'+links(c.allegati)+'<button class="btn btn-outline btn-sm no-print" onclick="navigateToSection(\'controlli\');modificaControllo(\''+c.id+'\')">Apri visita</button></article>').join('')||'<p>Nessuna visita registrata.</p>')+'</section>';}
+ function vaccinationArchiveHtml(){return '<section class="medical-subsection"><h3>Vaccinazioni</h3>'+((data.vaccinazioni||[]).map(v=>'<article><strong>'+esc(v.nome)+'</strong> · '+esc(formatData(v.data))+' · '+esc(v.dose||'')+(v.richiamo?'<p>Richiamo: '+esc(formatData(v.richiamo))+'</p>':'')+links(v.allegati)+'<button class="btn btn-outline btn-sm no-print" onclick="apriVaccinazione(\''+v.id+'\')">Apri vaccinazione</button></article>').join('')||'<p>Nessuna vaccinazione registrata.</p>')+'</section>';}
+
+ function renderMedicalViews(){
+  const card=$('medicalCartella');if(card)card.innerHTML=medicalSummary();
+  if($('archivioDettaglio')?.style.display==='block'){
+   if($('archTitolo')?.textContent==='Medico'){const target=$('medicalArchive');if(target)target.innerHTML=medicalSummary();}
+   if($('archTitolo')?.textContent==='Vaccinazioni'){const target=$('vaccinationArchive');if(target)target.innerHTML=vaccinationArchiveHtml();}
+  }
+ }
  function installViews(){
   const cartella=$('listaEventi');if(cartella)cartella.insertAdjacentHTML('afterend','<div id="medicalCartella"></div>');
   const oldCartella=root.renderCartella;root.renderCartella=function(){oldCartella();renderMedicalViews();};
-  const oldArchive=root.renderArchivio;root.renderArchivio=function(){oldArchive();const grid=$('archivioGrid');if(![...grid.querySelectorAll('h3')].some(h=>h.textContent==='Medico'))grid.insertAdjacentHTML('beforeend','<button type="button" class="arch-card" onclick="apriArchivioDettaglio(\'Medico\')"><h3>Medico</h3><div class="cnt">'+(data.controlli||[]).length+' visite · '+(data.vaccinazioni||[]).length+' vaccinazioni</div></button>');};
-  const oldDetail=root.apriArchivioDettaglio;root.apriArchivioDettaglio=function(pat){oldDetail(pat);if(pat==='Medico')$('archContenuto').insertAdjacentHTML('beforeend','<div id="medicalArchive">'+medicalSummary()+'</div>');};
+  const oldArchive=root.renderArchivio;root.renderArchivio=function(){
+   oldArchive();const grid=$('archivioGrid'),headings=[...grid.querySelectorAll('h3')].map(h=>h.textContent);
+   if(!headings.includes('Medico'))grid.insertAdjacentHTML('beforeend','<button type="button" class="arch-card" onclick="apriArchivioDettaglio(\'Medico\')"><h3>Medico</h3><div class="cnt">'+(data.controlli||[]).length+' visite</div></button>');
+   if(!headings.includes('Vaccinazioni'))grid.insertAdjacentHTML('beforeend','<button type="button" class="arch-card" onclick="apriArchivioDettaglio(\'Vaccinazioni\')"><h3>Vaccinazioni</h3><div class="cnt">'+(data.vaccinazioni||[]).length+' registrazioni · '+(data.vaccinazioni||[]).reduce((n,v)=>n+(v.allegati||[]).length,0)+' certificati</div></button>');
+  };
+  const oldDetail=root.apriArchivioDettaglio;root.apriArchivioDettaglio=function(pat){oldDetail(pat);if(pat==='Medico')$('archContenuto').insertAdjacentHTML('beforeend','<div id="medicalArchive">'+medicalSummary()+'</div>');if(pat==='Vaccinazioni')$('archContenuto').insertAdjacentHTML('beforeend','<div id="vaccinationArchive">'+vaccinationArchiveHtml()+'</div>');};
  }
  function beginBackupTransfer(sink){
   const panel=document.createElement('section');panel.className='backup-ready no-print';panel.setAttribute('role','status');panel.innerHTML='<strong>Backup in corso</strong><p>I file vengono elaborati a blocchi. Attendi la verifica finale.</p><button type="button" class="btn btn-outline">Annulla backup</button>';panel.querySelector('button').onclick=()=>{sink.cancelled=true;sink.controller?.abort();panel.querySelector('p').textContent='Annullamento in corso…';};document.body.append(panel);return ()=>panel.remove();
