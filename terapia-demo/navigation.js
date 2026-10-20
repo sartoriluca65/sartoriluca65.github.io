@@ -5,12 +5,11 @@
   const routes=[];let restoring=false,preview=null,previewSequence=0,pdfViewerPromise;
   const container=document.querySelector('.container');
   const navigation=document.createElement('nav');navigation.className='app-navigation no-print';navigation.setAttribute('aria-label','Navigazione dell’app');
-  navigation.innerHTML='<button type="button" class="btn btn-outline" id="appBackButton">← Indietro</button><span id="appCurrentSection"></span><div class="app-navigation-actions"><button type="button" class="btn btn-outline" id="appHomeButton">⌂ Oggi</button><button type="button" class="btn btn-outline" id="appCloseButton">Chiudi</button></div>';
+  navigation.innerHTML='<button type="button" class="btn btn-outline" id="appBackButton">← Indietro</button><span id="appCurrentSection"></span><div class="app-navigation-actions"><button type="button" class="btn btn-outline" id="appHomeButton">⌂ Oggi</button><button type="button" class="btn btn-outline" id="appExitButton">Esci dall’app</button></div>';
   container.prepend(navigation);
   function updateSection(){document.getElementById('appCurrentSection').textContent=document.querySelector('.tab.active')?.textContent||'Oggi';}
   document.getElementById('appBackButton').onclick=goBackInApp;
-  document.getElementById('appCloseButton').onclick=goBackInApp;
-  document.querySelectorAll('.panel').forEach(panel=>{const close=document.createElement('button');close.type='button';close.className='btn btn-outline no-print panel-close';close.textContent='← Chiudi sezione';close.onclick=goBackInApp;panel.prepend(close);});
+  document.getElementById('appExitButton').onclick=()=>window.exitMedicalApp();
   document.getElementById('appHomeButton').onclick=()=>navigateToSection('oggi');
   document.addEventListener('click',event=>{
     const tab=event.target.closest?.('.tab[data-tab]');
@@ -32,14 +31,14 @@
     const previous=routes.pop();if(previous){navigateToSection(previous.tab,false);window.scrollTo({top:previous.scroll,behavior:'auto'});return;}
     navigateToSection('oggi',false);
   }
-  document.querySelectorAll('.modal-overlay').forEach(modal=>{const box=modal.querySelector('.modal'),button=document.createElement('button');button.type='button';button.className='btn btn-outline no-print modal-back';button.textContent='← Chiudi';button.onclick=()=>chiudiModal(modal.id);box.prepend(button);});
+  document.querySelectorAll('.modal-overlay').forEach(modal=>{const box=modal.querySelector('.modal'),button=document.createElement('button');button.type='button';button.className='btn btn-outline no-print modal-back';button.textContent='← Indietro';button.onclick=()=>chiudiModal(modal.id);box.prepend(button);});
   const closeImage=document.querySelector('#lightbox .close');if(closeImage)closeImage.textContent='← Indietro';
   function setStatus(state,message,error=false){if(preview!==state)return;state.status.textContent=message;state.status.classList.toggle('is-error',error);}
   function makePreview(title){
     if(preview)closePreview();
     const state={id:++previewSequence,focus:document.activeElement,scroll:window.scrollY,overflow:document.body.style.overflow,blob:null,file:null,page:1,renderTask:null,pdf:null,loadingTask:null};
     const root=document.createElement('section');root.id='appPreview';root.className='app-preview';root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-labelledby','previewTitle');
-    root.innerHTML='<div class="preview-toolbar no-print"><div class="preview-toolbar-top"><button type="button" class="btn btn-outline" id="previewBack">← Chiudi</button><h2 id="previewTitle" class="preview-title"></h2></div><div class="preview-actions"><button type="button" class="btn btn-primary" id="previewPrint" disabled>🖨️ Stampa</button><button type="button" class="btn btn-outline" id="previewSave" disabled>↗ Salva / Condividi PDF</button><button type="button" class="btn btn-outline" id="previewRetry" hidden>Riprova PDF</button></div><p id="previewStatus" class="preview-status" role="status" aria-live="polite"></p></div><div id="previewContent" class="preview-content"></div>';
+    root.innerHTML='<div class="preview-toolbar no-print"><div class="preview-toolbar-top"><button type="button" class="btn btn-outline" id="previewBack">← Indietro</button><h2 id="previewTitle" class="preview-title"></h2></div><div class="preview-actions"><button type="button" class="btn btn-primary" id="previewPrint" disabled>🖨️ Stampa</button><button type="button" class="btn btn-outline" id="previewSave" disabled>↗ Salva / Condividi PDF</button><button type="button" class="btn btn-outline" id="previewRetry" hidden>Riprova PDF</button></div><p id="previewStatus" class="preview-status" role="status" aria-live="polite"></p></div><div id="previewContent" class="preview-content"></div>';
     state.root=root;state.content=root.querySelector('#previewContent');state.status=root.querySelector('#previewStatus');state.save=root.querySelector('#previewSave');state.print=root.querySelector('#previewPrint');state.retry=root.querySelector('#previewRetry');
     preview=state;document.body.append(root);document.body.style.overflow='hidden';
     state.inert=[...document.body.children].filter(el=>el!==root&&!['SCRIPT','STYLE','LINK'].includes(el.tagName)).map(el=>[el,el.inert]);for(const [el] of state.inert)el.inert=true;
