@@ -504,7 +504,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       <h3 id="modalEventoTitolo">Nuovo evento / scansione</h3>
       <input type="hidden" id="eventoId">
       <div class="form-grid">
-        <div class="form-group"><label>Data *</label><input type="date" id="eData"></div><div class="form-group"><label for="eOra">Ora</label><input type="time" id="eOra"></div><div class="form-group"><label for="eRamo">Ramo archivio</label><select id="eRamo"><option>Medico</option><option>Cardiologia</option><option>Dermatologia</option><option>Pneumologia</option><option>Altro</option></select></div><div class="form-group"><label for="eTipoVisita">Tipologia visita</label><select id="eTipoVisita"><option value="">Da selezionare</option><option>Visita di controllo</option><option>Prima visita</option><option>Esame / Referto</option><option>Altro</option></select></div><div class="form-group"><label for="eMedico">Medico</label><input id="eMedico"></div>
+        <div class="form-group"><label>Data *</label><input type="date" id="eData"></div><div class="form-group"><label for="eOra">Ora</label><input type="time" id="eOra"></div><div class="form-group"><label for="eReminder">Promemoria</label><select id="eReminder"><option value="">Nessuno</option><option value="0">All’ora stabilita</option><option value="15">15 minuti prima</option><option value="60">1 ora prima</option><option value="1440">1 giorno prima</option></select><small>Per l’avviso ad app chiusa, salva la visita e usa Aggiungi al calendario.</small></div><div class="form-group"><label for="eRamo">Ramo archivio</label><select id="eRamo"><option>Medico</option><option>Cardiologia</option><option>Dermatologia</option><option>Pneumologia</option><option>Altro</option></select></div><div class="form-group"><label for="eTipoVisita">Tipologia visita</label><select id="eTipoVisita"><option value="">Da selezionare</option><option>Visita di controllo</option><option>Prima visita</option><option>Esame / Referto</option><option>Altro</option></select></div><div class="form-group"><label for="eMedico">Medico</label><input id="eMedico"></div>
         <div class="form-group">
           <label>Tipo</label>
           <select id="eTipo">
@@ -881,6 +881,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
                 ${e.allegati.map((a,i)=>attachmentHtml(a,e.id,i)).join('')}
               </div>`:''}
             <div class="actions no-print" style="margin-top:.4rem">
+              ${e.ora?`<button class="btn btn-outline btn-sm" onclick="MedicalDocs.calendar('${e.id}','eventi')">Aggiungi al calendario</button>`:''}
               <button class="btn btn-outline btn-sm" onclick="modificaEvento('${e.id}')">✏️</button>
               <button class="btn btn-danger btn-sm" onclick="eliminaEvento('${e.id}')">🗑️</button>
             </div>
@@ -946,17 +947,19 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       if(uploadsPending){alert("Attendi il completamento del caricamento dei file.");return;}
       const titolo = eTitolo.value.trim(), dataEv = eData.value;
       if (!titolo||!dataEv) { alert('Data e titolo obbligatori'); return; }
+      if(document.getElementById('eReminder').value!==''&&!document.getElementById('eOra').value){alert('Inserisci l’orario per il promemoria');return;}
       if(data.eventi.some(e=>e.id!==eventoId.value&&e.data===dataEv&&e.titolo.toLowerCase()===titolo.toLowerCase())&&!confirm('Un evento con stessa data e titolo è già presente. Salvarlo comunque?'))return;
       const id = eventoId.value;
       const vecchio = id ? data.eventi.find(x=>x.id===id) : null;
       const obj = {
-        ...(vecchio||{}), id: id||('e'+Date.now()), data: dataEv, tipo: eTipo.value, titolo, ora:document.getElementById('eOra').value,medico:document.getElementById('eMedico').value.trim(),ramo:document.getElementById('eRamo').value,tipoVisita:document.getElementById('eTipoVisita').value,
+        ...(vecchio||{}), id: id||('e'+Date.now()), data: dataEv, tipo: eTipo.value, titolo, ora:document.getElementById('eOra').value,promemoria:document.getElementById('eReminder').value,medico:document.getElementById('eMedico').value.trim(),ramo:document.getElementById('eRamo').value,tipoVisita:document.getElementById('eTipoVisita').value,
         patologia: ePatologia.value.trim(), desc: eDesc.value.trim(),
         struttura: eStruttura.value.trim(), allegati: allegatiTemp.slice(), ...(vecchio&&vecchio.fontePath?{fontePath:vecchio.fontePath}:{})
       };
       if (id) { const i = data.eventi.findIndex(x=>x.id===id); if (i>=0) data.eventi[i]=obj; }
       else data.eventi.push(obj);
       salvaDati(); chiudiModal('modalEvento');
+      if(obj.promemoria!==''&&window.Notification&&Notification.permission==='default')Notification.requestPermission().catch(()=>{});
       if (document.querySelector('.tab.active').dataset.tab==='cartella') renderCartella();
       if (document.querySelector('.tab.active').dataset.tab==='archivio') renderArchivio();
       mostraToast('Evento salvato'+(obj.allegati.length?' con '+obj.allegati.length+' allegato/i':''));

@@ -80,9 +80,9 @@
   const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LucaApps//Terapia//IT','BEGIN:VEVENT','UID:'+c.id+'@terapia.local','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,''),'DTSTART:'+start,'DURATION:PT1H','SUMMARY:'+icsEscape(c.titolo),'LOCATION:'+icsEscape(c.struttura),'DESCRIPTION:'+icsEscape([c.medico,c.note].filter(Boolean).join('\n'))];
   if(c.promemoria!==undefined&&c.promemoria!=='')lines.push('BEGIN:VALARM','TRIGGER:-PT'+Number(c.promemoria)+'M','ACTION:DISPLAY','DESCRIPTION:Promemoria visita','END:VALARM');lines.push('END:VEVENT','END:VCALENDAR');return lines.join('\r\n')+'\r\n';
  }
- function calendar(id){const c=(data.controlli||[]).find(x=>x.id===id);if(c)saveDownload(new Blob([calendarText(c)],{type:'text/calendar;charset=utf-8'}),'visita-'+c.data+'.ics');}
+ function calendar(id,group='controlli'){const c=(data[group]||[]).find(x=>x.id===id);if(c)saveDownload(new Blob([calendarText(c)],{type:'text/calendar;charset=utf-8'}),'visita-'+c.data+'.ics');}
  const notified=new Set();function reminders(){
-  const now=Date.now();for(const c of data.controlli||[]){if(!c.data||!c.ora||c.promemoria==null||c.promemoria===''||c.stato==='completato')continue;const due=new Date(c.data+'T'+c.ora).getTime()-Number(c.promemoria)*60000,key=c.id+':'+due;
+  const now=Date.now();for(const c of [...(data.controlli||[]),...(data.eventi||[])]){if(!c.data||!c.ora||c.promemoria==null||c.promemoria===''||c.stato==='completato')continue;const due=new Date(c.data+'T'+c.ora).getTime()-Number(c.promemoria)*60000,key=c.id+':'+due;
    if(now>=due&&now-due<60000&&!notified.has(key)){notified.add(key);mostraToast('Promemoria: '+c.titolo+' alle '+c.ora);if(root.Notification&&Notification.permission==='granted')try{new Notification('Promemoria visita',{body:c.titolo+' · '+c.ora});}catch{}}
   }
  }
@@ -112,7 +112,7 @@
  Object.assign(root,{offerBackupDownload,beginBackupTransfer,MedicalDocs:{links,open,reset,remove,upload,parse,fingerprint,scan,draft:scope=>structuredClone(drafts[scope]),calendar,calendarText,renderMedicalViews,cancelControl(){resetControl();goBackInApp();}}});
  controlFields();Object.assign(root,{renderControlli:renderControls,salvaControllo:saveControl,modificaControllo:editControl});installViews();
  const oldDelete=root.eliminaControllo;root.eliminaControllo=function(id){oldDelete(id);renderMedicalViews();};
- const oldEvent=root.apriModalEvento;root.apriModalEvento=function(id=null,tipo=null){generation.e++;oldEvent(id,tipo);const e=(data.eventi||[]).find(x=>x.id===id)||{};for(const [field,key] of Object.entries({eOra:'ora',eMedico:'medico',eTipoVisita:'tipoVisita',eRamo:'ramo'}))if($(field))$(field).value=e[key]||(field==='eRamo'?'Medico':field==='eTipoVisita'?'':'');if($('eMedicalStatus'))$('eMedicalStatus').textContent='';};root.gestisciFile=eventUpload;
+ const oldEvent=root.apriModalEvento;root.apriModalEvento=function(id=null,tipo=null){generation.e++;oldEvent(id,tipo);const e=(data.eventi||[]).find(x=>x.id===id)||{};for(const [field,key] of Object.entries({eOra:'ora',eMedico:'medico',eTipoVisita:'tipoVisita',eRamo:'ramo',eReminder:'promemoria'}))if($(field))$(field).value=e[key]??(field==='eRamo'?'Medico':'');if($('eMedicalStatus'))$('eMedicalStatus').textContent='';};root.gestisciFile=eventUpload;
  const close=root.chiudiModal;root.chiudiModal=function(id){if(id==='modalVaccinazione')generation.v++;if(id==='modalEvento')generation.e++;close(id);};
  if(typeof syncReady!=='undefined'&&syncReady)repaint();setInterval(reminders,15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)reminders();});
 })(globalThis);
