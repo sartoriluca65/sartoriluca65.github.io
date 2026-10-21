@@ -26,7 +26,7 @@
  async function createSink(name,{temporary=false,storage='auto'}={}){
   if(storage==='indexeddb')return databaseSink();
   if(root.showSaveFilePicker&&!temporary){
-   try{const handle=await root.showSaveFilePicker({suggestedName:name,types:[{description:'Backup Terapia completo',accept:{'application/octet-stream':['.tlbackup']}}]});
+   try{const handle=await root.showSaveFilePicker({id:'terapia-backup',startIn:'documents',suggestedName:name,types:[{description:'Backup Terapia completo',accept:{'application/octet-stream':['.tlbackup']}}]});
     const writer=await handle.createWritable();return {writer,native:true,mode:'file-picker',async file(){return handle.getFile();},async cleanup(){}};
    }catch(e){if(e.name==='AbortError')throw e;if(!['SecurityError','NotSupportedError','TypeError'].includes(e.name))throw e;}
   }
@@ -49,7 +49,7 @@
   try{
    await write(MAGIC);await write(number(header.length));await write(await digest(header));await write(header);
    for(let i=0;i<refs.length;i++){
-    const ref=refs[i],response=await source(ref.key);if(!response.ok||!response.body)throw Error('Allegato non recuperabile: '+ref.nome);
+    const ref=refs[i];progress({index:i+1,count:refs.length,total,name:ref.nome});const response=await source(ref.key);if(!response.ok||!response.body)throw Error('Allegato non recuperabile: '+ref.nome);
     const reader=response.body.getReader();let size=0,received=0,buffer=new Uint8Array(CHUNK),used=0;const hashes=[];
     // A frame owns its bytes: neither a recycled network buffer nor a storage
     // implementation can change an earlier hash or a pending payload.

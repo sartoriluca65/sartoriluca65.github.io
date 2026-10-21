@@ -1,0 +1,21 @@
+@media screen {
+ .backup-work {position:fixed;inset:0;margin:auto;width:min(540px,calc(100vw - 28px));max-height:calc(100dvh - 32px);overflow:auto;padding:24px;border:1px solid #cbded2;border-radius:20px;background:#fff;color:#0F172A;box-shadow:0 24px 80px #0f172a40;font-family:inherit;box-sizing:border-box;z-index:2147483646;}
+ .backup-work::backdrop {background:#0f172a80;}
+ .backup-work-heading {display:flex;gap:12px;align-items:center;color:#054A29;font-size:1.2rem;line-height:1.4;}
+ .backup-work p {font-size:1rem;line-height:1.5;margin:14px 0;}
+ .backup-work .backup-work-stage {font-weight:700;color:#054A29;}
+ .backup-work progress {display:block;width:100%;height:14px;accent-color:#054A29;}
+ .backup-work-detail,.backup-work-filename {overflow-wrap:anywhere;}
+ .backup-work-metrics {display:flex;justify-content:space-between;gap:12px;padding:12px;border-radius:10px;background:#E8F3EE;font-variant-numeric:tabular-nums;font-weight:700;color:#054A29;}
+ .backup-work .backup-work-hint,.backup-work .backup-save-hint {color:#64748B;}
+ .backup-save-status {padding:12px;border:1px solid #E2E8F0;border-radius:10px;}
+ .backup-save-actions {display:grid;gap:10px;}
+ .backup-work .btn {min-height:48px;white-space:normal;margin:0;}
+ .backup-work .btn-primary {background:#054A29;border-color:#054A29;color:white;}
+ .backup-work [hidden] {display:none!important;}
+ .backup-spinner {width:22px;height:22px;flex-shrink:0;border:3px solid #cbded2;border-top-color:#054A29;border-radius:50%;animation:backup-spin 1s linear infinite;}
+ .backup-complete {display:grid;place-items:center;flex-shrink:0;width:32px;height:32px;border-radius:50%;background:#E8F3EE;}
+ @keyframes backup-spin {to {transform:rotate(360deg);}}
+ @media (prefers-reduced-motion:reduce){.backup-spinner{animation:none;}}
+}
+@media print {.backup-work{display:none!important;}}

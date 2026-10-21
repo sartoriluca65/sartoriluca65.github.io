@@ -107,19 +107,6 @@
   };
   const oldDetail=root.apriArchivioDettaglio;root.apriArchivioDettaglio=function(pat){oldDetail(pat);if(pat==='Medico')$('archContenuto').insertAdjacentHTML('beforeend','<div id="medicalArchive">'+medicalSummary()+'</div>');if(pat==='Vaccinazioni')$('archContenuto').insertAdjacentHTML('beforeend','<div id="vaccinationArchive">'+vaccinationArchiveHtml()+'</div>');};
  }
- function beginBackupTransfer(sink){
-  const panel=document.createElement('section');panel.className='backup-ready no-print';panel.setAttribute('role','status');panel.innerHTML='<strong>Backup in corso</strong><p>I file vengono elaborati a blocchi. Attendi la verifica finale.</p><button type="button" class="btn btn-outline">Annulla backup</button>';panel.querySelector('button').onclick=()=>{sink.cancelled=true;sink.controller?.abort();panel.querySelector('p').textContent='Annullamento in corso…';};document.body.append(panel);return ()=>panel.remove();
- }
- function offerBackupDownload(file,name,cleanup){
-  const old=$('backupReady');if(old)old.remove();const panel=document.createElement('section');panel.id='backupReady';panel.className='backup-ready no-print';panel.setAttribute('role','status');panel.innerHTML='<strong>Backup completo verificato</strong><p>Salva il file sul dispositivo o sul NAS.</p><div class="actions"><button type="button" class="btn btn-primary">Salva backup in File</button><button type="button" class="btn btn-outline">Chiudi</button></div>';
-  const buttons=panel.querySelectorAll('button');let sharing=false;buttons[0].onclick=async()=>{
-   if(sharing)return;const output=new File([file],name,{type:'application/octet-stream'});sharing=true;buttons[0].disabled=buttons[1].disabled=true;
-   try{if(navigator.share&&navigator.canShare?.({files:[output]})){await navigator.share({files:[output],title:'Backup completo Terapia'});backupStatus('Condivisione completata. Verifica il backup nella destinazione scelta in File.');}
-    else{saveDownload(output,name);backupStatus('Download del backup avviato. Verifica il file nella destinazione scelta.');}}
-   catch(e){if(e.name==='AbortError')backupStatus('Salvataggio annullato. Il backup verificato resta pronto: premi nuovamente Salva backup in File.');else{backupStatus('Condivisione non disponibile. Avvio del download: controlla File / Download.');saveDownload(output,name);}}
-   finally{sharing=false;buttons[0].disabled=buttons[1].disabled=false;}
-  };buttons[1].onclick=()=>{if(sharing)return;panel.remove();setTimeout(()=>cleanup().catch(()=>{}),120000);};document.body.append(panel);
- }
  async function eventUpload(ev){
   const token=generation.e,files=[...(ev.target.files||[])];if(uploadsPending||backupBusy){alert('Attendi il termine delle operazioni in corso.');return;}uploadsPending++;
   try{for(const file of files){if(file.size>1024**3)throw Error('Documento oltre 1 GB');const signature=await fingerprint(file);if(token!==generation.e)return;if(allegatiTemp.some(a=>a.fingerprint===signature))continue;
@@ -133,7 +120,7 @@
   if(group==='vaccinazioni'){apriVaccinazione(id);$('vMedicalPdf').value='';$('vMedicalPdf').click();}
   else{navigateToSection('controlli');if(id)editControl(id);else resetControl();$('cMedicalPdf').value='';$('cMedicalPdf').click();}
  }
- Object.assign(root,{offerBackupDownload,beginBackupTransfer,MedicalDocs:{links,open,reset,remove,upload,parse,fingerprint,scan,attach,draft:scope=>structuredClone(drafts[scope]),calendar,calendarText,renderMedicalViews,cancelControl(){resetControl();goBackInApp();}}});
+ Object.assign(root,{MedicalDocs:{links,open,reset,remove,upload,parse,fingerprint,scan,attach,draft:scope=>structuredClone(drafts[scope]),calendar,calendarText,renderMedicalViews,cancelControl(){resetControl();goBackInApp();}}});
  controlFields();Object.assign(root,{renderControlli:renderControls,salvaControllo:saveControl,modificaControllo:editControl});installViews();
  const oldDelete=root.eliminaControllo;root.eliminaControllo=function(id){oldDelete(id);renderMedicalViews();};
  const oldEvent=root.apriModalEvento;root.apriModalEvento=function(id=null,tipo=null){generation.e++;oldEvent(id,tipo);const e=(data.eventi||[]).find(x=>x.id===id)||{};for(const [field,key] of Object.entries({eOra:'ora',eMedico:'medico',eTipoVisita:'tipoVisita',eRamo:'ramo',eReminder:'promemoria'}))if($(field))$(field).value=e[key]??(field==='eRamo'?'Medico':'');if($('eMedicalStatus'))$('eMedicalStatus').textContent='';};root.gestisciFile=eventUpload;

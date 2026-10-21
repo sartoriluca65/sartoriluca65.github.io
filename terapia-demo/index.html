@@ -1530,31 +1530,34 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     }
     function validArchive(d){return TerapiaBackup.valid(d);}
     let backupBusy=false,preparedBackup=null;
-    function backupStatus(t){el('backupStatus').textContent=t;}
+    function backupStatus(t){el('backupStatus').textContent=t;globalThis.TerapiaBackupUI?.status(t);}
     function transferLock(on){backupBusy=on;el('syncBar').inert=on;document.querySelector('.container').inert=on;}
     function saveDownload(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.rel='noopener';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);}
     async function downloadBackup(){
       if(!data||backupBusy||uploadsPending){alert('Attendi il termine delle operazioni in corso');return;}
       const name='terapia-demo-backup-completo-'+TerapiaSupplements.today()+'.tlbackup';let sink;
-      backupBusy=true;try{sink=await TerapiaBackupStream.createSink(name);}catch(e){backupBusy=false;if(e.name!=='AbortError')alert(e.message);return;}
-      openBackupPanel();transferLock(true);uploadsPending++;sink.controller=new AbortController();let endTransfer=beginBackupTransfer(sink);
+      openBackupPanel();transferLock(true);uploadsPending++;sink={controller:new AbortController()};let endTransfer=beginBackupTransfer(()=>sink);
+      backupStatus('Preparazione del backup e scelta della destinazione…');
       try{
+        const initial=sink;sink=await TerapiaBackupStream.createSink(name);sink.controller=initial.controller;sink.cancelled=!!initial.cancelled;
+        if(sink.cancelled)throw Error('Operazione annullata');
         const snapshot=structuredClone(data);
-        const progress=p=>{if(sink.cancelled)throw Error('Operazione annullata');backupStatus('Allegato '+p.index+'/'+p.count+' · '+(p.total/1024/1024).toFixed(1)+' MB · '+p.name);syncStatus('Backup in corso…');};
+        const progress=p=>{if(sink.cancelled)throw Error('Operazione annullata');endTransfer.update?.(p);backupStatus((p.phase==='verify'?'Verifica':'Creazione')+' · Allegato '+p.index+'/'+p.count+' · '+(p.total/1024/1024).toFixed(1)+' MB · '+p.name);syncStatus('Backup in corso…');};
         const source=key=>localFileResponse(key);let result,file;
         for(let attempt=0;attempt<2;attempt++){
           result=await TerapiaBackupStream.pack(snapshot,source,sink,progress);
           backupStatus('Verifica integrità del backup…');
-          try{file=await TerapiaBackupStream.verify(sink,result,progress);break;}
+          try{file=await TerapiaBackupStream.verify(sink,result,p=>progress({...p,phase:'verify',size:result.size}));break;}
           catch(error){
             if(attempt||sink.native||sink.mode==='indexeddb'||sink.cancelled)throw error;
-            endTransfer();await sink.cleanup();backupStatus('Verifica non riuscita. Nuovo tentativo con salvataggio compatibile…');
-            sink=await TerapiaBackupStream.createSink(name,{storage:'indexeddb'});sink.controller=new AbortController();endTransfer=beginBackupTransfer(sink);
+            await sink.cleanup();backupStatus('Verifica non riuscita. Nuovo tentativo con salvataggio compatibile…');
+            const previous=sink;sink=await TerapiaBackupStream.createSink(name,{storage:'indexeddb'});sink.controller=previous.controller;sink.cancelled=previous.cancelled;
           }
         }
+        endTransfer();
         if(sink.native){backupStatus('Backup salvato e verificato: '+result.count+' allegati, '+(result.size/1024/1024).toFixed(1)+' MB.');mostraToast('Backup salvato e verificato');}
-        else{offerBackupDownload(file,name,()=>sink.cleanup());backupStatus('Backup creato e verificato. Premi “Salva backup in File” e completa il salvataggio sul dispositivo.');}
-      }catch(e){await sink.writer.abort().catch(()=>{});await sink.cleanup();endTransfer();endTransfer=()=>{};backupStatus('Backup non completato: '+e.message);alert('Backup non completato: '+e.message);}
+        else{offerBackupDownload(file,name,()=>sink.cleanup());backupStatus('Backup creato e verificato. Segui le indicazioni nel riquadro per scegliere la destinazione e salvare il file.');}
+      }catch(e){await sink.writer?.abort().catch(()=>{});await sink.cleanup?.();endTransfer();endTransfer=()=>{};const message=e.name==='AbortError'?'Scelta della destinazione annullata. Nessun backup salvato.':'Backup non completato: '+e.message;backupStatus(message);if(e.name!=='AbortError')alert(message);}
       finally{endTransfer();uploadsPending--;transferLock(false);syncNow();}
     }
     function openBackupPanel(){const tab=document.querySelector('.tab[data-tab="backup"]');if(tab)tab.click();}
@@ -1620,9 +1623,11 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
   </script>
 <script defer src="./navigation.js?v=20261020-exit"></script>
 <script defer src="./analytics-link.js"></script><script defer src="./leaflets.js?v=20261020-medical"></script>
-<script defer src="./backup-stream.js?v=20261021-integrity"></script>
+<script defer src="./backup-stream.js?v=20261021-progress"></script>
   <script defer src="./backup-zip-stream.js?v=20261020-iphone-fix"></script>
-<script defer src="./medical.js?v=20261020-iphone-fix"></script>
+<link rel="stylesheet" href="./backup-ui.css?v=20261021-progress">
+<script defer src="./backup-ui.js?v=20261021-progress"></script>
+<script defer src="./medical.js?v=20261021-backup-ui"></script>
 <script defer src="./exit-app.js?v=20261021-exit"></script>
 </body>
 </html>
