@@ -1,6 +1,48 @@
 <!doctype html>
-<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="referrer" content="no-referrer"><title>Uscita · Terapia</title><style>
-*{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:24px;background:#f3f7fa;color:#254654;font:16px/1.55 system-ui,sans-serif}main{max-width:440px;padding:28px;background:white;border:1px solid #d5e2e8;border-radius:16px;text-align:center}h1{font-size:1.4rem;margin:0 0 12px}p{color:#536c79}.actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}button,a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #1a5f7a;border-radius:8px;padding:9px 15px;background:#1a5f7a;color:white;font:600 .9rem system-ui;text-decoration:none;cursor:pointer}a{background:white;color:#1a5f7a}:focus-visible{outline:3px solid #159895;outline-offset:3px}
-</style></head><body><main><h1>Hai lasciato l’app</h1><p>L’applicazione medica non è più aperta in questa pagina.</p><p id="exitHint">Puoi chiudere questa scheda o tornare alla schermata Home del dispositivo.</p><div class="actions"><button type="button" id="closeWindow">Chiudi finestra</button><a href="./">Riapri l’app</a></div></main><script>
-function closeWindow(){window.close();setTimeout(()=>{document.getElementById('exitHint').textContent='Il browser non consente la chiusura automatica: chiudi questa scheda oppure torna alla schermata Home.';},250);}document.getElementById('closeWindow').onclick=closeWindow;closeWindow();
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#054A29">
+<title>Uscita completata · Terapia</title>
+<style>
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:24px;background:#F8FAFC;color:#0F172A;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:light}
+main{width:100%;max-width:440px;padding:28px;background:white;border:1px solid #E2E8F0;border-radius:20px;text-align:center;box-shadow:0 8px 32px #054A2908}
+.exit-mark{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#E8F3EE;color:#054A29;margin:0 auto 18px}.exit-mark svg{width:28px;height:28px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+h1{font-size:1.4rem;line-height:1.25;margin:0 0 12px;color:#054A29;letter-spacing:-.025em}p{color:#64748B;margin:12px 0}
+#exitHint{padding:14px;background:#E8F3EE;color:#315D43;border-radius:12px;text-align:left;font-size:.91rem}
+.actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:20px}
+button,a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #054A29;border-radius:10px;padding:10px 16px;background:#054A29;color:white;font:600 .9rem system-ui;text-decoration:none;cursor:pointer}
+button{background:white;color:#054A29}:focus-visible{outline:3px solid #85B99A;outline-offset:3px}
+@media(max-width:420px){body{padding:18px}main{padding:24px 20px}}
+</style></head>
+<body><main>
+<div class="exit-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></div>
+<h1>Uscita completata</h1>
+<p>La cartella clinica non è in esecuzione in questa pagina.</p>
+<p id="exitHint" role="status">Per lasciare questa pagina, chiudi la scheda dal browser oppure torna alla schermata Home del dispositivo.</p>
+<div class="actions"><button type="button" id="closeWindow" hidden>Chiudi questa scheda</button><a href="./">Riapri l’app</a></div>
+</main>
+<script>
+(function(){
+'use strict';
+const button=document.getElementById('closeWindow'),hint=document.getElementById('exitHint');
+const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const standalone=!!navigator.standalone||!!window.matchMedia?.('(display-mode: standalone)').matches;
+if(ios){
+ hint.textContent=standalone?'Per tornare alla Home di iPhone, scorri dal bordo inferiore verso l’alto oppure premi il tasto Home. La web app non può eseguire questo gesto al tuo posto.':'Su iPhone torna alla Home scorrendo dal bordo inferiore verso l’alto, oppure premendo il tasto Home. Per chiudere anche la scheda, usa il menu delle schede del browser.';
+ return;
+}
+// Offer closure only for a script-opened window; hide the action if refused.
+if(!window.opener)return;
+function closeWindow(){
+ button.disabled=true;
+ try{window.close();}catch{}
+ window.setTimeout(()=>{button.hidden=true;hint.textContent='Il browser mantiene aperta questa scheda. Chiudila con il comando del browser; la cartella clinica è già stata lasciata.';},300);
+}
+button.hidden=false;button.onclick=closeWindow;closeWindow();
+})();
 </script></body></html>

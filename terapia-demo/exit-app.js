@@ -19,9 +19,9 @@
    await bounded(cacheWrite());
    if(typeof syncDirty!=='undefined'&&syncDirty&&!confirm('Le modifiche sono salvate su questo dispositivo, ma la sincronizzazione non è ancora completata. Uscire comunque?'))return;
    root.terapiaExiting=true;
-   // Navigation destroys app timers, document state and event handlers. The exit
-   // page tries window.close(); browsers may require the user to close the tab.
-   location.replace(new URL('uscita.html',location.href).href);
+   // Navigation destroys app timers, document state and event handlers. iPhone
+   // users receive the Home gesture without an ineffective close-window button.
+   location.replace(new URL('uscita.html?v=20261021-exit',location.href).href);
   }catch(error){alert('Uscita non completata: '+error.message);}
   finally{if(!root.terapiaExiting){exiting=false;for(const [el,inert] of locks)el.inert=inert;if(button){button.disabled=false;button.textContent='Esci dall’app';}}}
  }
