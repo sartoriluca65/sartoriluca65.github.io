@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terapia & Cartella · Lukiapp</title>
+  <title>Terapia e Cartella Clinica · Lukiapp</title>
   <link rel="stylesheet" href="./navigation.css?v=20261018-back">
   <style>
     :root {
@@ -176,7 +176,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 <button class="btn" onclick="downloadBackup()">Scarica copia locale</button>
 <button class="btn" onclick="useCloud()">Usa versione condivisa</button>
 </div>
-<div id="syncLoading" style="position:fixed;inset:130px 0 0;background:#fffefb;z-index:9999;padding:40px;text-align:center">Apertura della demo…<br><button class="btn" onclick="location.reload()">Riprova</button></div>
+<div id="syncLoading" style="position:fixed;inset:130px 0 0;background:#fffefb;z-index:9999;padding:40px;text-align:center">Apertura di Terapia e Cartella Clinica…<br><button class="btn" onclick="location.reload()">Riprova</button></div>
   <header><div class="medical-mark" aria-hidden="true"><svg viewBox="0 0 36 36" fill="none"><path d="M8 5h20v27H8z" stroke="white" stroke-width="1.8"/><path d="M14 3h8v5h-8z" fill="#91d1d1"/><path d="M4 21h9l3-7 5 13 3-6h8" stroke="#a9e0d8" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg></div><div>
     <h1>💊 Terapia & Cartella Clinica · Lukiapp</h1>
     <div class="subtitle">Terapie, visite e documenti · La tua salute, in ordine</div></div>
@@ -186,7 +186,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     <div class="profile-shell no-print">
 <div class="patient-banner no-print">
       <div class="profile-identity"><span class="profile-kicker">Profilo paziente</span>
-        <strong id="pazienteNome">Demo</strong>
+        <strong id="pazienteNome">Paziente</strong>
         <span style="color:var(--muted);font-size:.88rem;margin-left:.45rem" id="pazienteInfo"></span>
       </div>
       <div class="actions">
@@ -611,7 +611,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 
     
         
-    function integraDatiClinici(){mostraToast('Dati demo già presenti. Puoi modificarli liberamente.');}
+    function integraDatiClinici(){mostraToast('Dati di esempio già presenti. Puoi modificarli liberamente.');}
     function ricaricaDatiClinici(){integraDatiClinici();}
     function forzaDatiClinici(){integraDatiClinici();}
     function caricaDati(){data=structuredClone(DEFAULT_DATA);}
@@ -1538,7 +1538,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     async function downloadBackupJson(){return downloadCompleteBackup('json');}
     async function downloadCompleteBackup(format){
       if(!data||backupBusy||uploadsPending){alert('Attendi il termine delle operazioni in corso');return;}
-      const json=format==='json',engine=json?TerapiaBackupJson:TerapiaBackupStream,name='terapia-demo-backup-completo-'+TerapiaSupplements.today()+(json?'.json':'.tlbackup');let sink;
+      const json=format==='json',engine=json?TerapiaBackupJson:TerapiaBackupStream,name='terapia-cartella-clinica-backup-completo-'+TerapiaSupplements.today()+(json?'.json':'.tlbackup');let sink;
       openBackupPanel();transferLock(true);uploadsPending++;sink={controller:new AbortController()};let endTransfer=beginBackupTransfer(()=>sink);
       backupStatus('Preparazione del backup e scelta della destinazione…');
       try{
@@ -1609,9 +1609,9 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     }
 
     async function fetchArchive(){return {data:structuredClone(data),version:syncVersion};}
-    function useCloud(){mostraToast('La demo conserva i dati solo su questo dispositivo.');}
+    function useCloud(){mostraToast('L’app conserva i dati solo su questo dispositivo.');}
     async function syncNow(){
-      if(!syncReady)return;syncDirty=true;try{await cacheWrite();syncDirty=false;syncVersion++;syncStatus(cacheMode==='session'?'Demo temporanea: il browser non consente il salvataggio. Esporta un backup prima di chiudere.':cacheMode==='localStorage'?'Salvato in modalità compatibile · Allegati disponibili solo se la memoria file è accessibile.':'Salvato su questo dispositivo · '+new Date().toLocaleTimeString('it-IT'));}catch(e){syncStatus('Salvataggio non riuscito: '+e.message);throw e;}
+      if(!syncReady)return;syncDirty=true;try{await cacheWrite();syncDirty=false;syncVersion++;syncStatus(cacheMode==='session'?'Sessione temporanea: il browser non consente il salvataggio. Esporta un backup prima di chiudere.':cacheMode==='localStorage'?'Salvato in modalità compatibile · Allegati disponibili solo se la memoria file è accessibile.':'Salvato su questo dispositivo · '+new Date().toLocaleTimeString('it-IT'));}catch(e){syncStatus('Salvataggio non riuscito: '+e.message);throw e;}
     }
     async function startSync(){
       try{const cached=await cacheRead();data=cached&&validArchive(cached.data)?cached.data:structuredClone(DEFAULT_DATA);
