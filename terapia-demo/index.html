@@ -2,6 +2,9 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
+  <script src="./profile-context.js?v=20261023-2"></script>
+  <script src="./profiles-local.js?v=20261023-2"></script>
+  <link rel="stylesheet" href="./profiles-ui.css?v=20261023-2">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terapia e Cartella Clinica · Lukiapp</title>
   <link rel="stylesheet" href="./navigation.css?v=20261018-back">
@@ -1493,13 +1496,13 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     const fallbackCache=new Map();
     function withDeadline(p,ms=3000){return new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('La memoria del browser non risponde')),ms);Promise.resolve(p).then(v=>{clearTimeout(timer);resolve(v);},e=>{clearTimeout(timer);reject(e);});});}
     const cacheReady=new Promise((resolve,reject)=>{
-      try{const r=indexedDB.open('terapia-demo-github-v1',1);
+      try{const r=indexedDB.open(TerapiaProfile.storageKey('terapia-demo-github-v1'),1);
       r.onupgradeneeded=()=>r.result.createObjectStore('cache');
       r.onsuccess=()=>{cacheDb=r.result;resolve();};r.onerror=()=>reject(r.error);}catch(e){reject(e);}
     });
     cacheReady.catch(()=>{});
-    function alternateRead(key){try{return JSON.parse(localStorage.getItem('terapia-demo-fallback-'+key)||'null');}catch{return fallbackCache.get(key)||null;}}
-    function alternateWrite(key,value){if(cacheMode==='localStorage'){try{localStorage.setItem('terapia-demo-fallback-'+key,JSON.stringify(value));return;}catch{cacheMode='session';}}fallbackCache.set(key,structuredClone(value));}
+    function alternateRead(key){try{return JSON.parse(localStorage.getItem(TerapiaProfile.storageKey('terapia-demo-fallback-'+key))||'null');}catch{return fallbackCache.get(key)||null;}}
+    function alternateWrite(key,value){if(cacheMode==='localStorage'){try{localStorage.setItem(TerapiaProfile.storageKey('terapia-demo-fallback-'+key),JSON.stringify(value));return;}catch{cacheMode='session';}}fallbackCache.set(key,structuredClone(value));}
     async function cacheGet(key){if(cacheMode!=='indexeddb')return alternateRead(key);return withDeadline(new Promise((resolve,reject)=>{try{const r=cacheDb.transaction('cache').objectStore('cache').get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);}catch(e){reject(e);}}));}
     async function cachePut(key,state){if(cacheMode!=='indexeddb'){alternateWrite(key,state);return;}await withDeadline(new Promise((resolve,reject)=>{try{const t=cacheDb.transaction('cache','readwrite');t.objectStore('cache').put(state,key);t.oncomplete=resolve;t.onerror=()=>reject(t.error);t.onabort=()=>reject(t.error||Error('Salvataggio interrotto'));}catch(e){reject(e);}}));}
     async function cacheRead(){
@@ -1614,13 +1617,28 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     async function syncNow(){
       if(!syncReady)return;syncDirty=true;try{await cacheWrite();syncDirty=false;syncVersion++;syncStatus(cacheMode==='session'?'Sessione temporanea: il browser non consente il salvataggio. Esporta un backup prima di chiudere.':cacheMode==='localStorage'?'Salvato in modalità compatibile · Allegati disponibili solo se la memoria file è accessibile.':'Salvato su questo dispositivo · '+new Date().toLocaleTimeString('it-IT'));}catch(e){syncStatus('Salvataggio non riuscito: '+e.message);throw e;}
     }
-    async function startSync(){
+    async function startLocalArchive(){
       try{const cached=await cacheRead();data=cached&&validArchive(cached.data)?cached.data:structuredClone(DEFAULT_DATA);
       syncReady=true;repaint();document.getElementById('syncLoading')?.remove();
       demoFilesReady().then(()=>{repaint();}).catch(()=>{mostraToast('Memoria allegati non disponibile: puoi usare i dati e il PDF dimostrativo. Per caricare file prova Safari.');});
       await syncNow();
       }catch(e){document.getElementById('syncLoading')?.remove();syncStatus('Errore di apertura: '+e.message);}
     }
+
+    async function startSync(){
+      try{
+        if(!TerapiaProfile.valid)throw Error('Indirizzo del profilo non valido.');
+        if(TerapiaProfile.id&&!(await TerapiaProfiles.list()).some(p=>p.id===TerapiaProfile.id))throw Error('Profilo non disponibile in questo browser.');
+        if(!navigator.locks?.request)throw Error('Per proteggere i salvataggi usa un browser aggiornato con connessione HTTPS.');
+        await navigator.locks.request(TerapiaProfile.storageKey('terapia-edit-session-v1'),{ifAvailable:true},async lock=>{
+          if(!lock)throw Error('Questa cartella è già aperta in un’altra scheda. Chiudi l’altra scheda e riprova.');
+          await startLocalArchive();
+          await new Promise(resolve=>window.addEventListener('pagehide',resolve,{once:true}));
+        });
+      }catch(error){const loading=document.getElementById('syncLoading');loading.replaceChildren(document.createTextNode(error.message+' '));const retry=document.createElement('button');retry.className='btn';retry.textContent='Riprova';retry.onclick=()=>location.reload();loading.append(retry);const home=document.createElement('a');home.href=location.pathname;home.textContent=' Cartella principale';loading.append(home);}
+    }
+    window.addEventListener('pageshow',e=>{if(e.persisted)location.reload();});
+    window.addEventListener('beforeunload',e=>{if(syncDirty){e.preventDefault();e.returnValue='Modifiche da salvare';}});
 
     startSync();
 
@@ -1649,5 +1667,6 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 
 </script>
 <script defer src="./care-experience.js?v=20261023-1"></script>
+<script defer src="./profiles-ui.js?v=20261023-2"></script>
 </body>
 </html>
