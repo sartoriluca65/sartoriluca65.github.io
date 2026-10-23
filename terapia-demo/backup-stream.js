@@ -26,7 +26,7 @@
  async function createSink(name,{temporary=false,storage='auto'}={}){
   if(storage==='indexeddb')return databaseSink();
   if(root.showSaveFilePicker&&!temporary){
-   try{const handle=await root.showSaveFilePicker({id:'terapia-backup',startIn:'documents',suggestedName:name,types:[{description:'Backup Terapia completo',accept:{'application/octet-stream':['.tlbackup']}}]});
+   try{const handle=await root.showSaveFilePicker({id:'terapia-backup',startIn:'documents',suggestedName:name,types:[{description:'Backup Terapia completo',accept:/\.json$/i.test(name)?{'application/json':['.json']}:{'application/octet-stream':['.tlbackup']}}]});
     const writer=await handle.createWritable();return {writer,native:true,mode:'file-picker',async file(){return handle.getFile();},async cleanup(){}};
    }catch(e){if(e.name==='AbortError')throw e;if(!['SecurityError','NotSupportedError','TypeError'].includes(e.name))throw e;}
   }

@@ -21,7 +21,7 @@
   const old=$('backupReady');if(old)old.remove();const p=panel('Scegli dove salvare il backup');p.id='backupReady';p.innerHTML='<div class="backup-work-heading"><span class="backup-complete" aria-hidden="true">✓</span><strong>Backup pronto e verificato</strong></div><p class="backup-work-filename"></p><p class="backup-save-hint"></p><p class="backup-save-status" role="status" aria-live="polite">Il file deve ancora essere salvato nella destinazione scelta.</p><div class="backup-save-actions"><button type="button" class="btn btn-primary">Scegli dove salvare</button><button type="button" class="btn btn-outline">Scarica file</button><button type="button" class="btn btn-outline">Chiudi</button></div>';
   const buttons=p.querySelectorAll('button'),hint=p.querySelector('.backup-save-hint'),status=p.querySelector('.backup-save-status');let busy=false,handedOff=false;
   p.querySelector('.backup-work-filename').textContent=name+' · '+mb(file.size);
-  const output=new File([file],name,{type:'application/octet-stream'});
+  const output=new File([file],name,{type:/\.json$/i.test(name)?'application/json':'application/octet-stream'});
   const ios=/iPhone|iPad|iPod/.test(navigator.userAgent||'')||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),mac=!ios&&/Mac/.test(navigator.platform||navigator.userAgent||''),safari=mac&&/Safari/.test(navigator.userAgent||'')&&!/Chrome|Chromium|Edg/.test(navigator.userAgent||'');
   let shareable=false;try{shareable=!!((ios||/Android/.test(navigator.userAgent||''))&&navigator.share&&navigator.canShare?.({files:[output]}));}catch{}
   if(typeof root.showSaveFilePicker==='function')hint.textContent='Scegli Documenti o un’altra cartella nella finestra di salvataggio.';
@@ -35,7 +35,7 @@
    try{
     if(typeof root.showSaveFilePicker==='function'){
      // Must be the first asynchronous operation in this click: retain user activation.
-     const handle=await root.showSaveFilePicker({id:'terapia-backup',startIn:'documents',suggestedName:name,types:[{description:'Backup Terapia completo',accept:{'application/octet-stream':['.tlbackup']}}]});
+     const handle=await root.showSaveFilePicker({id:'terapia-backup',startIn:'documents',suggestedName:name,types:[{description:'Backup Terapia completo',accept:/\.json$/i.test(name)?{'application/json':['.json']}:{'application/octet-stream':['.tlbackup']}}]});
      writer=await handle.createWritable();let written=0;for(let offset=0;offset<file.size;offset+=1024*1024){const value=new Uint8Array(await file.slice(offset,offset+1024*1024).arrayBuffer());await writer.write(value);written+=value.length;update('Salvataggio nella cartella scelta · '+Math.floor(written/file.size*100)+'% · '+mb(written));}
      await writer.close();writer=null;handedOff=true;update('Backup salvato nella cartella scelta: '+name+'.');
     }else if(shareable){await navigator.share({files:[output],title:'Backup completo Terapia'});handedOff=true;update('File consegnato al sistema. Controlla che sia presente nella cartella scelta in File.');}
