@@ -1,7 +1,7 @@
 /* GitHub Pages: file privati nel browser, senza chiamate a un server. */
 const demoUrls = new Map();
 const demoFilesDb = new Promise((resolve,reject)=>{
-  const r=indexedDB.open('terapia-demo-files-v1',1);
+  const r=indexedDB.open(globalThis.TerapiaProfile?TerapiaProfile.storageKey('terapia-demo-files-v1'):'terapia-demo-files-v1',1);
   r.onupgradeneeded=()=>r.result.createObjectStore('files');
   r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);
 });
