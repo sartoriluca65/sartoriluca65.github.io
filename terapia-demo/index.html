@@ -2,6 +2,8 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
+  <script src="./document-categories.js?v=20261024-compact-grouped"></script>
+  <script src="./reliability-core.js?v=20261024-compact-grouped"></script>
   <script src="./profile-context.js?v=20261023-2"></script>
   <script src="./profiles-local.js?v=20261023-2"></script>
   <link rel="stylesheet" href="./profiles-ui.css?v=20261023-2">
@@ -857,6 +859,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       sel.value = cur;
     }
     function renderDocumentiClinici() {
+      if(globalThis.TerapiaCategoryUI){globalThis.TerapiaCategoryUI.renderLegacy();return;}
       const target = document.getElementById('listaDocumentiClinici');
       const docs = data.documenti || [];
       const gruppi = {};
@@ -999,12 +1002,14 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 
     // ===== ARCHIVIO =====
     function ramoArchivio(testo) {
+      testo=TerapiaCategories.canonical(testo);
+      if(testo==='Vaccinazioni')return testo;
       const s=(testo||'').toLocaleLowerCase('it');
       if(/strumental|ecografia|ecografie|tc |tac|risonanz|radiolog|rx torace/.test(s)) return 'Esami strumentali';
       if(/cardio|coronar|ipertension/.test(s)) return 'Cardiologia';
       if(/nefrolog/.test(s)) return 'Nefrologia';
       if(/urolog/.test(s)) return 'Urologia';
-      if(/laboratorio|sangue|ematolog|ematochim|urine/.test(s)) return 'Sangue e laboratorio';
+      if(/laboratorio|sangue|ematolog|ematochim|urine/.test(s)) return 'Esami da laboratorio';
       if(/dermat|psoriasi/.test(s)) return 'Dermatologia';
       if(/pneumo|respirator|asma|bpco/.test(s)) return 'Pneumologia';
       if(/otorinolaring|\borl\b/.test(s)) return 'Otorinolaringoiatria';
@@ -1464,8 +1469,8 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         syncChanged();await syncUploadCheckpoint();el('modalPdf').classList.remove('open');repaint();refreshArchiveDetail();mostraToast('PDF aggiunto');
       }catch(error){alert(error.message);}finally{uploadsPending--;el('modalPdf').inert=false;el('nuovoPdfSalva').disabled=false;syncNow();}
     }
-    const documentAreas=['Medico','Vaccinazioni','Cardiologia','Nefrologia','Urologia','Dermatologia','Pneumologia','Neurologia','Otorinolaringoiatria','Oculistica','Esami strumentali','Sangue e laboratorio','Terapia','Integratori','Documenti da classificare'];
-    function documentArea(d){return documentAreas.includes(d.ramo)?d.ramo:ramoArchivio((d.ramo||'')+' '+(d.nome||''));}
+    const documentAreas=['Medico','Vaccinazioni','Cardiologia','Nefrologia','Urologia','Dermatologia','Pneumologia','Neurologia','Otorinolaringoiatria','Oculistica','Esami strumentali','Esami da laboratorio','Terapia','Integratori','Documenti da classificare'];
+    function documentArea(d){d={...d,ramo:TerapiaCategories.canonical(d.ramo)};return documentAreas.includes(d.ramo)?d.ramo:ramoArchivio((d.ramo||'')+' '+(d.nome||''));}
     function documentControls(d){const index=data.documenti.indexOf(d);return `<label class="no-print" style="display:inline-block;margin:.35rem .5rem;font-size:.78rem">Area <select aria-label="Area di ${esc(d.nome)}" onchange="setDocumentArea(${index},this.value)" style="max-width:220px;padding:.3rem">${(!documentAreas.includes(d.ramo)&&d.ramo?[d.ramo,...documentAreas]:documentAreas).map(area=>`<option value="${esc(area)}" ${d.ramo===area?'selected':''}>${esc(area)}</option>`).join('')}</select></label>`;}
     function setDocumentArea(index,area){if(!documentAreas.includes(area)||!data.documenti[index])return;data.documenti[index].ramo=area;syncChanged();renderDocumentiClinici();renderArchivio();refreshArchiveDetail();}
     async function importOriginalFolder(ev){
@@ -1619,7 +1624,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     }
     async function startLocalArchive(){
       try{const cached=await cacheRead();data=cached&&validArchive(cached.data)?cached.data:structuredClone(DEFAULT_DATA);
-      syncReady=true;repaint();document.getElementById('syncLoading')?.remove();
+      TerapiaCategories.normalizeMetadata(data);syncReady=true;repaint();document.getElementById('syncLoading')?.remove();
       demoFilesReady().then(()=>{repaint();}).catch(()=>{mostraToast('Memoria allegati non disponibile: puoi usare i dati e il PDF dimostrativo. Per caricare file prova Safari.');});
       await syncNow();
       }catch(e){document.getElementById('syncLoading')?.remove();syncStatus('Errore di apertura: '+e.message);}
@@ -1666,7 +1671,12 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 })();
 
 </script>
-<script defer src="./care-experience.js?v=20261023-1"></script>
+<script defer src="./care-experience.js?v=20261024-compact-grouped"></script>
 <script defer src="./profiles-ui.js?v=20261023-2"></script>
+<link rel="stylesheet" href="./care-tools.css?v=20261024-compact-grouped">
+<script defer src="./pressure-diary.js?v=20261024-compact-grouped"></script>
+<script defer src="./document-categories-ui.js?v=20261024-compact-grouped"></script>
+<script defer src="./patient-chart.js?v=20261024-compact-grouped"></script>
 </body>
 </html>
+

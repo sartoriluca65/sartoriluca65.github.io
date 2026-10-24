@@ -6,6 +6,7 @@
  const array=value=>Array.isArray(value)?value:[];
  const dateOf=value=>/^\d{4}-\d{2}-\d{2}$/.test(String(value||''))?value:'';
  function documents(archive){
+  if(root.TerapiaCategories)return root.TerapiaCategories.list(archive);
   const result=[],seen=new Map();
   function add(file,meta){
    if(!file||typeof file!=='object')return;
@@ -15,7 +16,7 @@
    seen.set(key,record);result.push(record);
   }
   array(archive.documenti).forEach((f,i)=>add(f,{key:'doc:'+i,index:i,source:'Cartella'}));
-  for(const [field,label]of [['eventi','Evento'],['integratori','Integratore'],['vaccinazioni','Vaccinazione']])array(archive[field]).forEach((item,i)=>array(item.allegati).forEach((f,j)=>add(f,{key:field+':'+i+':'+j,date:item.data||item.inizio,area:item.ramo||item.patologia||label,note:item.titolo||item.nome||'',source:label})));
+  for(const [field,label]of [['eventi','Evento'],['integratori','Integratore'],['vaccinazioni','Vaccinazione'],['controlli','Visita']])array(archive[field]).forEach((item,i)=>array(item.allegati).forEach((f,j)=>add(f,{key:field+':'+i+':'+j,date:item.data||item.inizio,area:item.ramo||item.patologia||label,note:item.titolo||item.nome||'',source:label})));
   return result;
  }
  function filterDocuments(list,{query='',area='',from='',to=''}={}){
@@ -25,6 +26,7 @@
  function daily(archive,day,now='00:00'){
   const planned=[];
   for(const f of array(archive.farmaci)){
+   if(root.TerapiaReliability&&!root.TerapiaReliability.due(f,day))continue;
    if(f.stato!=='attivo'||f.inizio&&f.inizio>day||f.fine&&f.fine<day||f.tipo==='ciclo'&&f.prossimoCiclo&&f.prossimoCiclo!==day)continue;
    for(const time of array(f.orari))if(/^\d{2}:\d{2}$/.test(time)&&Number(time.slice(0,2))<24&&Number(time.slice(3))<60)planned.push({medicine:f,time,taken:array(archive.assunzioni).some(a=>a.farmacoId===f.id&&a.data===day&&a.oraPrevista===time)});
   }
@@ -79,7 +81,7 @@
  const cards=node('div',undefined,'care-document-grid');documentSection.append(cards);
  if(docPanel){const original=node('details',undefined,'care-original-sections');original.append(node('summary','Eventi clinici e gestione completa dei documenti'));for(const child of [...docPanel.children])original.append(child);docPanel.append(documentSection,original);}
  search.addEventListener('input',renderDocuments);areaSelect.addEventListener('change',renderDocuments);
- function areas(list){return [...new Set(list.map(d=>d.area))].sort((a,b)=>a.localeCompare(b,'it'));}
+ function areas(list){return [...new Set([...(root.TerapiaCategories?.areas||[]),...list.map(d=>d.area)])].sort((a,b)=>a.localeCompare(b,'it'));}
  function options(select,values,label){const previous=select.value;if(select.dataset.values===JSON.stringify(values))return;select.replaceChildren(new Option(label,''),...values.map(v=>new Option(v,v)));select.value=values.includes(previous)?previous:'';select.dataset.values=JSON.stringify(values);}
  function fileUrl(record){const f=record.file;if(f.fileKey){if(typeof demoFileUrl==='function')return demoFileUrl(f.fileKey);return '/api/files/'+encodeURIComponent(f.fileKey);}if(typeof f.data==='string'&&/^data:(application\/pdf|image\/(png|jpeg));base64,/i.test(f.data))return f.data;return '';}
  function openFile(record){const url=fileUrl(record);if(url&&typeof openDocumentUrl==='function')openDocumentUrl(url,record.name);else if(record.index>=0&&typeof selectOriginal==='function')selectOriginal(record.index);else alert('Il file non è disponibile qui. Apri l’evento originale o ripristina un backup completo.');}
@@ -87,7 +89,7 @@
   const archive=read();if(!archive)return;const list=documents(archive);options(areaSelect,areas(list),'Tutte le specialità');const visible=filterDocuments(list,{query:search.value,area:areaSelect.value});count.textContent=visible.length+' documenti visualizzati su '+list.length;cards.replaceChildren();
   if(!visible.length){const empty=node('div',undefined,'care-empty');empty.append(node('h3',list.length?'Nessun documento corrisponde':'Il tuo primo documento, qui'),node('p',list.length?'Prova un altro nome o seleziona tutte le specialità.':'Aggiungi un PDF oppure una foto dalle funzioni di allegato. I documenti già presenti restano nelle sezioni originali.'));cards.append(empty);return;}
   const fragment=document.createDocumentFragment();
-  for(const d of visible.slice(0,60)){const card=node('article',undefined,'care-document-card');card.append(icon('document'));const body=node('div');body.append(node('p',d.area,'care-kicker'),node('h3',d.name),node('p',(d.date?format(d.date)+' · ':'')+d.source,'care-muted'));if(d.note)body.append(node('p',d.note.slice(0,180),'care-document-note'));const actions=node('div',undefined,'care-actions');actions.append(button(fileUrl(d)?'Apri documento':'Collega originale',()=>openFile(d),'btn btn-outline btn-sm'));body.append(actions);card.append(body);fragment.append(card);}cards.append(fragment);
+  for(const d of visible.slice(0,60)){const card=node('article',undefined,'care-document-card');card.append(icon('document'));const body=node('div');body.append(node('p',d.area,'care-kicker'),node('h3',d.name),node('p',(d.date?format(d.date)+' · ':'')+d.source,'care-muted'));if(d.note)body.append(node('p',d.note.slice(0,180),'care-document-note'));const actions=node('div',undefined,'care-actions');actions.append(button(fileUrl(d)?'Apri documento':'Collega originale',()=>openFile(d),'btn btn-outline btn-sm'));body.append(actions);if(root.TerapiaCategoryUI)body.append(root.TerapiaCategoryUI.control(d));card.append(body);fragment.append(card);}cards.append(fragment);
   if(visible.length>60)cards.append(node('p','Mostrati i primi 60 risultati. Restringi la ricerca per trovare gli altri.','care-muted'));
  }
  function dialog(title){
