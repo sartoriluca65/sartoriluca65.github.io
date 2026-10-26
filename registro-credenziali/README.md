@@ -28,3 +28,7 @@ La demo cifra i dati nel localStorage con una chiave casuale AES-GCM, protetta s
 
 ## Domanda di recupero
 Il PIN serve per entrare; la risposta alla domanda serve per reimpostarlo. Scegli una domanda predefinita oppure una personale e scrivi due volte la risposta (minimo 8 caratteri). Con PIN dimenticato viene mostrata la domanda memorizzata. La risposta resta protetta e non viene mostrata in chiaro. Il nuovo PIN non cancella le voci salvate. Le configurazioni precedenti senza domanda conservano il vecchio recupero e vengono invitate ad aggiungere una domanda dopo l’accesso. Nella demo la configurazione vale per il singolo browser.
+
+
+## Ripristino JSON
+Scegli **Carica backup JSON**, seleziona il file creato con **Salva copia JSON / Esporta copia**, controlla l’anteprima e premi **Conferma e ripristina**. Le voci vengono aggiunte, i duplicati identici saltati e gli account con dati diversi conservati come voci separate. Il ripristino non modifica PIN o domanda di recupero. In caso di interruzione puoi riprovare: le voci già salvate verranno saltate. Il file JSON contiene le password in chiaro.
