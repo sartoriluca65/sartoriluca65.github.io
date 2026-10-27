@@ -28,7 +28,7 @@
   for(const f of array(archive.farmaci)){
    if(root.TerapiaReliability&&!root.TerapiaReliability.due(f,day))continue;
    if(f.stato!=='attivo'||f.inizio&&f.inizio>day||f.fine&&f.fine<day||f.tipo==='ciclo'&&f.prossimoCiclo&&f.prossimoCiclo!==day)continue;
-   for(const time of array(f.orari))if(/^\d{2}:\d{2}$/.test(time)&&Number(time.slice(0,2))<24&&Number(time.slice(3))<60)planned.push({medicine:f,time,taken:array(archive.assunzioni).some(a=>a.farmacoId===f.id&&a.data===day&&a.oraPrevista===time)});
+   for(const time of new Set(array(f.orari)))if(/^\d{2}:\d{2}$/.test(time)&&Number(time.slice(0,2))<24&&Number(time.slice(3))<60)planned.push({medicine:f,time,taken:array(archive.assunzioni).some(a=>a.farmacoId===f.id&&a.data===day&&a.oraPrevista===time)});
   }
   planned.sort((a,b)=>a.time.localeCompare(b.time));
   const outstanding=planned.filter(p=>!p.taken),next=outstanding.find(p=>p.time>=now)||outstanding[0]||null;

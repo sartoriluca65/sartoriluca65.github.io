@@ -230,9 +230,9 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         <div class="day-header">
           <h2>Assunzioni del giorno</h2>
           <div class="day-nav no-print">
-            <button class="btn btn-outline btn-sm" onclick="cambiaGiorno(-1)">◀</button>
-            <input type="date" id="dataCorrente" onchange="caricaGiorno()">
-            <button class="btn btn-outline btn-sm" onclick="cambiaGiorno(1)">▶</button>
+            <button aria-label="Giorno precedente" class="btn btn-outline btn-sm" onclick="cambiaGiorno(-1)">◀</button>
+            <input type="date" aria-label="Giorno delle assunzioni" id="dataCorrente" onchange="caricaGiorno()">
+            <button aria-label="Giorno successivo" class="btn btn-outline btn-sm" onclick="cambiaGiorno(1)">▶</button>
             <button class="btn btn-outline btn-sm" onclick="vaiAOggi()">Oggi</button>
           </div>
         </div>
@@ -271,11 +271,11 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         <h2>Aggiungi visita o promemoria</h2>
         <input type="hidden" id="cId">
         <div class="form-grid">
-          <div class="form-group"><label>Data prevista (se nota)</label><input type="date" id="cData"></div>
-          <div class="form-group"><label>Ramo medico</label><input type="text" id="cRamo" placeholder="es. Dermatologia"></div>
-          <div class="form-group"><label>Stato</label><select id="cStato"><option value="da_prenotare">Da prenotare</option><option value="fissata">Fissata</option><option value="da_eseguire">Esame da eseguire</option><option value="completato">Completato</option></select></div>
-          <div class="form-group" style="grid-column:1/-1"><label>Visita / controllo</label><input type="text" id="cTitolo" placeholder="es. Controllo dermatologico"></div>
-          <div class="form-group" style="grid-column:1/-1"><label>Note e preparazione</label><textarea id="cNote" placeholder="Esami da portare, indicazioni del referto, medico/struttura…"></textarea></div>
+          <div class="form-group"><label for="cData">Data prevista (se nota)</label><input type="date" id="cData"></div>
+          <div class="form-group"><label for="cRamo">Ramo medico</label><input type="text" id="cRamo" placeholder="es. Dermatologia"></div>
+          <div class="form-group"><label for="cStato">Stato</label><select id="cStato"><option value="da_prenotare">Da prenotare</option><option value="fissata">Fissata</option><option value="da_eseguire">Esame da eseguire</option><option value="completato">Completato</option></select></div>
+          <div class="form-group" style="grid-column:1/-1"><label for="cTitolo">Visita / controllo</label><input type="text" id="cTitolo" placeholder="es. Controllo dermatologico"></div>
+          <div class="form-group" style="grid-column:1/-1"><label for="cNote">Note e preparazione</label><textarea id="cNote" placeholder="Esami da portare, indicazioni del referto, medico/struttura…"></textarea></div>
         </div>
         <button class="btn btn-primary" style="margin-top:.8rem" onclick="salvaControllo()">➕ Salva promemoria</button>
       </div>
@@ -347,7 +347,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 
         <div class="history-filters no-print">
           <div class="form-group">
-            <label>Tipo</label>
+            <label for="filtroTipoEvento">Tipo</label>
             <select id="filtroTipoEvento" onchange="renderCartella()">
               <option value="">Tutti</option>
               <option value="visita">Visita</option>
@@ -357,7 +357,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
             </select>
           </div>
           <div class="form-group">
-            <label>Patologia</label>
+            <label for="filtroPatEvento">Patologia</label>
             <select id="filtroPatEvento" onchange="renderCartella()">
               <option value="">Tutte</option>
             </select>
@@ -388,9 +388,9 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       <div class="card">
         <h2>Storico assunzioni</h2>
         <div class="history-filters no-print">
-          <div class="form-group"><label>Dal</label><input type="date" id="filtroDal"></div>
-          <div class="form-group"><label>Al</label><input type="date" id="filtroAl"></div>
-          <div class="form-group"><label>Farmaco</label><select id="filtroFarmaco"><option value="">Tutti</option></select></div>
+          <div class="form-group"><label for="filtroDal">Dal</label><input type="date" id="filtroDal"></div>
+          <div class="form-group"><label for="filtroAl">Al</label><input type="date" id="filtroAl"></div>
+          <div class="form-group"><label for="filtroFarmaco">Farmaco</label><select id="filtroFarmaco"><option value="">Tutti</option></select></div>
           <button class="btn btn-primary" onclick="caricaStorico()">Filtra</button>
           <button class="btn btn-outline" onclick="esportaCSV()">📥 CSV</button>
         </div>
@@ -409,7 +409,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         <h2>Opzioni di stampa</h2>
         <div class="form-grid" style="margin-bottom:1.1rem">
           <div class="form-group">
-            <label>Tipo</label>
+            <label for="tipoStampa">Tipo</label>
             <select id="tipoStampa" onchange="preparaStampa()">
               <option value="elenco">Elenco farmaci</option><option value="integratori">Integratori</option><option value="vaccinazioni">Vaccinazioni</option>
               <option value="giorno">Scheda giornaliera</option>
@@ -420,7 +420,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
             </select>
           </div>
           <div class="form-group" id="stampaDataWrap">
-            <label>Data</label>
+            <label for="stampaData">Data</label>
             <input type="date" id="stampaData" onchange="preparaStampa()">
           </div>
         </div>
@@ -495,15 +495,15 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     <div class="modal">
       <h3>Dati paziente</h3>
       <div class="form-grid">
-        <div class="form-group"><label>Nome</label><input type="text" id="pNome"></div>
-        <div class="form-group"><label>Cognome</label><input type="text" id="pCognome"></div>
-        <div class="form-group"><label>Data nascita</label><input type="date" id="pNascita"></div>
-        <div class="form-group"><label>CF</label><input type="text" id="pCF"></div>
+        <div class="form-group"><label for="pNome">Nome</label><input type="text" id="pNome"></div>
+        <div class="form-group"><label for="pCognome">Cognome</label><input type="text" id="pCognome"></div>
+        <div class="form-group"><label for="pNascita">Data nascita</label><input type="date" id="pNascita"></div>
+        <div class="form-group"><label for="pCF">CF</label><input type="text" id="pCF"></div>
         <div class="form-group"><label for="pGruppoSanguigno">Gruppo sanguigno e fattore Rh</label><select id="pGruppoSanguigno"><option value="">Non indicato</option><option value="A+">A Rh positivo (+)</option><option value="A-">A Rh negativo (−)</option><option value="B+">B Rh positivo (+)</option><option value="B-">B Rh negativo (−)</option><option value="AB+">AB Rh positivo (+)</option><option value="AB-">AB Rh negativo (−)</option><option value="0+">0 (O) Rh positivo (+)</option><option value="0-">0 (O) Rh negativo (−)</option></select></div>
-        <div class="form-group" style="grid-column:1/-1"><label>Indirizzo</label><input type="text" id="pIndirizzo"></div>
-        <div class="form-group"><label>Telefono</label><input type="text" id="pTelefono"></div>
-        <div class="form-group"><label>Medico</label><input type="text" id="pMedico"></div>
-        <div class="form-group" style="grid-column:1/-1"><label>Note / Allergie</label><textarea id="pNote"></textarea></div>
+        <div class="form-group" style="grid-column:1/-1"><label for="pIndirizzo">Indirizzo</label><input type="text" id="pIndirizzo"></div>
+        <div class="form-group"><label for="pTelefono">Telefono</label><input type="text" id="pTelefono"></div>
+        <div class="form-group"><label for="pMedico">Medico</label><input type="text" id="pMedico"></div>
+        <div class="form-group" style="grid-column:1/-1"><label for="pNote">Note / Allergie</label><textarea id="pNote"></textarea></div>
       </div>
       <div class="modal-actions">
         <button class="btn btn-outline" onclick="chiudiModal('modalPaziente')">Annulla</button>
@@ -519,9 +519,9 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       <h3 id="modalEventoTitolo">Nuovo evento / scansione</h3>
       <input type="hidden" id="eventoId">
       <div class="form-grid">
-        <div class="form-group"><label>Data *</label><input type="date" id="eData"></div><div class="form-group"><label for="eOra">Ora</label><input type="time" id="eOra"></div><div class="form-group"><label for="eReminder">Promemoria</label><select id="eReminder"><option value="">Nessuno</option><option value="0">All’ora stabilita</option><option value="15">15 minuti prima</option><option value="60">1 ora prima</option><option value="1440">1 giorno prima</option></select><small>Per l’avviso ad app chiusa, salva la visita e usa Aggiungi al calendario.</small></div><div class="form-group"><label for="eRamo">Ramo archivio</label><select id="eRamo"><option>Medico</option><option>Cardiologia</option><option>Dermatologia</option><option>Pneumologia</option><option>Altro</option></select></div><div class="form-group"><label for="eTipoVisita">Tipologia visita</label><select id="eTipoVisita"><option value="">Da selezionare</option><option>Visita di controllo</option><option>Prima visita</option><option>Esame / Referto</option><option>Altro</option></select></div><div class="form-group"><label for="eMedico">Medico</label><input id="eMedico"></div>
+        <div class="form-group"><label for="eData">Data *</label><input type="date" id="eData"></div><div class="form-group"><label for="eOra">Ora</label><input type="time" id="eOra"></div><div class="form-group"><label for="eReminder">Promemoria</label><select id="eReminder"><option value="">Nessuno</option><option value="0">All’ora stabilita</option><option value="15">15 minuti prima</option><option value="60">1 ora prima</option><option value="1440">1 giorno prima</option></select><small>Per l’avviso ad app chiusa, salva la visita e usa Aggiungi al calendario.</small></div><div class="form-group"><label for="eRamo">Ramo archivio</label><select id="eRamo"><option>Medico</option><option>Cardiologia</option><option>Dermatologia</option><option>Pneumologia</option><option>Altro</option></select></div><div class="form-group"><label for="eTipoVisita">Tipologia visita</label><select id="eTipoVisita"><option value="">Da selezionare</option><option>Visita di controllo</option><option>Prima visita</option><option>Esame / Referto</option><option>Altro</option></select></div><div class="form-group"><label for="eMedico">Medico</label><input id="eMedico"></div>
         <div class="form-group">
-          <label>Tipo</label>
+          <label for="eTipo">Tipo</label>
           <select id="eTipo">
             <option value="visita">Visita</option>
             <option value="esame">Esame / Referto</option>
@@ -530,15 +530,15 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
           </select>
         </div>
         <div class="form-group" style="grid-column:1/-1">
-          <label>Titolo *</label>
+          <label for="eTitolo">Titolo *</label>
           <input type="text" id="eTitolo" placeholder="Es. Visita di controllo o nuovo esame…">
         </div>
         <div class="form-group" style="grid-column:1/-1">
-          <label>Patologia / Archivio</label>
+          <label for="ePatologia">Patologia / Archivio</label>
           <input type="text" id="ePatologia" list="listaPatologie" placeholder="Es. Cardiologia, Psoriasi, Respiratorio…">
         </div>
         <div class="form-group" style="grid-column:1/-1">
-          <label>Descrizione / testo referto</label>
+          <label for="eDesc">Descrizione / testo referto</label>
           <textarea id="eDesc" style="min-height:110px" placeholder="Incolla testo OCR o scrivi conclusioni…"></textarea>
         </div>
         <div class="form-group" style="grid-column:1/-1">
@@ -550,9 +550,9 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
           <div class="attach-preview" id="attachPreview"></div><p id="eMedicalStatus" role="status">Allega il PDF: i campi riconosciuti saranno proposti per la verifica.</p>
           <p style="font-size:.75rem;color:var(--muted);margin-top:.3rem">Gli allegati vengono salvati solo in questo browser. PDF e foto fino a 100 MB ciascuno, senza ridurre la qualità dell’originale.</p>
         </div>
-        <div class="form-group"><label>Struttura / Medico</label><input type="text" id="eStruttura"></div>
+        <div class="form-group"><label for="eStruttura">Struttura / Medico</label><input type="text" id="eStruttura"></div>
         <div class="form-group" id="eCreaFarmacoWrap" style="display:none">
-          <label>Crea anche farmaco?</label>
+          <label for="eCreaFarmaco">Crea anche farmaco?</label>
           <select id="eCreaFarmaco"><option value="no">No</option><option value="si">Sì, apri modulo farmaco dopo</option></select>
         </div>
       </div>
@@ -570,8 +570,8 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       <input type="hidden" id="notaFarmacoId">
       <input type="hidden" id="notaOrarioPrevisto">
       <div class="form-grid">
-        <div class="form-group"><label>Ora effettiva</label><input type="time" id="notaOra"></div>
-        <div class="form-group" style="grid-column:1/-1"><label>Note</label><input type="text" id="notaTesto"></div>
+        <div class="form-group"><label for="notaOra">Ora effettiva</label><input type="time" id="notaOra"></div>
+        <div class="form-group" style="grid-column:1/-1"><label for="notaTesto">Note</label><input type="text" id="notaTesto"></div>
       </div>
       <div class="modal-actions">
         <button class="btn btn-outline" onclick="chiudiModal('modalNota')">Annulla</button>
@@ -601,7 +601,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
   <div class="medical-footer no-print">©2026 Luca Sartori. Tutti i diritti riservati. È vietata la riproduzione, anche parziale, con qualsiasi mezzo senza l'autorizzazione scritta dell'autore.</div>
 <script>window.addEventListener('error',function(e){var loading=document.getElementById('syncLoading');if(loading)loading.textContent='Avvio interrotto: '+(e.message||'un componente non è stato caricato')+'. Aggiorna la pagina per riprovare.';});setTimeout(function(){var loading=document.getElementById('syncLoading');if(loading)loading.innerHTML='Il browser sta impiegando troppo tempo. <button class="btn" onclick="location.reload()">Riprova</button>';},12000);</script>
   <script src="./vendor/fflate.js"></script>
-  <script src="./backup-core.js"></script>
+  <script src="./backup-core.js?v=20261027-review"></script>
   <script src="local-files.js?v=20261020-medical"></script>
   <script src="./supplement-core.js"></script>
   <script src="./vaccinations.js?v=20261020-medical"></script>
@@ -612,7 +612,8 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 
     const DEFAULT_DATA = {"paziente": {"nome": "", "cognome": "", "nascita": "", "cf": "", "indirizzo": "", "telefono": "", "medico": "", "note": "", "gruppoSanguigno": ""}, "farmaci": [], "integratori": [], "vaccinazioni": [], "eventi": [], "assunzioni": [], "documenti": [], "controlli": [], "esamiRoutine": []};
     let data = null;
-    let dataCorrente = new Date().toISOString().slice(0,10);
+    let dataCorrente = TerapiaReliability.day();
+    let giornoAssunzione = null;
     let allegatiTemp = []; // per il modal evento
 
     
@@ -653,7 +654,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       const cats=[...new Set(lista.map(e=>e.categoria))];
       el.innerHTML=`<div class="help-box"><strong>Avanzamento: ${done}/${lista.length}</strong> · Elenco dimostrativo modificabile. La spunta registra l’esecuzione, non sostituisce la valutazione del medico.</div>`+cats.map(cat=>`<section style="margin:.9rem 0"><h3 style="font-size:.95rem;color:var(--primary);margin-bottom:.35rem">${esc(cat)}</h3>${lista.filter(e=>e.categoria===cat).map(e=>`<label class="intake-row" style="cursor:pointer"><input type="checkbox" ${e.completato?'checked':''} onchange="segnaEsameRoutine('${esc(e.id)}',this.checked)"><span class="med-info"><span class="med-name">${esc(e.nome)} ${e.prioritario?'<span class="badge badge-terapia">Prioritario</span>':''}</span><span class="med-meta">${e.completato?'Eseguito'+(e.fattoIl?' il '+formatData(e.fattoIl):''):'Da fare / verificare'}</span></span></label>`).join('')}</section>`).join('');
     }
-    function segnaEsameRoutine(id,checked){const e=data.esamiRoutine.find(x=>x.id===id);if(!e)return;e.completato=checked;e.fattoIl=checked?new Date().toISOString().slice(0,10):'';salvaDati();renderEsamiRoutine();}
+    function segnaEsameRoutine(id,checked){const e=data.esamiRoutine.find(x=>x.id===id);if(!e)return;e.completato=checked;e.fattoIl=checked?TerapiaReliability.day():'';salvaDati();renderEsamiRoutine();}
 
     document.querySelectorAll('.tab').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -715,7 +716,8 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     // ===== FARMACI =====
     function aggiornaCampoCiclo(){document.getElementById('prossimoCicloWrap').hidden=fTipo.value!=='ciclo';}
     function cicloLabel(f){return f.tipo==='ciclo'?'<br><small>📅 Prossimo ciclo: '+(f.prossimoCiclo?formatData(f.prossimoCiclo):'da indicare')+'</small>':'';}
-    function farmacoPrevisto(f,giorno){return !(f.tipo==='ciclo' && f.prossimoCiclo && f.prossimoCiclo!==giorno);}
+    function farmacoPrevisto(f,giorno){return TerapiaReliability.dateValid(giorno)&&(!f.inizio||f.inizio<=giorno)&&(!f.fine||f.fine>=giorno)&&TerapiaReliability.due(f,giorno);}
+    function orariFarmaco(f){return [...new Set((f.orari||[]).filter(TerapiaReliability.timeValid))].sort();}
     function renderFarmaci() {
       const tb = document.getElementById('tabellaFarmaci');
       if (!data.farmaci.length) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">Nessun farmaco</td></tr>'; return; }
@@ -723,7 +725,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         <tr>
           <td><button type="button" class="medicine-leaflet" onclick="apriBugiardino('${f.id}')" title="Apri o carica il bugiardino">${esc(f.nome)}</button>${cicloLabel(f)}<small style="display:block;color:var(--muted)">${f.bugiardino?.fileKey?'📄 Bugiardino disponibile':'Tocca per caricare il bugiardino PDF'}</small></td>
           <td>${esc(f.dosaggio||'—')}</td>
-          <td><div class="time-chips">${(f.orari||[]).map(o=>`<span class="time-chip">${o}</span>`).join('')||'—'}</div></td>
+          <td><div class="time-chips">${orariFarmaco(f).map(o=>`<span class="time-chip">${o}</span>`).join('')||'—'}</div></td>
           <td>${f.patologia?`<span class="badge badge-pat">${esc(f.patologia)}</span>`:'—'}</td>
           <td>${f.inizio?formatData(f.inizio):'—'}</td>
           <td>
@@ -735,8 +737,8 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
           <td class="no-print"><div class="actions">
             <button type="button" class="btn btn-outline btn-sm" onclick="selezionaBugiardino('${f.id}')">${f.bugiardino?.fileKey?'Sostituisci PDF':'Carica bugiardino'}</button>
             ${f.bugiardino?.fileKey?`<button type="button" class="btn btn-outline btn-sm" onclick="scollegaBugiardino('${f.id}')">Scollega PDF</button>`:''}
-            <button class="btn btn-outline btn-sm" onclick="modificaFarmaco('${f.id}')">✏️</button>
-            <button class="btn btn-danger btn-sm" onclick="eliminaFarmaco('${f.id}')">🗑️</button>
+            <button class="btn btn-outline btn-sm" aria-label="Modifica ${esc(f.nome)}" onclick="modificaFarmaco('${f.id}')">✏️</button>
+            <button class="btn btn-danger btn-sm" aria-label="Elimina ${esc(f.nome)}" onclick="eliminaFarmaco('${f.id}')">🗑️</button>
           </div></td>
         </tr>`).join('');
     }
@@ -749,11 +751,11 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         fVia.value = f.via||'Orale'; fPatologia.value = f.patologia||''; fTipo.value = f.tipo||'cronico';
         document.getElementById('fProssimoCiclo').value=f.prossimoCiclo||'';
         fInizio.value = f.inizio||''; fFine.value = f.fine||''; fStato.value = f.stato||'attivo'; fNote.value = f.note||'';
-        (f.orari||[]).forEach(o=>aggiungiOrario(o)); if (!(f.orari||[]).length) aggiungiOrario();
+        orariFarmaco(f).forEach(o=>aggiungiOrario(o)); if (!orariFarmaco(f).length) aggiungiOrario();
       } else {
         modalFarmacoTitolo.textContent = 'Aggiungi farmaco';
         farmacoId.value = ''; fNome.value = ''; fDosaggio.value = ''; fVia.value = 'Orale';
-        fPatologia.value = ''; fTipo.value = 'cronico'; fInizio.value = new Date().toISOString().slice(0,10);
+        fPatologia.value = ''; fTipo.value = 'cronico'; fInizio.value = TerapiaReliability.day();
         document.getElementById('fProssimoCiclo').value='';
         fFine.value = ''; fStato.value = 'attivo'; fNote.value = '';
         aggiungiOrario('08:00');
@@ -773,6 +775,8 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         return;
       }
       const orari = [...orariContainer.querySelectorAll('input[type=time]')].map(i=>i.value).filter(Boolean).sort();
+      if (orari.some(ora=>!TerapiaReliability.timeValid(ora)) || new Set(orari).size!==orari.length) { alert('Inserisci orari validi e diversi tra loro.'); return; }
+      if ([fInizio.value,fFine.value,document.getElementById('fProssimoCiclo').value].some(date=>date&&!TerapiaReliability.dateValid(date))) { alert('Controlla le date della terapia.'); return; }
       const id = farmacoId.value;
       const obj = {
         ...(id ? data.farmaci.find(f=>f.id===id)||{} : {}),
@@ -804,17 +808,17 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         if (f.tipo==='sporadico' && !(f.orari&&f.orari.length)) return false;
         return true;
       });
-      const assOggi = data.assunzioni.filter(a=>a.data===dataCorrente);
-      const previsti = attivi.reduce((s,f)=>s+Math.max((f.orari||[]).length,0),0);
+      const assOggi = new Set(data.assunzioni.filter(a=>a.data===dataCorrente&&attivi.some(f=>f.id===a.farmacoId&&(orariFarmaco(f).length?orariFarmaco(f):['—']).includes(a.oraPrevista))).map(a=>JSON.stringify([a.farmacoId,a.oraPrevista])));
+      const previsti = attivi.reduce((s,f)=>s+Math.max(orariFarmaco(f).length,1),0);
       statsOggi.innerHTML = `
         <div class="stat-card"><div class="num">${attivi.length}</div><div class="label">Farmaci attivi</div></div>
-        <div class="stat-card"><div class="num">${assOggi.length}/${previsti||'—'}</div><div class="label">Assunti oggi</div></div>
+        <div class="stat-card"><div class="num">${assOggi.size}/${previsti||'—'}</div><div class="label">Assunti oggi</div></div>
         <div class="stat-card"><div class="num">${data.eventi.length}</div><div class="label">Eventi</div></div>
         <div class="stat-card"><div class="num">${data.eventi.reduce((s,e)=>s+(e.allegati||[]).length,0)}</div><div class="label">Allegati</div></div>`;
       if (!attivi.length) { listaAssunzioniGiorno.innerHTML = '<div class="empty-state">Nessun farmaco con orari per questa data</div>'; return; }
       let rows = [];
       attivi.forEach(f => {
-        (f.orari&&f.orari.length?f.orari:['—']).forEach(ora => {
+        (orariFarmaco(f).length?orariFarmaco(f):['—']).forEach(ora => {
           const ass = data.assunzioni.find(a=>a.farmacoId===f.id&&a.data===dataCorrente&&a.oraPrevista===ora);
           rows.push({f,ora,ass});
         });
@@ -822,7 +826,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       rows.sort((a,b)=>(a.ora||'').localeCompare(b.ora||''));
       listaAssunzioniGiorno.innerHTML = rows.map(({f,ora,ass})=>`
         <div class="intake-row">
-          <button class="check-btn ${ass?'done':''}" onclick="${ass?`annullaAssunzione('${ass.id}')`:`apriNotaAssunzione('${f.id}','${ora}')`}">${ass?'✓':''}</button>
+          <button aria-label="${ass?'Annulla registrazione':'Registra assunzione'} di ${esc(f.nome)}${ora!=='—'?' alle '+ora:''}" class="check-btn ${ass?'done':''}" onclick="${ass?`annullaAssunzione('${ass.id}')`:`apriNotaAssunzione('${f.id}','${ora}')`}">${ass?'✓':''}</button>
           <div class="med-info">
             <div class="med-name"><button type="button" class="medicine-leaflet" onclick="apriBugiardino('${f.id}')" title="Apri o carica il bugiardino">${esc(f.nome)}${f.bugiardino?.fileKey?' 📄':''}</button> ${f.dosaggio?'· '+esc(f.dosaggio):''}</div>
             <div class="med-meta">${f.patologia?esc(f.patologia)+' · ':''}${f.via||''}${ass&&ass.note?' · 📝 '+esc(ass.note):''}</div>
@@ -831,19 +835,24 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         </div>`).join('');
     }
     function cambiaGiorno(d) {
-      const x = new Date(dataCorrente); x.setDate(x.getDate()+d);
-      dataCorrente = x.toISOString().slice(0,10); dataCorrenteEl.value = dataCorrente; caricaGiorno();
+      const x = new Date(dataCorrente+'T12:00:00'); x.setDate(x.getDate()+d);
+      dataCorrente = TerapiaReliability.day(x); dataCorrenteEl.value = dataCorrente; caricaGiorno();
     }
-    function vaiAOggi() { dataCorrente = new Date().toISOString().slice(0,10); dataCorrenteEl.value = dataCorrente; caricaGiorno(); }
+    function vaiAOggi() { dataCorrente = TerapiaReliability.day(); dataCorrenteEl.value = dataCorrente; caricaGiorno(); }
     function apriNotaAssunzione(fid, ora) {
+      giornoAssunzione = dataCorrente;
       notaFarmacoId.value = fid; notaOrarioPrevisto.value = ora;
       const n = new Date();
       notaOra.value = String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
       notaTesto.value = ''; modalNota.classList.add('open');
     }
     function confermaAssunzione() {
+      const fid=notaFarmacoId.value,ora=notaOrarioPrevisto.value,giorno=giornoAssunzione||dataCorrente;
+      if (!TerapiaReliability.timeValid(notaOra.value)) { alert('Inserisci un orario effettivo valido.'); notaOra.focus(); return; }
+      if (!data.farmaci.some(f=>f.id===fid)) { alert('Farmaco non più disponibile.'); return; }
+      if (TerapiaReliability.doseExists(data,fid,giorno,ora)) { chiudiModal('modalNota'); caricaGiorno(); mostraToast('Assunzione già registrata'); return; }
       data.assunzioni.push({
-        id:'a'+Date.now(), farmacoId: notaFarmacoId.value, data: dataCorrente,
+        id:'a_'+crypto.randomUUID(), farmacoId: notaFarmacoId.value, data: giorno,
         oraPrevista: notaOrarioPrevisto.value, oraEffettiva: notaOra.value, note: notaTesto.value.trim()
       });
       salvaDati(); chiudiModal('modalNota'); caricaGiorno(); mostraToast('Assunzione registrata');
@@ -924,7 +933,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         renderAttachPreview();
       } else {
         modalEventoTitolo.textContent = tipoPre==='terapia' ? 'Nuova terapia da referto' : 'Nuovo evento / scansione';
-        eventoId.value = ''; eData.value = new Date().toISOString().slice(0,10);
+        eventoId.value = ''; eData.value = TerapiaReliability.day();
         eTipo.value = tipoPre||'esame'; eTitolo.value = ''; ePatologia.value = '';
         eDesc.value = ''; eStruttura.value = '';
         if (tipoPre==='terapia') { eCreaFarmacoWrap.style.display = 'block'; eCreaFarmaco.value = 'si'; }
@@ -1083,15 +1092,19 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     // ===== STORICO =====
     function preparaFiltriStorico() {
       filtroFarmaco.innerHTML = '<option value="">Tutti</option>'+data.farmaci.map(f=>`<option value="${f.id}">${esc(f.nome)}</option>`).join('');
-      if (!filtroDal.value) { const d=new Date(); d.setDate(d.getDate()-30); filtroDal.value=d.toISOString().slice(0,10); }
-      if (!filtroAl.value) filtroAl.value = new Date().toISOString().slice(0,10);
+      if (!filtroDal.value) { const d=new Date(); d.setDate(d.getDate()-30); filtroDal.value=TerapiaReliability.day(d); }
+      if (!filtroAl.value) filtroAl.value = TerapiaReliability.day();
       caricaStorico();
     }
-    function caricaStorico() {
+    function assunzioniFiltrate() {
       let lista = data.assunzioni.slice().sort((a,b)=>(b.data+(b.oraEffettiva||'')).localeCompare(a.data+(a.oraEffettiva||'')));
       if (filtroDal.value) lista = lista.filter(a=>a.data>=filtroDal.value);
       if (filtroAl.value) lista = lista.filter(a=>a.data<=filtroAl.value);
       if (filtroFarmaco.value) lista = lista.filter(a=>a.farmacoId===filtroFarmaco.value);
+      return lista;
+    }
+    function caricaStorico() {
+      const lista=assunzioniFiltrate();
       if (!lista.length) { tabellaStorico.innerHTML = '<tr><td colspan="5" class="empty-state">Nessuna assunzione</td></tr>'; return; }
       tabellaStorico.innerHTML = lista.map(a => {
         const f = data.farmaci.find(x=>x.id===a.farmacoId)||{nome:'?',dosaggio:''};
@@ -1100,7 +1113,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     }
     function esportaCSV() {
       const rows = [['Data','Ora','Farmaco','Dosaggio','Note']];
-      data.assunzioni.forEach(a => {
+      assunzioniFiltrate().forEach(a => {
         const f = data.farmaci.find(x=>x.id===a.farmacoId)||{};
         rows.push([a.data, a.oraEffettiva||'', f.nome||'', f.dosaggio||'', a.note||'']);
       });
@@ -1143,7 +1156,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 
     function preparaStampa() {
       const tipo = tipoStampa.value;
-      const ds = stampaData.value || new Date().toISOString().slice(0,10);
+      const ds = stampaData.value || TerapiaReliability.day();
       stampaData.value = ds;
       stampaDataWrap.style.display = (tipo==='giorno'||tipo==='settimana')?'block':'none';
       document.getElementById('includiIntegratoriWrap').style.display=tipo==='elenco'?'block':'none';
@@ -1151,7 +1164,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       let html = `<div class="card print-only" style="margin-bottom:1rem">
         <h2 style="margin:0 0 .25rem">Terapia & Cartella – ${esc(p.nome)} ${esc(p.cognome||'')}</h2>
         <div>${p.nascita?'Nato '+formatData(p.nascita):''}${p.cf?' · '+esc(p.cf):''}${p.gruppoSanguigno?' · Gruppo sanguigno: '+esc(p.gruppoSanguigno):''}</div>
-        <div style="font-size:.8rem;color:#666">Stampato ${formatData(new Date().toISOString().slice(0,10))}</div></div>`;
+        <div style="font-size:.8rem;color:#666">Stampato ${formatData(TerapiaReliability.day())}</div></div>`;
       if(['vaccinazioni','completo','cartella_completa'].includes(tipo))html+=vaccinazioniReportHtml();
       if(['integratori','completo','cartella_completa'].includes(tipo)||(tipo==='elenco'&&document.getElementById('includiIntegratori').checked)){
         html+='<div class="card"><h2>Integratori</h2><table><thead><tr><th>Integratore</th><th>Dose / modalità</th><th>Orari</th><th>Inizio</th><th>Fine</th><th>Stato</th></tr></thead><tbody>';
@@ -1161,21 +1174,21 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       }
       if (tipo==='elenco'||tipo==='completo') {
         html += '<div class="card"><h2>Farmaci</h2><table><thead><tr><th>Farmaco</th><th>Dosaggio</th><th>Orari</th><th>Patologia</th><th>Inizio</th><th>Stato</th></tr></thead><tbody>';
-        data.farmaci.forEach(f => { html += `<tr><td>${esc(f.nome)}${cicloLabel(f)}</td><td>${esc(f.dosaggio||'')}</td><td>${(f.orari||[]).join(', ')}</td><td>${esc(f.patologia||'')}</td><td>${f.inizio?formatData(f.inizio):''}</td><td>${f.stato}</td></tr>`; });
+        data.farmaci.forEach(f => { html += `<tr><td>${esc(f.nome)}${cicloLabel(f)}</td><td>${esc(f.dosaggio||'')}</td><td>${orariFarmaco(f).join(', ')}</td><td>${esc(f.patologia||'')}</td><td>${f.inizio?formatData(f.inizio):''}</td><td>${f.stato}</td></tr>`; });
         html += '</tbody></table></div>';
       }
       if (tipo==='giorno'||tipo==='completo') {
-        const attivi = data.farmaci.filter(f=>f.stato==='attivo'&&(f.orari||[]).length&&farmacoPrevisto(f,ds));
+        const attivi = data.farmaci.filter(f=>f.stato==='attivo'&&orariFarmaco(f).length&&farmacoPrevisto(f,ds));
         html += `<div class="card"><h2>Scheda ${formatData(ds)}</h2><table><thead><tr><th>Ora</th><th>Farmaco</th><th>Dosaggio</th><th>Assunto</th></tr></thead><tbody>`;
-        let rows=[]; attivi.forEach(f=>(f.orari||[]).forEach(ora=>{ const ass=data.assunzioni.find(a=>a.farmacoId===f.id&&a.data===ds&&a.oraPrevista===ora); rows.push({ora,f,ass}); }));
+        let rows=[]; attivi.forEach(f=>orariFarmaco(f).forEach(ora=>{ const ass=data.assunzioni.find(a=>a.farmacoId===f.id&&a.data===ds&&a.oraPrevista===ora); rows.push({ora,f,ass}); }));
         rows.sort((a,b)=>(a.ora||'').localeCompare(b.ora||''));
         rows.forEach(({ora,f,ass})=>{ html+=`<tr><td>${ora}</td><td>${esc(f.nome)}${cicloLabel(f)}</td><td>${esc(f.dosaggio||'')}</td><td>${ass?'✓ '+(ass.oraEffettiva||''):'☐'}</td></tr>`; });
         html += '</tbody></table></div>';
       }
       if (tipo==='settimana') {
-        const d0=new Date(ds); const day=d0.getDay()||7; d0.setDate(d0.getDate()-day+1);
-        html += `<div class="card"><h2>Settimana dal ${formatData(d0.toISOString().slice(0,10))}</h2>`;
-        for(let i=0;i<7;i++){ const d=new Date(d0); d.setDate(d0.getDate()+i); const dsi=d.toISOString().slice(0,10);
+        const d0=new Date(ds+'T12:00:00'); const day=d0.getDay()||7; d0.setDate(d0.getDate()-day+1);
+        html += `<div class="card"><h2>Settimana dal ${formatData(TerapiaReliability.day(d0))}</h2>`;
+        for(let i=0;i<7;i++){ const d=new Date(d0); d.setDate(d0.getDate()+i); const dsi=TerapiaReliability.day(d);
           const ass=data.assunzioni.filter(a=>a.data===dsi);
           html+=`<h3 style="margin:.8rem 0 .3rem;font-size:.95rem">${['Lun','Mar','Mer','Gio','Ven','Sab','Dom'][i]} ${formatData(dsi)}</h3>`;
           if(!ass.length) html+='<p style="color:#888;font-size:.85rem">—</p>';
@@ -1195,10 +1208,10 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
           html += '</div></div>';
 
           // Farmaci in corso
-          const attivi = data.farmaci.filter(f => f.stato === 'attivo');
+          const attivi = data.farmaci.filter(f => f.stato === 'attivo'&&(!f.inizio||f.inizio<=ds)&&(!f.fine||f.fine>=ds));
           html += '<div class="card"><h2>Terapia farmacologica in corso</h2><table><thead><tr><th>Farmaco</th><th>Dosaggio</th><th>Orari</th><th>Patologia</th><th>Dal</th></tr></thead><tbody>';
           attivi.forEach(f => {
-            html += '<tr><td>'+esc(f.nome)+cicloLabel(f)+'</td><td>'+esc(f.dosaggio||'')+'</td><td>'+(f.orari||[]).join(', ')+'</td><td>'+esc(f.patologia||'')+'</td><td>'+(f.inizio?formatData(f.inizio):'')+'</td></tr>';
+            html += '<tr><td>'+esc(f.nome)+cicloLabel(f)+'</td><td>'+esc(f.dosaggio||'')+'</td><td>'+orariFarmaco(f).join(', ')+'</td><td>'+esc(f.patologia||'')+'</td><td>'+(f.inizio?formatData(f.inizio):'')+'</td></tr>';
           });
           html += '</tbody></table></div>';
 
@@ -1220,7 +1233,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
             html += '<div class="card"><h2>' + esc(pat) + '</h2>';
             if (gruppo.farmaci.length) {
               html += '<h3 style="font-size:.95rem;margin:.2rem 0 .45rem">Terapie associate</h3><table><thead><tr><th>Farmaco</th><th>Dosaggio</th><th>Via</th><th>Orari / schema</th><th>Stato</th></tr></thead><tbody>';
-              gruppo.farmaci.forEach(f => { html += '<tr><td>'+esc(f.nome)+cicloLabel(f)+'</td><td>'+esc(f.dosaggio||'')+'</td><td>'+esc(f.via||'')+'</td><td>'+esc((f.orari||[]).join(', ') || f.note || 'Al bisogno / secondo prescrizione')+'</td><td>'+esc(f.stato||'')+'</td></tr>'; });
+              gruppo.farmaci.forEach(f => { html += '<tr><td>'+esc(f.nome)+cicloLabel(f)+'</td><td>'+esc(f.dosaggio||'')+'</td><td>'+esc(f.via||'')+'</td><td>'+esc(orariFarmaco(f).join(', ') || f.note || 'Al bisogno / secondo prescrizione')+'</td><td>'+esc(f.stato||'')+'</td></tr>'; });
               html += '</tbody></table><h3 style="font-size:.95rem;margin:.8rem 0 .45rem">Eventi clinici</h3>';
             }
             if (!lista.length) html += '<p style="font-size:.85rem;color:#666">Nessun evento registrato.</p>';
@@ -1578,7 +1591,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       finally{endTransfer();uploadsPending--;transferLock(false);syncNow();}
     }
     function openBackupPanel(){const tab=document.querySelector('.tab[data-tab="backup"]');if(tab)tab.click();}
-    function backupCounts(d){return [['Farmaci',d.farmaci],['Integratori',d.integratori||[]],['Vaccinazioni',d.vaccinazioni||[]],['Assunzioni',d.assunzioni],['Visite ed eventi',d.eventi],['Documenti',d.documenti],['Controlli',d.controlli],['Esami',d.esamiRoutine]].map(([name,list])=>`${name}: ${list.length}`).join(' · ');}
+    function backupCounts(d){return [['Farmaci',d.farmaci],['Integratori',d.integratori||[]],['Vaccinazioni',d.vaccinazioni||[]],['Assunzioni',d.assunzioni],['Visite ed eventi',d.eventi],['Documenti',d.documenti],['Controlli',d.controlli],['Esami',d.esamiRoutine],['Misurazioni',d.misurazioni||[]]].map(([name,list])=>`${name}: ${list.length}`).join(' · ');}
     async function importBackup(ev){
       const file=ev.target.files?.[0];if(!file)return;if(backupBusy||uploadsPending){alert('Attendi il termine dei caricamenti');ev.target.value='';return;}
       openBackupPanel();transferLock(true);uploadsPending++;backupStatus('Controllo del file di backup…');
@@ -1657,7 +1670,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 <script defer src="./navigation.js?v=20261020-exit"></script>
 <script defer src="./analytics-link.js"></script><script defer src="./leaflets.js?v=20261020-medical"></script>
 <script defer src="./backup-stream.js?v=20261023-json"></script>
-<script defer src="./backup-json.js?v=20261023-json-disk"></script>
+<script defer src="./backup-json.js?v=20261027-review"></script>
   <script defer src="./backup-zip-stream.js?v=20261020-iphone-fix"></script>
 <link rel="stylesheet" href="./backup-ui.css?v=20261021-progress">
 <script defer src="./backup-ui.js?v=20261023-json"></script>
@@ -1677,7 +1690,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 })();
 
 </script>
-<script defer src="./care-experience.js?v=20261024-compact-grouped"></script>
+<script defer src="./care-experience.js?v=20261027-review"></script>
 <script defer src="./profiles-ui.js?v=20261023-2"></script>
 <link rel="stylesheet" href="./care-tools.css?v=20261024-compact-grouped">
 <script defer src="./pressure-diary.js?v=20261024-compact-grouped"></script>

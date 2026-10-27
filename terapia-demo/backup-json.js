@@ -2,7 +2,7 @@
 (function(root){
  'use strict';
  const FORMAT='terapia-json-complete-backup',CHUNK=1024*1024,HEADER=16*1024*1024,MAX=8*1024**3,MAX_FILE=1024**3,enc=new TextEncoder();
- const fields=['paziente','farmaci','integratori','vaccinazioni','eventi','assunzioni','documenti','controlli','esamiRoutine','_pdfCliniciAggiornatiV1'];
+ const fields=['paziente','farmaci','integratori','vaccinazioni','eventi','assunzioni','documenti','controlli','esamiRoutine','misurazioni','_pdfCliniciAggiornatiV1'];
  const secrets=new Set(['password','passwd','pwd','pin','token','accesstoken','refreshtoken','idtoken','apikey','secret','clientsecret','credentials','credenziali','auth','authorization','authentication','session','sessionid','cookie','cookies','localstorage','sessionstorage','privatekey','bearertoken','csrf','csrftoken','syncbase','syncversion','authtoken','authsecret','secretkey','apisecret','bearer','accesskey','accesskeyid','secretaccesskey','otp','totp','recoverycode','recoverycodes','encryptionkey','signingkey','ssotoken','jwt','jwtsecret','oauth','oauth2']);
  function clean(value,depth=0){if(depth>80)throw Error('Struttura del backup non valida');if(Array.isArray(value))return value.map(v=>clean(v,depth+1));if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).filter(([k])=>!secrets.has(k.replace(/[^a-z0-9]/gi,'').toLowerCase())&&!['__proto__','constructor','prototype'].includes(k)).map(([k,v])=>[k,clean(v,depth+1)]));return value;}
  function clinical(data){const result=clean(Object.fromEntries(fields.filter(k=>Object.hasOwn(data,k)).map(k=>[k,data[k]])));if(!TerapiaBackup.valid(result))throw Error('Archivio clinico non valido');return result;}
