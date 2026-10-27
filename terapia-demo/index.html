@@ -459,21 +459,21 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       <h3 id="modalFarmacoTitolo">Aggiungi farmaco</h3>
       <input type="hidden" id="farmacoId">
       <div class="form-grid">
-        <div class="form-group" style="grid-column:1/-1"><label>Nome *</label><input type="text" id="fNome"></div>
-        <div class="form-group"><label>Dosaggio</label><input type="text" id="fDosaggio"></div>
+        <div class="form-group" style="grid-column:1/-1"><label for="fNome">Nome *</label><input type="text" id="fNome"></div>
+        <div class="form-group"><label for="fDosaggio">Dosaggio</label><input type="text" id="fDosaggio"></div>
         <div class="form-group">
-          <label>Via</label>
+          <label for="fVia">Via</label>
           <select id="fVia"><option>Orale</option><option>Inalatoria</option><option>Iniettiva</option><option>Topica</option><option>Altro</option></select>
         </div>
-        <div class="form-group"><label>Patologia</label><input type="text" id="fPatologia" list="listaPatologie" placeholder="Es. Ipertensione"></div>
+        <div class="form-group"><label for="fPatologia">Patologia</label><input type="text" id="fPatologia" list="listaPatologie" placeholder="Es. Ipertensione"></div>
         <div class="form-group">
-          <label>Tipo</label>
+          <label for="fTipo">Tipo</label>
           <select id="fTipo" onchange="aggiornaCampoCiclo()"><option value="cronico">Cronico</option><option value="sporadico">Sporadico</option><option value="ciclo">Ciclo</option></select>
         </div>
-        <div class="form-group"><label>Data inizio</label><input type="date" id="fInizio"></div>
-        <div class="form-group"><label>Data fine</label><input type="date" id="fFine"></div><div class="form-group" id="prossimoCicloWrap" hidden><label for="fProssimoCiclo">Data prossimo ciclo</label><input type="date" id="fProssimoCiclo"><small>Data prevista per la prossima somministrazione. Aggiornala dopo ogni ciclo.</small></div>
+        <div class="form-group"><label for="fInizio">Data inizio</label><input type="date" id="fInizio"></div>
+        <div class="form-group"><label for="fFine">Data fine</label><input type="date" id="fFine"></div><div class="form-group" id="prossimoCicloWrap" hidden><label for="fProssimoCiclo">Data prossimo ciclo</label><input type="date" id="fProssimoCiclo"><small>Data prevista per la prossima somministrazione. Aggiornala dopo ogni ciclo.</small></div>
         <div class="form-group">
-          <label>Stato</label>
+          <label for="fStato">Stato</label>
           <select id="fStato"><option value="attivo">Attivo</option><option value="sospeso">Sospeso</option></select>
         </div>
         <div class="form-group" style="grid-column:1/-1">
@@ -481,7 +481,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
           <div id="orariContainer"></div>
           <button type="button" class="btn btn-outline btn-sm" style="margin-top:.35rem" onclick="aggiungiOrario()">+ Orario</button>
         </div>
-        <div class="form-group" style="grid-column:1/-1"><label>Note</label><textarea id="fNote"></textarea></div>
+        <div class="form-group" style="grid-column:1/-1"><label for="fNote">Note</label><textarea id="fNote"></textarea></div>
       </div>
       <div class="modal-actions">
         <button class="btn btn-outline" onclick="chiudiModal('modalFarmaco')">Annulla</button>
@@ -762,11 +762,16 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     }
     function aggiungiOrario(val='') {
       const row = document.createElement('div'); row.className = 'orari-input-row';
-      row.innerHTML = `<input type="time" value="${val}"><button type="button" class="btn btn-outline btn-sm" onclick="this.parentElement.remove()">✕</button>`;
+      row.innerHTML = `<input type="time" aria-label="Orario di assunzione" value="${val}"><button type="button" aria-label="Rimuovi orario" class="btn btn-outline btn-sm" onclick="this.parentElement.remove()">✕</button>`;
       orariContainer.appendChild(row);
     }
     function salvaFarmaco() {
-      const nome = fNome.value.trim(); if (!nome) { alert('Nome obbligatorio'); return; }
+      const nome = fNome.value.trim(); if (!nome) { alert('Nome obbligatorio'); fNome.focus(); return; }
+      if (fInizio.value && fFine.value && fFine.value < fInizio.value) {
+        alert('La data fine non può precedere la data inizio.');
+        fFine.focus();
+        return;
+      }
       const orari = [...orariContainer.querySelectorAll('input[type=time]')].map(i=>i.value).filter(Boolean).sort();
       const id = farmacoId.value;
       const obj = {
