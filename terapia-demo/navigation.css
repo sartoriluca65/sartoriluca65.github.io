@@ -10,3 +10,12 @@
 @media(max-width:600px){.preview-report table{display:block;overflow-x:auto}.app-navigation{margin-bottom:.8rem}.app-navigation .btn{font-size:.8rem;padding:.4rem .65rem}.preview-content{padding:.7rem}.preview-toolbar .btn{font-size:.82rem}.preview-title{font-size:.95rem}}
 @media print{body:has(.app-preview:not([hidden]))>*{display:none!important}body:has(.app-preview:not([hidden]))>.app-preview{display:block!important;position:static!important;height:auto!important;overflow:visible!important;background:white!important}.app-preview .preview-toolbar{display:none!important}.app-preview .preview-content{overflow:visible!important;padding:0!important;height:auto!important}.app-preview .preview-report{max-width:none!important}.app-preview .preview-report table{display:table!important;overflow:visible!important}.app-preview .card{break-inside:auto}.app-preview th{print-color-adjust:exact;-webkit-print-color-adjust:exact}.app-preview thead{display:table-header-group}.app-preview tr{break-inside:avoid}.app-preview[hidden]{display:none!important}}
 .preview-report .print-only{display:block}
+
+/* Preserve horizontal columns in report previews on narrow screens. */
+.preview-report{overflow-x:auto;overflow-wrap:normal}
+.preview-report table{display:table;border-collapse:collapse;min-width:720px;table-layout:auto}
+.preview-report th,.preview-report td{display:table-cell;vertical-align:top;word-break:normal;overflow-wrap:break-word;min-width:90px}
+.preview-report tr{display:table-row}
+.preview-report h2{font-weight:700}
+@media(max-width:600px){.preview-report table{display:table;overflow:visible}}
+@media print{.preview-report{overflow:visible}.app-preview .preview-report table{min-width:0;width:100%;table-layout:fixed}.app-preview .preview-report th,.app-preview .preview-report td{min-width:0}}
