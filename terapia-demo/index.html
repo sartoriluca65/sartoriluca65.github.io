@@ -1538,7 +1538,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       cacheQueue=cacheQueue.catch(()=>{}).then(()=>cachePut('state',state));return cacheQueue;
     }
     let reportLoading;
-    function loadDemoReport(){if(globalThis.DemoReport)return Promise.resolve(globalThis.DemoReport);return reportLoading??=withDeadline(new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='./report-pdf.js';script.onload=()=>Promise.resolve(globalThis.DemoReportReady).then(()=>globalThis.DemoReport?resolve(globalThis.DemoReport):reject(Error('Modulo PDF non disponibile')),reject);script.onerror=()=>reject(Error('Impossibile caricare il modulo PDF. Controlla la connessione.'));document.head.append(script);}),30000).catch(e=>{reportLoading=null;throw e;});}
+    function loadDemoReport(){if(globalThis.DemoReport)return Promise.resolve(globalThis.DemoReport);return reportLoading??=withDeadline(new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='./report-pdf.js?v=20261028-chart-v3';script.onload=()=>Promise.resolve(globalThis.DemoReportReady).then(()=>globalThis.DemoReport?resolve(globalThis.DemoReport):reject(Error('Modulo PDF non disponibile')),reject);script.onerror=()=>reject(Error('Impossibile caricare il modulo PDF. Controlla la connessione.'));document.head.append(script);}),30000).catch(e=>{reportLoading=null;throw e;});}
     function syncStatus(t){document.getElementById('syncStatus').textContent=t;}
     function syncChanged(){syncDirty=true;syncNow().catch(e=>alert('Modifiche non salvate: '+e.message));}
     function repaint(){

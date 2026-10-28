@@ -2,7 +2,7 @@ import { PDFDocument, rgb, PDFFont, PDFPage, RGB } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import {regularFont,boldFont} from './fonts';
 type Block={kind:'heading'|'subheading'|'text'|'table',text?:string,rows?:string[][]};
-export type Report={title:string,patient:string,date:string,blocks:Block[]};
+export type Report={title:string,patient:string,date:string,orientation?:'landscape'|'portrait',blocks:Block[]};
 type Theme={main:RGB,light:RGB,icon:string};
 const colors={navy:rgb(.08,.22,.32),teal:rgb(.06,.43,.48),ink:rgb(.14,.25,.32),muted:rgb(.36,.45,.5),line:rgb(.83,.89,.91)};
 function theme(label:string):Theme{
@@ -25,7 +25,7 @@ function icon(page:PDFPage,kind:string,x:number,y:number,c:RGB,size=18){
 }
 export async function renderReport(report:Report){
  const pdf=await PDFDocument.create();pdf.registerFontkit(fontkit);const decode=(s:string)=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));const normal=await pdf.embedFont(decode(regularFont),{subset:true}),bold=await pdf.embedFont(decode(boldFont),{subset:true});
- const width=595.28,height=841.89,margin=40,usable=width-margin*2,bottom=56;let page!:PDFPage,y=0;const pages:PDFPage[]=[];
+ const landscape=report.orientation==='landscape'||report.title==='Cartella clinica paziente',width=landscape?841.89:595.28,height=landscape?595.28:841.89,margin=40,usable=width-margin*2,bottom=56;let page!:PDFPage,y=0;const pages:PDFPage[]=[];
  const convert=(s:string)=>String(s||'').normalize('NFC').replace(/\p{Extended_Pictographic}|\uFE0F|\u200D/gu,'').replace(/✓/g,'[x]').replace(/☐/g,'[ ]').replace(/≥/g,'>=').replace(/≤/g,'<=').replace(/→/g,'->').replace(/α/g,'alfa').replace(/β/g,'beta').replace(/γ/g,'gamma').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'');
  function safe(s:string){return [...convert(s)].map(c=>{if(/[\n\r\t]/.test(c))return c;try{normal.encodeText(c);return c;}catch{return '?';}}).join('');}
  function lines(s:string,font:PDFFont,size:number,w:number){const out:string[]=[];for(const paragraph of safe(s).split(/\r?\n/)){let line='';for(const word of paragraph.trim().split(/\s+/)){if(!word)continue;const candidate=(line?line+' ':'')+word;if(font.widthOfTextAtSize(candidate,size)<=w){line=candidate;continue;}if(line){out.push(line);line='';}if(font.widthOfTextAtSize(word,size)<=w){line=word;continue;}for(const char of word){if(font.widthOfTextAtSize(line+char,size)>w){out.push(line);line='';}line+=char;}}out.push(line);}return out;}

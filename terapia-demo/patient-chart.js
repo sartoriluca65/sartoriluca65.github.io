@@ -1,72 +1,44 @@
 /* One patient-chart source for the home action, legacy command and print selector. */
 (function(root){'use strict';const arr=x=>Array.isArray(x)?x:[],text=x=>String(x??''),day=()=>root.TerapiaReliability?.day()||new Date().toLocaleDateString('sv-SE');
  function build(archive,date=day()){
-  const a=archive||{},p=a.paziente||{},docs=root.TerapiaCategories.list(a),blocks=[],heading=t=>blocks.push({kind:'heading',text:t}),paragraph=t=>blocks.push({kind:'text',text:t}),table=(headers,rows)=>blocks.push({kind:'table',rows:[headers,...rows]});
-  paragraph('Cartella del profilo attivo, aggiornata dai dati presenti al momento della creazione. Comprende il riepilogo e l’indice dei documenti; gli originali restano collegati alla cartella.');
-  heading('Dati del paziente');table(['Campo','Dato registrato'],[['Nome e cognome',[p.nome,p.cognome].filter(Boolean).join(' ')],['Nascita',p.nascita||''],['Codice fiscale',p.cf||''],['Telefono',p.telefono||''],['Indirizzo',p.indirizzo||''],['Medico',p.medico||''],['Gruppo sanguigno dichiarato',p.gruppoSanguigno||''],['Note personali / allergie registrate',p.note||'']]);
-  heading('Terapie registrate');
-  const therapyGroups=new Map();for(const f of arr(a.farmaci)){const key=text(f.patologia).trim()||'Patologia non specificata';if(!therapyGroups.has(key))therapyGroups.set(key,[]);therapyGroups.get(key).push(f);}
-  if(!therapyGroups.size)paragraph('Nessuna terapia registrata.');
-  for(const [condition,medicines]of [...therapyGroups].sort(([x],[y])=>x.localeCompare(y,'it'))){heading('Patologia: '+condition);table(['Farmaco','Dose prescritta','Orari / schema','Patologia registrata','Stato','Note'],medicines.map(f=>[f.nome||'',f.dosaggio||'',[(f.orari||[]).join(', '),f.schema?'Giorni: '+f.schema.giorni.map(n=>['Dom','Lun','Mar','Mer','Gio','Ven','Sab'][n]).join(', ')+' · intervallo '+f.schema.ogni+' giorni dal '+f.schema.da:'',f.tipo==='ciclo'&&f.prossimoCiclo?'Prossimo ciclo '+f.prossimoCiclo:''].filter(Boolean).join(' · '),f.patologia||'',f.stato||'',f.note||'']));}
-  heading('Eventi e informazioni cliniche registrate');
-  const clinicalAreas=new Map(),knownAreas=root.TerapiaCategories.areas;
-  for(const e of arr(a.eventi)){
-   const recordedArea=root.TerapiaCategories.canonical(e.ramo||''),recordedCondition=text(e.patologia).trim(),conditionArea=root.TerapiaCategories.canonical(typeof root.ramoArchivio==='function'?root.ramoArchivio(recordedCondition):recordedCondition);
-   const area=recordedArea&& !['Medico','Documenti da classificare'].includes(recordedArea)?recordedArea:knownAreas.includes(conditionArea)&&!['Medico','Documenti da classificare'].includes(conditionArea)?conditionArea:'Medicina generale / ramo non specificato';
-   const condition=recordedCondition&&recordedCondition!==area&&!['Medico','Documenti da classificare'].includes(recordedCondition)?recordedCondition:'Patologia non specificata';
-   if(!clinicalAreas.has(area))clinicalAreas.set(area,new Map());const conditions=clinicalAreas.get(area);if(!conditions.has(condition))conditions.set(condition,[]);conditions.get(condition).push(e);
-  }
-  if(!clinicalAreas.size)paragraph('Nessun evento clinico registrato.');
-  for(const [area,conditions]of [...clinicalAreas].sort(([x],[y])=>x.localeCompare(y,'it'))){
-   heading('Ramo medico: '+area);
-   for(const [condition,events]of [...conditions].sort(([x],[y])=>x.localeCompare(y,'it'))){
-    heading('Patologia: '+condition);
-    for(const e of events.slice().sort((x,y)=>text(y.data).localeCompare(text(x.data)))){
-     heading([e.data||'Data non indicata',e.titolo||'Evento clinico'].join(' · '));
-     table(['Data','Medico','Struttura'],[[e.data||'Non indicata',e.medico||'Non indicato',e.struttura||'Non indicata']]);
-     const details=[...new Set([e.desc,e.descrizione].filter(Boolean))];
-     if(details.length){paragraph('Informazioni registrate per questo evento:');for(const detail of details)paragraph(detail);}
-     if(e.note&&!details.includes(e.note))paragraph('Note: '+e.note);
-     if(arr(e.allegati).length)table(['Documenti di riferimento'],arr(e.allegati).map(f=>[f.nome||'Documento allegato']));
-    }
+  const a=archive||{},p=a.paziente||{},docs=root.TerapiaCategories.list(a),blocks=[];
+  const heading=t=>blocks.push({kind:'heading',text:t}),sub=t=>blocks.push({kind:'subheading',text:t}),paragraph=t=>{if(text(t).trim())blocks.push({kind:'text',text:text(t)});},table=(headers,rows)=>{if(rows.length)blocks.push({kind:'table',rows:[headers,...rows]});};
+  const canonical=root.TerapiaCategories.canonical,unknown='Patologia non specificata',unclassified='Informazioni da classificare';
+  const generic=v=>!v||['Medico','Documenti da classificare','Senza area','Altro'].includes(v);
+  function infer(value){const s=text(value).toLocaleLowerCase('it');for(const [pattern,area]of [[/cardiolog|ipertension|coronar/,'Cardiologia'],[/pneumolog|respirator|asma|bpco/,'Pneumologia'],[/dermatolog|psoriasi/,'Dermatologia'],[/nefrolog|renale/,'Nefrologia'],[/urolog/,'Urologia'],[/gastroenterolog/,'Gastroenterologia'],[/neurolog/,'Neurologia'],[/otorinolaring/,'Otorinolaringoiatria'],[/oculist/,'Oculistica'],[/psichiatr|ansia/,'Psichiatria'],[/laboratorio|ematochim|esami del sangue/,'Esami da laboratorio']])if(pattern.test(s))return area;return '';}
+  function sourceArea(r){const source=[r.desc,r.descrizione,r.nota].filter(Boolean).join(' ').slice(0,1600);const m=source.match(/(?:visita|referto|ambulatorio|reparto|u\.?\s*o\.?\s*c\.?)\s*(?:di\s+)?(cardiologic[ao]|cardiologia|pneumologic[ao]|pneumologia|dermatologic[ao]|dermatologia|nefrologic[ao]|nefrologia|urologic[ao]|urologia|gastroenterologic[ao]|gastroenterologia|neurologic[ao]|neurologia|otorinolaringoiatria|oculistica)/i);return m?infer(m[1]):'';}
+  function classify(r){const condition=text(r.patologia).trim(),recorded=canonical(r.ramo||''),area=!generic(recorded)?recorded:infer(condition)||infer(r.titolo||r.nome)||sourceArea(r)||unclassified;return {area,condition:condition&&canonical(condition)!==area&&!generic(canonical(condition))?condition:unknown};}
+  const groups=new Map();
+  function group(area,condition=unknown){if(!groups.has(area))groups.set(area,new Map());const conditions=groups.get(area);if(!conditions.has(condition))conditions.set(condition,{meds:[],events:[],visits:[],documents:[]});return conditions.get(condition);}
+  for(const [field,target]of [['farmaci','meds'],['eventi','events'],['controlli','visits']])for(const r of arr(a[field])){const c=classify(r);group(c.area,c.condition)[target].push(r);}
+  for(const d of docs){const parent=d.locations?.map(loc=>arr(a[loc.group]).find(r=>r.id===loc.id)).find(r=>r&&r!==d.file),c=classify({...parent,...d.file,patologia:d.file.patologia||parent?.patologia,ramo:generic(canonical(d.file.ramo||''))?(parent?.ramo||infer(parent?.patologia)||d.area):d.file.ramo,nome:d.name});group(c.area,c.condition).documents.push(d);}
+  paragraph('Cartella del profilo attivo. Ogni specialità e patologia registrata ha una sezione con terapie, eventi, controlli e documenti collegati. Le informazioni senza classificazione sono separate.');
+  heading('Dati del paziente');table(['Campo','Dato registrato'],[['Nome e cognome',[p.nome,p.cognome].filter(Boolean).join(' ')],['Nascita',p.nascita||''],['Codice fiscale',p.cf||''],['Telefono',p.telefono||''],['Indirizzo',p.indirizzo||''],['Medico',p.medico||''],['Gruppo sanguigno dichiarato',p.gruppoSanguigno||''],['Note / allergie registrate',p.note||'']]);
+  heading('Indice delle specialità e patologie');for(const [area,conditions]of [...groups].sort(([x],[y])=>x.localeCompare(y,'it')))paragraph(area+' — '+[...conditions.keys()].sort((x,y)=>x.localeCompare(y,'it')).join('; '));if(!groups.size)paragraph('Nessuna informazione clinica o documento registrato.');
+  const sorted=rows=>rows.slice().sort((x,y)=>text(y.data||y.date).localeCompare(text(x.data||x.date)));
+  function clinicalText(value){for(const part of text(value).split(/\n\s*\n/))paragraph(part);}
+  for(const [area,conditions]of [...groups].sort(([x],[y])=>x===unclassified?1:y===unclassified?-1:x.localeCompare(y,'it'))){
+   heading('Specialità: '+area);
+   for(const [condition,g]of [...conditions].sort(([x],[y])=>x.localeCompare(y,'it'))){
+    sub('Patologia: '+condition);
+    if(g.meds.length){sub('Terapie registrate');table(['Farmaco','Dose prescritta','Orari / schema','Stato'],g.meds.map(f=>[f.nome||'',f.dosaggio||'',[arr(f.orari).join(', '),f.schema?'Giorni: '+arr(f.schema.giorni).map(n=>['Dom','Lun','Mar','Mer','Gio','Ven','Sab'][n]).join(', ')+'; intervallo '+f.schema.ogni+' giorni dal '+f.schema.da:'',f.tipo==='ciclo'&&f.prossimoCiclo?'Prossimo ciclo '+f.prossimoCiclo:''].filter(Boolean).join(' · '),f.stato||'']));for(const f of g.meds)paragraph([f.nome,f.inizio?'Dal '+f.inizio:'',f.fine?'Al '+f.fine:'',f.note?'Indicazioni registrate: '+f.note:''].filter(Boolean).join(' · '));}
+    for(const e of sorted(g.events)){sub([e.data||'Data non indicata',e.titolo||'Evento clinico'].join(' · '));paragraph([e.medico?'Medico: '+e.medico:'',e.struttura?'Struttura: '+e.struttura:''].filter(Boolean).join(' · '));for(const detail of [...new Set([e.desc,e.descrizione,e.note].filter(Boolean))]){sub('Testo registrato nel referto / evento');clinicalText(detail);}if(arr(e.allegati).length)paragraph('Allegati: '+e.allegati.map(f=>f.nome||'Documento').join('; '));}
+    if(g.visits.length){sub('Visite e controlli');table(['Data / ora','Visita','Stato','Medico / struttura'],sorted(g.visits).map(c=>[[c.data,c.ora].filter(Boolean).join(' '),c.titolo||'',c.stato||'',[c.medico,c.struttura].filter(Boolean).join(' · ')]));for(const c of g.visits)if(c.note)paragraph(c.titolo+' — '+c.note);}
+    if(g.documents.length){sub('Referti e documenti di questa sezione');for(const d of sorted(g.documents)){sub(d.name);paragraph([d.date?'Data: '+d.date:'Data non indicata','Provenienza: '+d.source].join(' · '));const s=d.file.sintesiClinica;if(s?.verificataIl){clinicalText(s.testo);paragraph('Fonte: '+d.name+(s.pagina?' · pagina '+s.pagina:'')+' · verifica registrata il '+s.verificataIl);}else paragraph('Originale collegato; nessuna sintesi documentale verificata aggiunta.');}}
    }
   }
-  heading('Visite e controlli');table(['Data / ora','Visita','Specialità','Stato','Medico / struttura','Note'],arr(a.controlli).map(c=>[[c.data,c.ora].filter(Boolean).join(' '),c.titolo||'',root.TerapiaCategories.canonical(c.ramo||'Medico'),c.stato||'',[c.medico,c.struttura].filter(Boolean).join(' · '),c.note||'']));
-  heading('Vaccinazioni');table(['Vaccino','Data','Dose / richiamo','Prossimo richiamo','Struttura','Note'],arr(a.vaccinazioni).map(v=>[v.nome||'',v.data||'',v.dose||'',v.richiamo||'',v.struttura||'',v.note||'']));
-  heading('Integratori registrati');table(['Nome','Dosaggio','Orari','Dal / al','Note'],arr(a.integratori).map(s=>[s.nome||'',s.dosaggio||'',arr(s.orari).join(', '),[s.inizio,s.fine].filter(Boolean).join(' / '),s.note||'']));
-  heading('Misurazioni registrate');table(['Data / ora','Tipo','Valore','Fonte','Note'],arr(a.misurazioni).map(r=>[[r.data,r.ora].filter(Boolean).join(' '),r.tipo||'',r.valore+(r.secondo?' / '+r.secondo:'')+' '+(r.unita||''),r.fonte||'',r.note||'']));
+  heading('Vaccinazioni');table(['Vaccino','Data','Dose / richiamo','Prossimo richiamo'],arr(a.vaccinazioni).map(v=>[v.nome||'',v.data||'',v.dose||'',v.richiamo||'']));for(const v of arr(a.vaccinazioni))if(v.note||v.struttura)paragraph([v.nome,v.struttura,v.note].filter(Boolean).join(' · '));
+  heading('Integratori registrati');table(['Nome','Dosaggio','Orari','Dal / al'],arr(a.integratori).map(s=>[s.nome||'',s.dosaggio||'',arr(s.orari).join(', '),[s.inizio,s.fine].filter(Boolean).join(' / ')]));for(const s of arr(a.integratori))if(s.note)paragraph(s.nome+' — '+s.note);
+  heading('Misurazioni registrate');table(['Data / ora','Tipo','Valore','Fonte'],arr(a.misurazioni).map(r=>[[r.data,r.ora].filter(Boolean).join(' '),r.tipo||'',r.valore+(r.secondo?' / '+r.secondo:'')+' '+(r.unita||''),r.fonte||'']));for(const r of arr(a.misurazioni))if(r.note)paragraph(r.data+' '+(r.ora||'')+' — '+r.note);
   heading('Esami di routine registrati');table(['Esame','Categoria','Stato','Data registrata'],arr(a.esamiRoutine).map(e=>[e.nome||'',e.categoria||'',e.completato?'Eseguito':'Da fare / verificare',e.fattoIl||'']));
-  const reviewed=docs.filter(d=>d.file.sintesiClinica?.verificataIl),pending=docs.length-reviewed.length;
-  heading('Informazioni dai documenti verificate dall’utente');
-  const summaryGroups=new Map();
-  for(const d of reviewed){
-   const area=text(d.area).trim()||'Documenti da classificare';
-   const condition=text(d.file.patologia).trim()||'Patologia non specificata';
-   if(!summaryGroups.has(area))summaryGroups.set(area,new Map());
-   const conditions=summaryGroups.get(area);if(!conditions.has(condition))conditions.set(condition,[]);
-   conditions.get(condition).push(d);
-  }
-  for(const [area,conditions]of [...summaryGroups].sort(([x],[y])=>x.localeCompare(y,'it'))){
-   heading('Ramo medico: '+area);
-   for(const [condition,documents]of [...conditions].sort(([x],[y])=>x.localeCompare(y,'it'))){
-    heading('Patologia: '+condition);
-    for(const d of documents){
-     const s=d.file.sintesiClinica;heading(d.name);
-     table(['Data documento','Medico','Pagina'],[[s.dataDocumento||d.date||'Non indicata',s.medico||'Non indicato',s.pagina?text(s.pagina):'Non indicata']]);
-     paragraph(s.testo);paragraph('Fonte: '+d.name+' · verifica registrata il '+s.verificataIl);
-    }
-   }
-  }
-  if(!reviewed.length)paragraph('Nessuna sintesi documentale verificata aggiunta. I documenti caricati sono già compresi nell’indice seguente.');
-  heading('Indice completo dei documenti per categoria');for(const area of [...new Set(docs.map(d=>d.area))].sort((x,y)=>x.localeCompare(y,'it'))){heading(area);table(['Documento','Data','Provenienza','Sintesi verificata'],docs.filter(d=>d.area===area).map(d=>[d.name,d.date||'',d.source,d.file.sintesiClinica?.verificataIl?'Sì':'Non aggiunta']));}
-  paragraph(docs.length+' documenti collegati · '+reviewed.length+' sintesi verificate · '+pending+' documenti senza sintesi verificata. Le terapie e le diagnosi non vengono modificate automaticamente dal caricamento o dall’OCR.');
-  return {report:{title:'Cartella clinica paziente',patient:[p.nome,p.cognome].filter(Boolean).join(' ')||'Profilo personale',date,blocks},documents:docs,pending,reviewed:reviewed.length};
+  const reviewed=docs.filter(d=>d.file.sintesiClinica?.verificataIl),pending=docs.length-reviewed.length;paragraph(docs.length+' documenti collegati · '+reviewed.length+' sintesi verificate · '+pending+' documenti senza sintesi verificata. Le classificazioni organizzano i dati disponibili e non costituiscono nuove diagnosi.');
+  return {report:{title:'Cartella clinica paziente',patient:[p.nome,p.cognome].filter(Boolean).join(' ')||'Profilo personale',date,orientation:'landscape',blocks},documents:docs,pending,reviewed:reviewed.length};
  }
  function applyReview(archive,key,review){const record=root.TerapiaCategories.list(archive).find(d=>d.key===key);if(!record)throw Error('Documento non disponibile');if(typeof review.testo!=='string'||!review.testo.trim()||review.testo.length>20000||!review.confermata)throw Error('Inserisci la sintesi e conferma la verifica del documento.');if(review.dataDocumento&&!root.TerapiaReliability.dateValid(review.dataDocumento))throw Error('Data del documento non valida');if(review.pagina!==null&&(!Number.isInteger(review.pagina)||review.pagina<1||review.pagina>10000))throw Error('Pagina non valida');const next={testo:review.testo.trim(),dataDocumento:review.dataDocumento||'',medico:text(review.medico).slice(0,250),pagina:review.pagina,verificataIl:review.verificataIl||new Date().toISOString()};for(const loc of record.locations){const parent=arr(archive[loc.group]).find(r=>r.id===loc.id),file=loc.group==='documenti'?parent:loc.group==='farmaci'?parent?.bugiardino:parent?.allegati?.[loc.index];if(!file)throw Error('Collegamento al documento aggiornato');if(file.sintesiClinica){file.storiaSintesi||=[];file.storiaSintesi.push(structuredClone(file.sintesiClinica));}file.sintesiClinica=structuredClone(next);}return next;}
  root.PatientChartCore={build,applyReview};if(typeof document==='undefined')return;
  const read=()=>typeof data!=='undefined'&&data?data:null,node=(tag,t)=>{const n=document.createElement(tag);if(t!==undefined)n.textContent=t;return n;},button=(label,fn)=>{const b=node('button',label);b.type='button';b.className='btn btn-outline';b.onclick=fn;return b;};let chart;
- function html(report){const body=node('div');body.className='patient-chart-content';body.append(node('h1',report.title),node('p',report.patient+' · '+report.date));for(const b of report.blocks){if(b.kind==='table'){const t=node('table');for(const [index,row]of b.rows.entries()){const tr=node('tr');for(const value of row)tr.append(node(index?'td':'th',text(value)));t.append(tr);}body.append(t);}else body.append(node(b.kind==='heading'?'h2':'p',b.text));}return body;}
- function preview(){const bundle=build(read());chart?.close();showReportPreview(bundle.report,html(bundle.report).innerHTML,()=>typeof loadDemoReport==='function'?loadDemoReport():root.loadMedicalReportEngine());}
+ function html(report){const body=node('div');body.className='patient-chart-content';body.append(node('h1',report.title),node('p',report.patient+' · '+report.date));for(const b of report.blocks){if(b.kind==='table'){const t=node('table');t.style.cssText='display:table;table-layout:auto;min-width:720px;width:100%;word-break:normal;overflow-wrap:normal';for(const [index,row]of b.rows.entries()){const tr=node('tr');for(const value of row){const cell=node(index?'td':'th',text(value));cell.style.cssText='min-width:140px;white-space:normal;word-break:normal;overflow-wrap:normal;font-weight:'+(index?'400':'700');tr.append(cell);};t.append(tr);}const hint=node('p','Scorri lateralmente per vedere tutte le colonne.');hint.className='patient-chart-table-hint no-print';const wrap=node('div');wrap.className='patient-chart-table-scroll';wrap.append(t);body.append(hint,wrap);}else body.append(node(b.kind==='heading'?'h2':b.kind==='subheading'?'h3':'p',b.text));}return body;}
+ function preview(){const bundle=build(read());chart?.close();showReportPreview(bundle.report,html(bundle.report).outerHTML,()=>typeof loadDemoReport==='function'?loadDemoReport():root.loadMedicalReportEngine());}
  function panel(title){const d=node('dialog');d.className='tools-dialog patient-chart-dialog no-print';d.setAttribute('aria-label',title);const h=node('div');h.className='tools-head';h.append(node('h2',title),button('Chiudi',()=>d.close()));d.append(h);d.addEventListener('close',()=>d.remove(),{once:true});d.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();d.close();}});document.body.append(d);return d;}
  function refresh(){if(!chart?.open)return;const bundle=build(read()),content=chart.querySelector('[data-chart-body]');content.replaceChildren(node('p','Aggiornata ora dalla cartella attiva: '+bundle.documents.length+' documenti, '+bundle.reviewed+' sintesi documentali verificate.'),button('Anteprima / PDF / Stampa',preview));const list=node('details');list.open=true;list.append(node('summary','Documenti e integrazione delle informazioni'));for(const d of bundle.documents){const row=node('article');row.append(node('strong',d.name),node('p',d.area+' · '+(d.date||'Data non indicata')+' · '+(d.file.sintesiClinica?.verificataIl?'Sintesi verificata':'Sintesi non aggiunta')),button('Apri originale',()=>{chart.close();root.TerapiaCategoryUI.open(d.key);}),button('Verifica informazioni per la cartella',()=>{chart.close();review(d.key);}));row.append(root.TerapiaCategoryUI.control(d));list.append(row);}content.append(list,html(bundle.report));}
  function open(){if(!read()||!syncReady){mostraToast('Attendi l’apertura della cartella');return;}if(chart?.open){refresh();return;}chart=panel('Crea cartella clinica paziente');const body=node('div');body.dataset.chartBody='';chart.append(body);chart.showModal();refresh();}
@@ -77,6 +49,7 @@
  const more=document.querySelector('.care-more');if(more){more.id='allFunctionsMenu';more.querySelector('summary').hidden=true;const entry=node('div');entry.className='patient-chart-entry no-print';const create=button('Crea cartella clinica paziente',open);create.id='createPatientChart';create.className='btn btn-primary';const toggle=button('Tutte le funzioni',()=>more.open=!more.open);toggle.setAttribute('aria-controls',more.id);toggle.setAttribute('aria-expanded',String(more.open));more.addEventListener('toggle',()=>toggle.setAttribute('aria-expanded',String(more.open)));const pressure=button('Registrazione pressoria',()=>{if(!read()||!syncReady){mostraToast('Attendi l’apertura della cartella');return;}root.TerapiaTools.pressure();});pressure.id='recordBloodPressure';entry.append(create,toggle,pressure);more.before(entry);}
  const select=document.getElementById('tipoStampa');for(const option of select?.options||[]){if(option.value==='cartella_completa')option.textContent='Cartella clinica paziente';if(option.value==='cartella')option.textContent='Eventi clinici';if(option.value==='completo')option.hidden=true;}
  const oldPrepare=root.preparaStampa;root.preparaStampa=function(...args){if(['cartella_completa','completo'].includes(select?.value)){const report=build(read()).report;document.getElementById('areaStampa').replaceChildren(html(report));document.getElementById('stampaDataWrap').style.display='none';document.getElementById('includiIntegratoriWrap').style.display='none';root.decorateReport?.();return;}return oldPrepare.apply(this,args);};
+ const oldPrint=root.stampaReport;root.stampaReport=function(...args){if(['cartella_completa','completo'].includes(select?.value))return preview();return oldPrint.apply(this,args);};
  const oldRepaint=root.repaint;root.repaint=function(...args){const result=oldRepaint.apply(this,args);refresh();return result;};
  document.addEventListener('keydown',e=>{const d=document.querySelector('.patient-chart-dialog[open]');if(e.key==='Escape'&&d){e.preventDefault();e.stopImmediatePropagation();d.close();}},true);
 })(globalThis);

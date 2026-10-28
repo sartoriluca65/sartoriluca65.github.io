@@ -4,8 +4,8 @@
   "private": true,
   "description": "Demo GitHub Pages con dati fittizi e archivio locale",
   "scripts": {
-    "build:pdf": "node scripts/restore-font-source.mjs && esbuild src/render.ts --bundle --format=iife --global-name=DemoReport --platform=browser --minify --outfile=report-pdf.js",
-    "test": "node scripts/check-workflows.mjs"
+    "build:pdf": "node scripts/build-pdf.mjs",
+    "test": "node scripts/check-workflows.mjs && node scripts/check-chart.mjs"
   },
   "dependencies": {
     "pdf-lib": "1.17.1",

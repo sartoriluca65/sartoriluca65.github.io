@@ -19,3 +19,13 @@
 .preview-report h2{font-weight:700}
 @media(max-width:600px){.preview-report table{display:table;overflow:visible}}
 @media print{.preview-report{overflow:visible}.app-preview .preview-report table{min-width:0;width:100%;table-layout:fixed}.app-preview .preview-report th,.app-preview .preview-report td{min-width:0}}
+
+/* Scroll clinical tables without splitting normal words on narrow screens. */
+.patient-chart-table-scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0}
+.patient-chart-content{min-width:0;overflow-wrap:normal}
+.patient-chart-content table{display:table!important;table-layout:auto;width:100%;min-width:720px;border-collapse:collapse}
+.patient-chart-content th,.patient-chart-content td{min-width:140px;white-space:normal;word-break:normal!important;overflow-wrap:normal!important;vertical-align:top;font-weight:400}
+.patient-chart-content th{font-weight:700}.patient-chart-content h2{font-weight:800;border-left:5px solid #075e36;background:#e7f2ec;padding:12px;margin:24px 0 12px}.patient-chart-content h3{font-weight:750;color:#075e36;margin:18px 0 10px}.patient-chart-content p{font-weight:400;line-height:1.55;white-space:pre-wrap;overflow-wrap:break-word}
+@media print{@page{size:A4 landscape}.patient-chart-table-scroll{overflow:visible}.patient-chart-content table{min-width:0!important;table-layout:fixed!important}.patient-chart-content th,.patient-chart-content td{min-width:0!important;font-size:9pt!important}.patient-chart-content h2,.patient-chart-content h3{break-after:avoid}}
+
+.patient-chart-table-hint{display:none}@media screen and (max-width:700px){.patient-chart-table-hint{display:block;color:#52685e;font-size:12px;margin:6px 0}}
