@@ -4,13 +4,16 @@
   const a=archive||{},p=a.paziente||{},docs=root.TerapiaCategories.list(a),blocks=[],heading=t=>blocks.push({kind:'heading',text:t}),paragraph=t=>blocks.push({kind:'text',text:t}),table=(headers,rows)=>blocks.push({kind:'table',rows:[headers,...rows]});
   paragraph('Cartella del profilo attivo, aggiornata dai dati presenti al momento della creazione. Comprende il riepilogo e l’indice dei documenti; gli originali restano collegati alla cartella.');
   heading('Dati del paziente');table(['Campo','Dato registrato'],[['Nome e cognome',[p.nome,p.cognome].filter(Boolean).join(' ')],['Nascita',p.nascita||''],['Codice fiscale',p.cf||''],['Telefono',p.telefono||''],['Indirizzo',p.indirizzo||''],['Medico',p.medico||''],['Gruppo sanguigno dichiarato',p.gruppoSanguigno||''],['Note personali / allergie registrate',p.note||'']]);
-  heading('Terapie registrate');table(['Farmaco','Dose prescritta','Orari / schema','Patologia registrata','Stato','Note'],arr(a.farmaci).map(f=>[f.nome||'',f.dosaggio||'',[(f.orari||[]).join(', '),f.schema?'Giorni: '+f.schema.giorni.map(n=>['Dom','Lun','Mar','Mer','Gio','Ven','Sab'][n]).join(', ')+' · intervallo '+f.schema.ogni+' giorni dal '+f.schema.da:'',f.tipo==='ciclo'&&f.prossimoCiclo?'Prossimo ciclo '+f.prossimoCiclo:''].filter(Boolean).join(' · '),f.patologia||'',f.stato||'',f.note||'']));
+  heading('Terapie registrate');
+  const therapyGroups=new Map();for(const f of arr(a.farmaci)){const key=text(f.patologia).trim()||'Patologia non specificata';if(!therapyGroups.has(key))therapyGroups.set(key,[]);therapyGroups.get(key).push(f);}
+  if(!therapyGroups.size)paragraph('Nessuna terapia registrata.');
+  for(const [condition,medicines]of [...therapyGroups].sort(([x],[y])=>x.localeCompare(y,'it'))){heading('Patologia: '+condition);table(['Farmaco','Dose prescritta','Orari / schema','Patologia registrata','Stato','Note'],medicines.map(f=>[f.nome||'',f.dosaggio||'',[(f.orari||[]).join(', '),f.schema?'Giorni: '+f.schema.giorni.map(n=>['Dom','Lun','Mar','Mer','Gio','Ven','Sab'][n]).join(', ')+' · intervallo '+f.schema.ogni+' giorni dal '+f.schema.da:'',f.tipo==='ciclo'&&f.prossimoCiclo?'Prossimo ciclo '+f.prossimoCiclo:''].filter(Boolean).join(' · '),f.patologia||'',f.stato||'',f.note||'']));}
   heading('Eventi e informazioni cliniche registrate');
   const clinicalAreas=new Map(),knownAreas=root.TerapiaCategories.areas;
   for(const e of arr(a.eventi)){
    const recordedArea=root.TerapiaCategories.canonical(e.ramo||''),recordedCondition=text(e.patologia).trim(),conditionArea=root.TerapiaCategories.canonical(typeof root.ramoArchivio==='function'?root.ramoArchivio(recordedCondition):recordedCondition);
    const area=recordedArea&& !['Medico','Documenti da classificare'].includes(recordedArea)?recordedArea:knownAreas.includes(conditionArea)&&!['Medico','Documenti da classificare'].includes(conditionArea)?conditionArea:'Medicina generale / ramo non specificato';
-   const condition=recordedCondition&&recordedCondition!==area&&conditionArea!==area&&!['Medico','Documenti da classificare'].includes(conditionArea)?recordedCondition:'Patologia non specificata';
+   const condition=recordedCondition&&recordedCondition!==area&&!['Medico','Documenti da classificare'].includes(recordedCondition)?recordedCondition:'Patologia non specificata';
    if(!clinicalAreas.has(area))clinicalAreas.set(area,new Map());const conditions=clinicalAreas.get(area);if(!conditions.has(condition))conditions.set(condition,[]);conditions.get(condition).push(e);
   }
   if(!clinicalAreas.size)paragraph('Nessun evento clinico registrato.');
@@ -34,7 +37,26 @@
   heading('Misurazioni registrate');table(['Data / ora','Tipo','Valore','Fonte','Note'],arr(a.misurazioni).map(r=>[[r.data,r.ora].filter(Boolean).join(' '),r.tipo||'',r.valore+(r.secondo?' / '+r.secondo:'')+' '+(r.unita||''),r.fonte||'',r.note||'']));
   heading('Esami di routine registrati');table(['Esame','Categoria','Stato','Data registrata'],arr(a.esamiRoutine).map(e=>[e.nome||'',e.categoria||'',e.completato?'Eseguito':'Da fare / verificare',e.fattoIl||'']));
   const reviewed=docs.filter(d=>d.file.sintesiClinica?.verificataIl),pending=docs.length-reviewed.length;
-  heading('Informazioni dai documenti verificate dall’utente');for(const d of reviewed){const s=d.file.sintesiClinica;paragraph(d.name+' · '+d.area+' · '+(s.dataDocumento||d.date||'data non indicata')+(s.pagina?' · pagina '+s.pagina:'')+(s.medico?' · '+s.medico:''));paragraph(s.testo);paragraph('Fonte: documento originale collegato · verifica registrata il '+s.verificataIl);}
+  heading('Informazioni dai documenti verificate dall’utente');
+  const summaryGroups=new Map();
+  for(const d of reviewed){
+   const area=text(d.area).trim()||'Documenti da classificare';
+   const condition=text(d.file.patologia).trim()||'Patologia non specificata';
+   if(!summaryGroups.has(area))summaryGroups.set(area,new Map());
+   const conditions=summaryGroups.get(area);if(!conditions.has(condition))conditions.set(condition,[]);
+   conditions.get(condition).push(d);
+  }
+  for(const [area,conditions]of [...summaryGroups].sort(([x],[y])=>x.localeCompare(y,'it'))){
+   heading('Ramo medico: '+area);
+   for(const [condition,documents]of [...conditions].sort(([x],[y])=>x.localeCompare(y,'it'))){
+    heading('Patologia: '+condition);
+    for(const d of documents){
+     const s=d.file.sintesiClinica;heading(d.name);
+     table(['Data documento','Medico','Pagina'],[[s.dataDocumento||d.date||'Non indicata',s.medico||'Non indicato',s.pagina?text(s.pagina):'Non indicata']]);
+     paragraph(s.testo);paragraph('Fonte: '+d.name+' · verifica registrata il '+s.verificataIl);
+    }
+   }
+  }
   if(!reviewed.length)paragraph('Nessuna sintesi documentale verificata aggiunta. I documenti caricati sono già compresi nell’indice seguente.');
   heading('Indice completo dei documenti per categoria');for(const area of [...new Set(docs.map(d=>d.area))].sort((x,y)=>x.localeCompare(y,'it'))){heading(area);table(['Documento','Data','Provenienza','Sintesi verificata'],docs.filter(d=>d.area===area).map(d=>[d.name,d.date||'',d.source,d.file.sintesiClinica?.verificataIl?'Sì':'Non aggiunta']));}
   paragraph(docs.length+' documenti collegati · '+reviewed.length+' sintesi verificate · '+pending+' documenti senza sintesi verificata. Le terapie e le diagnosi non vengono modificate automaticamente dal caricamento o dall’OCR.');
