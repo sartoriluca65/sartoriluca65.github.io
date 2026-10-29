@@ -1,0 +1,23 @@
+{
+  "id": "libero_recesso_27_10",
+  "data": "2026-10-27",
+  "data_addebito": "2026-10-14",
+  "importo": 9.99,
+  "valuta": "EUR",
+  "descrizione": "Comunicazione formale di recesso dal servizio \"Libero Drive 10\" e richiesta di rimborso (art. 7.5 CGC e art. 52 D.Lgs. 206/2005)",
+  "categoria": "abbonamenti",
+  "importo_anonimo": null,
+  "placeholder": [
+    "EMAIL_001",
+    "IBAN_001",
+    "PERSONA_001"
+  ],
+  "testo_anonimizzato": "Spett.le Italiaonline S.p.A.\nServizio Libero Drive\nvia del Bosco Rinnovato, 8 – Palazzo U4\n20090 Milanofiori Nord, Assago (MI)\n\nOggetto: Comunicazione formale di recesso dal servizio \"Libero Drive 10\" e richiesta di rimborso (art. 7.5 CGC e art. 52 D.Lgs. 206/2005)\n\nIl sottoscritto {{PERSONA_001}}, in qualità di intestatario del contratto e del servizio associato all'account di posta elettronica {{EMAIL_001}},\n\nCOMUNICA\n\nformale recesso dalle Condizioni Generali di Contratto relative al servizio a pagamento \"Libero Drive 10\", ai sensi dell'art. 7.5 delle CGC e dell'art. 52 e ss. del D. Lgs. 206/2005.\n\nDettagli del servizio e della transazione:\n- Account/Email di riferimento: {{EMAIL_001}}\n- Intestatario del contratto: {{PERSONA_001}}\n- Servizio: Libero Drive 10\n- Data dell'ultimo rinnovo/addebito: 14 ottobre 2026\n- Importo addebitato: Euro 9,99\n\nEssendo la presente comunicazione inviata entro i termini previsti di 14 giorni dalla data dell'ultimo rinnovo/addebito (14/10/2026), si richiede contestualmente il rimborso integrale di Euro 9,99.\n\nPoiché lo strumento di pagamento originario è stato disattivato/bloccato, si richiede che il rimborso venga effettuato tramite bonifico bancario sulle coordinate (IBAN) intestate al sottoscritto {{PERSONA_001}}:\n- IBAN: {{IBAN_001}}\nBanca: Intesa S.Paolo\n- Intestatario conto: {{PERSONA_001}}\n\nSi evidenzia inoltre che l'opzione di rinnovo automatico è già stata disattivata dall'area personale.\n\nSi allega alla presente copia del documento di riconoscimento in corso di validità del sottoscritto intestatario {{PERSONA_001}}.\n\nCordiali saluti,\n\n{{PERSONA_001}}\nEmail di contatto: {{EMAIL_001}}\nData: 27 ottobre 2026",
+  "ocr": {
+    "match_pct": 100.0,
+    "esito": "OK",
+    "livello1": "tesseract ita+eng 300dpi",
+    "livello2": "vision gemini-3.8-flash via https://routellm.abacus.ai/v1"
+  },
+  "source_hash": "sha256:289255b0db88b44a6ca73aec805ebab9e7032b7bf222a9557df3969161bf643d"
+}

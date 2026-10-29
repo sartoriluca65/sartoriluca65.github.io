@@ -1,0 +1,17 @@
+{
+  "voci": [
+    {
+      "id": "libero_recesso_27_10",
+      "data": "2026-10-27",
+      "data_addebito": "2026-10-14",
+      "importo": 9.99,
+      "valuta": "EUR",
+      "descrizione": "Comunicazione formale di recesso dal servizio \"Libero Drive 10\" e richiesta di rimborso (art. 7.5 CGC e art. 52 D.Lgs. 206/2005)",
+      "categoria": "abbonamenti",
+      "importo_anonimo": null,
+      "source_hash": "sha256:289255b0db88b44a6ca73aec805ebab9e7032b7bf222a9557df3969161bf643d",
+      "dettaglio": "../../data/luca-apps/libero_recesso_27_10.json"
+    }
+  ],
+  "aggiornato": "2026-10-29"
+}
