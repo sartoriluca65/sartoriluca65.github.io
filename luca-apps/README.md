@@ -1,4 +1,4 @@
-# Luca Apps
+# Sito app di Luki
 
 Sito personale di Luca Sartori, realizzato con l’aiuto dell’intelligenza artificiale.
 
