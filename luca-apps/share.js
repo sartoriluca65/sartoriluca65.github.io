@@ -22,13 +22,13 @@
   const dialog = document.createElement('dialog');
   dialog.className = 'luca-share-dialog';
   dialog.setAttribute('aria-labelledby','luca-share-title');
-  dialog.innerHTML = '<div class="luca-share-heading"><h2 id="luca-share-title">Condividi Luca Apps</h2><button type="button" class="luca-close" aria-label="Chiudi condivisione">×</button></div><p>Fai conoscere le app a chi vuoi.</p><div class="luca-share-grid"></div><p class="luca-share-status" role="status" aria-live="polite"></p>';
+  dialog.innerHTML = '<div class="luca-share-heading"><h2 id="luca-share-title">Condividi Sito app di Luki</h2><button type="button" class="luca-close" aria-label="Chiudi condivisione">×</button></div><p>Fai conoscere le app a chi vuoi.</p><div class="luca-share-grid"></div><p class="luca-share-status" role="status" aria-live="polite"></p>';
   document.body.append(dialog);
   const shareButton = document.getElementById('luca-share');
   const url = new URL(location.href); url.hash = ''; url.search = '';
   const siteUrl = url.href;
-  const title = 'Luca Apps';
-  const message = 'Scopri Luca Apps: app per la famiglia, la casa e la vita di tutti i giorni.';
+  const title = 'Sito app di Luki';
+  const message = 'Scopri Sito app di Luki: app per la famiglia, la casa e la vita di tutti i giorni.';
   const u = encodeURIComponent(siteUrl), t = encodeURIComponent(message);
   const options = [
     ['WhatsApp', 'https://wa.me/?text=' + encodeURIComponent(message + ' ' + siteUrl), whatsappIcon],
