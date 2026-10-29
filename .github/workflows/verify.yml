@@ -14,5 +14,7 @@ jobs:
         with:
           node-version: "22"
       - run: node scripts/check-structure.mjs
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: terapia-demo
       - run: node terapia-demo/scripts/check-workflows.mjs
       - run: node terapia-demo/scripts/check-chart.mjs

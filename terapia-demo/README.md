@@ -19,3 +19,7 @@ Creata da Lukiapp · Contatto: lukiapp.info@gmail.com
 Eseguire `npm test` (Node.js 22 o successivo). Le prove usano solo dati sintetici: gestione delle date e del cambio ora, schemi terapeutici, orari ripetuti, conferme duplicate, stampa giornaliera, filtri dello storico e backup/ripristino JSON e archivio con misurazioni e allegati. Non accedono ai dati del browser.
 
 I backup JSON completi includono anche il diario delle misurazioni. Le copie JSON precedenti che non lo includevano non possono ricostruire le misurazioni assenti: creare una nuova copia completa dal dispositivo che le conserva.
+
+## Dipendenze riproducibili
+
+Il file package-lock.json blocca le versioni e le impronte delle dipendenze. Usare `npm ci` per installarle, poi `npm test`; per rigenerare il motore PDF usare `npm run build:pdf`. Non modificare a mano i blocchi compressi.
