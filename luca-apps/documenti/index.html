@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Luca Apps · Documenti</title>
+<meta name="robots" content="noindex" />
+<meta property="og:image" content="../../assets/images/luca-apps/finanza-anteprima.webp" />
+<link rel="icon" href="../assets/2bae4aa24fc5b343.svg" type="image/svg+xml">
+<style>
+  :root{--background:40 33% 97%;--foreground:24 10% 10%;--muted:30 6% 33%;--primary:160 42% 21%;--border:30 6% 83%;--radius:.75rem}
+  html,body{margin:0}
+  body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:hsl(var(--background));color:hsl(var(--foreground));-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:32px 20px 48px}
+  .title{font-family:'Fraunces',Georgia,serif;font-size:clamp(1.8rem,5vw,2.6rem);margin:0 0 6px}
+  .mark{color:hsl(var(--muted));margin:0 0 24px}
+  .card{background:#fff;border:1px solid hsl(var(--border));border-radius:var(--radius);padding:18px;margin-bottom:18px}
+  table{width:100%;border-collapse:collapse;font-size:.95rem}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid hsl(var(--border));vertical-align:top}
+  td.num{text-align:right;white-space:nowrap}
+  .links a{color:hsl(var(--primary))}
+  .rights{color:hsl(var(--muted));font-size:.85rem;margin-top:24px}
+  noscript img{max-width:100%;height:auto}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1 class="title">Documenti</h1>
+  <p class="mark">Dati estratti via OCR triplo e anonimizzati. Aggiornato: <span id="agg">{{aggiornato}}</span></p>
+
+  <section class="card">
+    <canvas id="grafico" height="220" aria-label="Importi per data"></canvas>
+    <noscript><img src="../../assets/images/luca-apps/finanza-anteprima.webp" alt="Anteprima grafico importi" width="1200" height="630"></noscript>
+  </section>
+
+  <section class="card">
+    <table>
+      <thead><tr><th>Data</th><th>Descrizione</th><th>Categoria</th><th class="num">Importo</th></tr></thead>
+      <tbody id="righe"><tr><td>{{data}}</td><td>{{descrizione}}</td><td>{{categoria}}</td><td class="num">{{importo}}</td></tr></tbody>
+    </table>
+  </section>
+
+  <p class="links"><a href="../">← Torna a Luca Apps</a></p>
+  <p class="rights">©2026 Luca Sartori. Tutti i diritti riservati.</p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script>
+(async () => {
+  const euro = n => n == null ? '—' : n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+  const dataIt = s => s ? new Date(s + 'T00:00:00').toLocaleDateString('it-IT') : '—';
+  // I {{segnaposto}} vengono sostituiti a runtime con i valori del JSON; i dati personali restano segnaposto.
+  const fill = (tpl, obj) => tpl.replace(/\{\{(\w+)\}\}/g, (m, k) => (k in obj ? obj[k] : m));
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  const tbody = document.getElementById('righe');
+  const tpl = tbody.innerHTML;
+  try {
+    const res = await fetch('../data/finanza.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const fin = await res.json();
+    document.getElementById('agg').textContent = dataIt(fin.aggiornato);
+    const voci = fin.voci || [];
+    tbody.innerHTML = voci.map(v => fill(tpl, {
+      data: dataIt(v.data), descrizione: esc(v.descrizione ?? '—'),
+      categoria: esc(v.categoria ?? '—'), importo: euro(v.importo_anonimo ?? v.importo)
+    })).join('') || '<tr><td colspan="4">Nessun documento</td></tr>';
+
+    if (window.Chart) {
+      const style = getComputedStyle(document.documentElement);
+      new Chart(document.getElementById('grafico'), {
+        type: 'bar',
+        data: {
+          labels: voci.map(v => dataIt(v.data)),
+          datasets: [{ label: 'Importo (€)', data: voci.map(v => v.importo),
+                       backgroundColor: `hsl(${style.getPropertyValue('--primary')})`, borderRadius: 8 }]
+        },
+        options: { plugins: { legend: { display: false },
+                   tooltip: { callbacks: { label: c => euro(c.raw), afterLabel: c => voci[c.dataIndex].descrizione } } },
+                   scales: { y: { beginAtZero: true, ticks: { callback: euro } } } }
+      });
+    }
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="4">Impossibile caricare i dati: ' + esc(e.message) + '</td></tr>';
+  }
+})();
+</script>
+</body>
+</html>
