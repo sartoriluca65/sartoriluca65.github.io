@@ -10,7 +10,7 @@ const assets = {
   "/styles.css": { type: "text/css; charset=utf-8", body: await read("styles.css") },
   "/app.js": { type: "text/javascript; charset=utf-8", body: await read("app.js") },
   "/favicon.svg": { type: "image/svg+xml", body: await read("favicon.svg") },
-  "/vendor/heic2any.min.js": { type: "text/javascript; charset=utf-8", body: await read("vendor/heic2any/heic2any.min.js") },
+  "/vendor/heic2any/heic2any.min.js": { type: "text/javascript; charset=utf-8", body: await read("vendor/heic2any/heic2any.min.js") },
 };
 const workerTemplate = await read("worker/index.js");
 if (!workerTemplate.includes("__SITE_ASSETS__")) throw new Error("Worker asset placeholder is missing.");

@@ -343,8 +343,8 @@ async function processImageFile(file, selectedMode = uploadMode) {
 }
 function loadHeicConverter() {
   return new Promise((resolve, reject) => {
-    const script = document.createElement('script'); script.src = './vendor/heic2any.min.js'; script.async = true;
-    script.onload = resolve; script.onerror = () => reject(new Error('Non riesco a caricare il convertitore HEIC. Controlla la connessione e riprova.'));
+    const script = document.createElement('script'); script.src = './vendor/heic2any/heic2any.min.js'; script.async = true;
+    script.onload = () => typeof window.heic2any === 'function' ? resolve() : reject(new Error('Convertitore HEIC incompleto. Ricarica la pagina e riprova.')); script.onerror = () => reject(new Error('Non riesco a caricare il convertitore HEIC. Controlla la connessione e riprova.'));
     document.head.appendChild(script);
   });
 }
