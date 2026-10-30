@@ -22,7 +22,9 @@ Le versioni attive delle app elencate sono nelle cartelle di questo repository. 
 
 Il catalogo `luca-apps/` è un’esportazione statica con risorse compilate. Il repository non contiene il progetto sorgente originale né uno script per ricompilarlo: conservare le risorse distribuite finché non si recupera quel progetto.
 
-TeFinanza pubblica è nel repository separato `tefinanza-app`, la cui radice è il riferimento per la copia di distribuzione `dist/`.
+TeFinanza pubblica è nel repository separato `tefinanza-app`: la radice contiene l’unica copia pubblicata; `dist/` conserva soltanto un rimando per i vecchi indirizzi. La versione privata `tefinanza` ha una configurazione di hosting distinta.
+
+Il catalogo `/luca-apps/` apre direttamente le otto app pubbliche disponibili. AutoValuta resta su richiesta, perché non è stato verificato un indirizzo di esecuzione Streamlit. Il codice iOS di Luki Stickers è un progetto nativo distinto dalla versione web.
 
 ## Verifica
 
