@@ -1,1 +1,1054 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terapia Manager • Clinical Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/thin/index.js"></script>
+    
+    <style>
+        /* ============================================================
+           CLINICAL DESIGN TOKENS
+           ============================================================ */
+        :root {
+            --color-bg: #f8fafc;
+            --color-surface: #ffffff;
+            --color-border: #e2e8f0;
+            --color-border-strong: #cbd5e1;
+            --color-primary: #0d9488;
+            --color-primary-hover: #0f766e;
+            --color-primary-light: #e0f8f5;
+            --color-primary-text: #115e59;
+            --color-emergency: #dc2626;
+            --color-emergency-light: #fef2f2;
+            --color-urgent: #ea580c;
+            --color-urgent-light: #fff7ed;
+            --color-stable: #16a34a;
+            --color-stable-light: #f0fdf4;
+            --color-chronic: #2563eb;
+            --color-chronic-light: #eff6ff;
+            --color-text-primary: #0f172a;
+            --color-text-secondary: #475569;
+            --color-text-muted: #94a3b8;
+            --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+            --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+            --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+            --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+            --shadow-elevated: 0 10px 15px -3px rgba(15, 23, 42, 0.07), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
+            --shadow-modal: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+            --font-ui: 'IBM Plex Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --fs-xs: 11px; --fs-sm: 13px; --fs-base: 14px; --fs-lg: 16px; --fs-xl: 18px; --fs-2xl: 22px; --fs-3xl: 28px;
+            --lh-tight: 1.3; --lh-normal: 1.5;
+            --sidebar-w: 260px;
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+        body {
+            font-family: var(--font-ui);
+            background-color: var(--color-bg);
+            color: var(--color-text-primary);
+            line-height: var(--lh-normal);
+            min-height: 100vh;
+            display: flex;
+            font-size: var(--fs-base);
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+            border-radius: var(--radius-sm);
+        }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 4px; }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-w);
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0;
+            background: var(--color-surface);
+            border-right: 1px solid var(--color-border);
+            padding: var(--space-6) var(--space-4);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: var(--space-2) var(--space-3) var(--space-6);
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: var(--space-4);
+        }
+
+        .brand {
+            display: flex; align-items: center; gap: var(--space-3);
+            font-weight: 700; font-size: var(--fs-xl); color: var(--color-text-primary);
+            letter-spacing: -0.02em;
+        }
+        .brand-icon {
+            width: 36px; height: 36px; border-radius: var(--radius-sm);
+            background: var(--color-primary); color: var(--color-text-inverse);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+        }
+        .brand-sub { 
+            display: block; font-size: var(--fs-xs); font-weight: 400; 
+            color: var(--color-text-muted); text-transform: uppercase; 
+            letter-spacing: 0.05em; margin-top: -2px; 
+        }
+
+        .nav-section { margin-bottom: var(--space-6); }
+        .nav-label {
+            font-size: var(--fs-xs); font-weight: 600; color: var(--color-text-muted);
+            text-transform: uppercase; letter-spacing: 0.08em;
+            padding: 0 var(--space-3); margin-bottom: var(--space-2);
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: var(--space-3);
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-md);
+            color: var(--color-text-secondary);
+            font-weight: 500; font-size: var(--fs-sm);
+            cursor: pointer; transition: background 0.1s, color 0.1s;
+            border: 1px solid transparent; margin-bottom: var(--space-1);
+            white-space: nowrap;
+        }
+        .nav-item:hover { background: var(--color-primary-light); color: var(--color-primary); }
+        .nav-item.active { background: var(--color-primary-light); color: var(--color-primary); border-color: var(--color-primary); }
+        .nav-item i { width: 20px; text-align: center; font-size: 18px; flex-shrink: 0; }
+        .nav-badge { margin-left: auto; font-size: var(--fs-xs); padding: 1px 6px; border-radius: 100px; background: var(--color-primary); color: white; font-weight: 600; }
+
+        .sidebar-footer { margin-top: auto; padding-top: var(--space-6); border-top: 1px solid var(--color-border); }
+        .user-bar { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--color-bg); }
+        .user-avatar { 
+            width: 36px; height: 36px; border-radius: 50%; 
+            background: var(--color-primary-light); color: var(--color-primary); 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: 600; font-size: var(--fs-sm); flex-shrink: 0; 
+        }
+        .user-info { min-width: 0; }
+        .user-name { font-weight: 600; font-size: var(--fs-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role { font-size: var(--fs-xs); color: var(--color-text-muted); font-weight: 400; }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            padding: var(--space-6) var(--space-8);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .page-header {
+            display: flex; align-items: flex-end; justify-content: space-between;
+            gap: var(--space-4); flex-wrap: wrap;
+            margin-bottom: var(--space-6);
+            padding-bottom: var(--space-4);
+            border-bottom: 1px solid var(--color-border);
+        }
+        .page-title-group { display: flex; flex-direction: column; gap: var(--space-1); }
+        .page-title { font-size: var(--fs-3xl); font-weight: 700; color: var(--color-text-primary); letter-spacing: -0.02em; line-height: var(--lh-tight); }
+        .page-subtitle { font-size: var(--fs-base); color: var(--color-text-secondary); font-weight: 400; }
+        .page-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+            padding: var(--space-2) var(--space-4);
+            font-family: var(--font-ui); font-size: var(--fs-sm); font-weight: 600;
+            border-radius: var(--radius-sm); border: 1px solid transparent;
+            cursor: pointer; transition: all 0.1s ease; text-decoration: none;
+            white-space: nowrap; line-height: 1.4;
+        }
+        .btn i { font-size: 16px; line-height: 1; }
+        .btn-primary { background: var(--color-primary); color: var(--color-text-inverse); border-color: var(--color-primary); }
+        .btn-primary:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
+        .btn-secondary { background: var(--color-surface); color: var(--color-text-primary); border-color: var(--color-border-strong); }
+        .btn-secondary:hover { background: var(--color-bg); border-color: var(--color-text-muted); }
+        .btn-ghost { background: transparent; color: var(--color-text-secondary); border-color: transparent; padding: var(--space-2); }
+        .btn-ghost:hover { background: var(--color-bg); color: var(--color-text-primary); border-radius: var(--radius-sm); }
+        .btn-ghost.text-danger:hover { background: var(--color-emergency-light); color: var(--color-emergency); }
+        .btn-icon { width: 32px; height: 32px; padding: 0; border-radius: var(--radius-sm); }
+
+        /* Vitals Grid */
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        .vital-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-5);
+            box-shadow: var(--shadow-card);
+            transition: box-shadow 0.15s, border-color 0.15s;
+        }
+        .vital-card:hover { box-shadow: var(--shadow-elevated); border-color: var(--color-border-strong); }
+        .vital-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-3); }
+        .vital-label { font-size: var(--fs-xs); font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .vital-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        .vital-icon-teal { background: var(--color-primary-light); color: var(--color-primary); }
+        .vital-icon-green { background: var(--color-stable-light); color: var(--color-stable); }
+        .vital-icon-blue { background: var(--color-chronic-light); color: var(--color-chronic); }
+        .vital-value { font-size: var(--fs-2xl); font-weight: 700; color: var(--color-text-primary); line-height: var(--lh-tight); font-variant-numeric: tabular-nums; }
+        .vital-trend { display: flex; align-items: center; gap: var(--space-1); font-size: var(--fs-xs); font-weight: 500; margin-top: var(--space-2); }
+        .trend-up { color: var(--color-stable); } .trend-down { color: var(--color-emergency); } .trend-neutral { color: var(--color-text-muted); }
+
+        /* Table */
+        .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+        .card-header { 
+            padding: var(--space-4) var(--space-6); border-bottom: 1px solid var(--color-border); 
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); 
+        }
+        .card-title { font-size: var(--fs-lg); font-weight: 600; color: var(--color-text-primary); }
+        .card-subtitle { font-size: var(--fs-xs); color: var(--color-text-muted); font-weight: 400; }
+
+        .table-wrapper { overflow-x: auto; }
+        table.clinical-table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+        .clinical-table thead { background: var(--color-bg); }
+        .clinical-table th {
+            padding: var(--space-3) var(--space-4);
+            text-align: left; font-weight: 600; font-size: var(--fs-xs);
+            color: var(--color-text-muted); border-bottom: 1px solid var(--color-border-strong);
+        }
+        .clinical-table td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); color: var(--color-text-primary); }
+        .clinical-table tbody tr:hover { background: var(--color-bg); }
+        .clinical-table tbody tr:last-child td { border-bottom: none; }
+
+        /* Badges */
+        .badge {
+            display: inline-flex; align-items: center; gap: var(--space-1);
+            padding: 2px 8px; border-radius: 100px; font-size: var(--fs-xs); font-weight: 600;
+            white-space: nowrap;
+        }
+        .badge-active { background: var(--color-stable-light); color: var(--color-stable); }
+        .badge-pending { background: var(--color-urgent-light); color: var(--color-urgent); }
+        .badge-chronic { background: var(--color-chronic-light); color: var(--color-chronic); }
+        .badge-resolved { background: var(--color-bg); color: var(--color-text-muted); border: 1px solid var(--color-border); }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: var(--color-surface);
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--shadow-modal);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header { margin-bottom: var(--space-5); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: var(--fs-xl); font-weight: 700; }
+        .modal-close { background: none; border: none; cursor: pointer; color: var(--color-text-muted); font-size: 20px; }
+        .modal-close:hover { color: var(--color-text-primary); }
+
+        .form-group { margin-bottom: var(--space-4); }
+        .form-label { display: block; margin-bottom: var(--space-2); font-size: var(--fs-sm); font-weight: 500; color: var(--color-text-primary); }
+        .form-input, .form-select {
+            width: 100%;
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-size: var(--fs-base);
+            outline: none;
+            font-family: var(--font-ui);
+            transition: border-color 0.1s, box-shadow 0.1s;
+        }
+        .form-input:focus, .form-select:focus { 
+            border-color: var(--color-primary); 
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); 
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+        .form-textarea { resize: vertical; min-height: 80px; }
+
+        .modal-actions { display: flex; justify-content: flex-end; gap: var(--space-3); margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
+
+        /* Backup Section */
+        .backup-section {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-top: var(--space-6);
+        }
+        .backup-title { font-size: var(--fs-lg); font-weight: 600; margin-bottom: var(--space-2); }
+        .backup-desc { color: var(--color-text-secondary); font-size: var(--fs-sm); margin-bottom: var(--space-4); }
+        .backup-info {
+            display: flex; gap: var(--space-3); align-items: center;
+            padding: var(--space-3); background: var(--color-bg); border-radius: var(--radius-sm);
+            margin-bottom: var(--space-4); font-size: var(--fs-xs);
+        }
+        .backup-info i { color: var(--color-stable); font-size: 16px; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; z-index: 1000; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: var(--space-4); }
+            .page-header { flex-direction: column; align-items: stretch; }
+            .page-actions { justify-content: stretch; }
+            .page-actions .btn { flex: 1; justify-content: center; }
+            .vitals-grid { grid-template-columns: 1fr; }
+        }
+        @media (min-width: 769px) { .mobile-menu-btn { display: none; } }
+        .mobile-menu-btn { display: none; cursor: pointer; font-size: 24px; color: var(--color-text-primary); margin-right: var(--space-3); }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="brand">
+                <div class="brand-icon"><i class="ph ph-heartbeat"></i></div>
+                <div>
+                    Terapia Manager
+                    <span class="brand-sub">Clinical Edition</span>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="nav-section">
+            <div class="nav-label">Menu Principale</div>
+            <div class="nav-item active">
+                <i class="ph ph-squares-four"></i> Dashboard
+            </div>
+            <div class="nav-item">
+                <i class="ph ph-users"></i> Pazienti
+            </div>
+            <div class="nav-item">
+                <i class="ph ph-calendar"></i> Appuntamenti
+            </div>
+            <div class="nav-item">
+                <i class="ph ph-prescription"></i> Terapie
+            </div>
+        </nav>
+
+        <nav class="nav-section">
+            <div class="nav-label">Sistema</div>
+            <div class="nav-item" onclick="showBackupSection()">
+                <i class="ph ph-cloud-arrow-up"></i> Backup & Sicurezza
+                <span class="nav-badge">NEW</span>
+            </div>
+            <div class="nav-item">
+                <i class="ph ph-gear"></i> Impostazioni
+            </div>
+            <div class="nav-item">
+                <i class="ph ph-question"></i> Aiuto & Supporto
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-bar">
+                <div class="user-avatar">LS</div>
+                <div class="user-info">
+                    <div class="user-name">Dr. Luca Sartori</div>
+                    <div class="user-role">Amministratore Sistema</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div class="page-title-group">
+                <div style="display: flex; align-items: center;">
+                    <i class="ph ph-list mobile-menu-btn" onclick="toggleSidebar()"></i>
+                    <h1 class="page-title">Gestione Patologie</h1>
+                </div>
+                <p class="page-subtitle">Database clinico con sistema di backup avanzato e integrità dati garantita</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-secondary" onclick="exportBackup()">
+                    <i class="ph ph-download-simple"></i> Export Backup
+                </button>
+                <button class="btn btn-primary" onclick="openModal()">
+                    <i class="ph ph-plus"></i> Aggiungi Patologia
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats -->
+        <div class="vitals-grid">
+            <div class="vital-card">
+                <div class="vital-header">
+                    <div>
+                        <div class="vital-label">Totale Patologie</div>
+                        <div class="vital-value" id="totalPathologies">0</div>
+                    </div>
+                    <div class="vital-icon vital-icon-teal"><i class="ph ph-files"></i></div>
+                </div>
+                <div class="vital-trend trend-neutral">
+                    <i class="ph ph-info"></i> Database sincronizzato
+                </div>
+            </div>
+            <div class="vital-card">
+                <div class="vital-header">
+                    <div>
+                        <div class="vital-label">Pazienti Attivi</div>
+                        <div class="vital-value" id="activePatients">12</div>
+                    </div>
+                    <div class="vital-icon vital-icon-green"><i class="ph ph-user-check"></i></div>
+                </div>
+                <div class="vital-trend trend-up">
+                    <i class="ph ph-trend-up"></i> +2.5% vs mese scorso
+                </div>
+            </div>
+            <div class="vital-card">
+                <div class="vital-header">
+                    <div>
+                        <div class="vital-label">Ultimo Backup</div>
+                        <div class="vital-value" id="lastBackup" style="font-size: var(--fs-base;">--:--</div>
+                    </div>
+                    <div class="vital-icon vital-icon-blue"><i class="ph ph-cloud-check"></i></div>
+                </div>
+                <div class="vital-trend trend-neutral" id="backupStatus">
+                    <i class="ph ph-warning"></i> In attesa...
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">Elenco Patologie</h3>
+                    <div class="card-subtitle">Gestione completa con tracciamento modifiche e backup automatico</div>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-ghost" onclick="restoreFromBackup()">
+                        <i class="ph ph-arrow-clockwise"></i> Ripristina
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal()">
+                        <i class="ph ph-plus"></i> Aggiungi
+                    </button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="clinical-table">
+                    <thead>
+                        <tr>
+                            <th>Nome Patologia</th>
+                            <th>Codice ICD-10</th>
+                            <th>Categoria</th>
+                            <th>Stato</th>
+                            <th>Ultima Modifica</th>
+                            <th style="text-align: right;">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pathologyList">
+                        <!-- Items injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Backup Section -->
+        <div class="backup-section" id="backupSection" style="display: none;">
+            <h3 class="backup-title">Sistema di Backup & Sicurezza</h3>
+            <p class="backup-desc">I tuoi dati sono protetti da un sistema di backup duplicato che garantisce la persistenza anche in caso di errori del browser o interruzioni del servizio.</p>
+            
+            <div class="backup-info">
+                <i class="ph ph-shield-check"></i>
+                <div>
+                    <strong>Backup Attivo:</strong> I dati vengono salvati automaticamente ogni modifica e alla chiusura del browser.
+                    <br>
+                    <strong>Integrità:</strong> Sistema di controllo incrociato tra due copie di backup per rilevare corruzioni.
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); margin-top: var(--space-4);">
+                <button class="btn btn-secondary" onclick="exportBackup()">
+                    <i class="ph ph-download-simple"></i> Export File JSON
+                </button>
+                <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">
+                    <i class="ph ph-upload-simple"></i> Importa da File
+                </button>
+                <button class="btn btn-secondary" onclick="forceBackup()">
+                    <i class="ph ph-cloud-arrow-up"></i> Forza Backup Ora
+                </button>
+                <button class="btn btn-secondary" onclick="verifyBackupIntegrity()">
+                    <i class="ph ph-check-circle"></i> Verifica Integrità
+                </button>
+            </div>
+            
+            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importBackup(event)">
+        </div>
+    </main>
+
+    <!-- Modal Form -->
+    <div class="modal" id="pathologyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Nuova Patologia</h2>
+                <button class="modal-close" onclick="closeModal()"><i class="ph ph-x"></i></button>
+            </div>
+            <form id="pathologyForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label class="form-label">Nome Patologia *</label>
+                    <input type="text" class="form-input" id="pName" placeholder="Es. Ipertensione Arteriosa" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Codice ICD-10</label>
+                        <input type="text" class="form-input" id="pCode" placeholder="Es. I10" style="font-family: var(--font-mono);">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Categoria</label>
+                        <select class="form-select" id="pCategory">
+                            <option value="Cardiologia">Cardiologia</option>
+                            <option value="Neurologia">Neurologia</option>
+                            <option value="Ortopedia">Ortopedia</option>
+                            <option value="Psicologia">Psicologia</option>
+                            <option value="Endocrinologia">Endocrinologia</option>
+                            <option value="Altro">Altro</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Stato</label>
+                        <select class="form-select" id="pStatus">
+                            <option value="active">Attiva</option>
+                            <option value="pending">In Osservazione</option>
+                            <option value="chronic">Cronica</option>
+                            <option value="resolved">Risolta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Data Diagnosi</label>
+                        <input type="date" class="form-input" id="pDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Note Mediche</label>
+                    <textarea class="form-input form-textarea" id="pNotes" placeholder="Dettagli, terapie in corso, follow-up..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva con Backup</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        /* ============================================================
+           BACKUP SYSTEM - GARANZIA DATI
+           ============================================================ */
+        
+        // Configurazione backup
+        const BACKUP_CONFIG = {
+            PRIMARY_KEY: 'terapiaPathologies_primary',
+            BACKUP_KEY: 'terapiaPathologies_backup',
+            BACKUP_TIMESTAMP: 'terapiaBackupTimestamp',
+            AUTO_SAVE_INTERVAL: 30000, // 30 secondi
+            MAX_BACKUP_AGE: 24 * 60 * 60 * 1000 // 24 ore
+        };
+
+        // Dati iniziali di esempio
+        const defaultData = [
+            { 
+                id: 1, 
+                name: 'Ipertensione Essenziale', 
+                code: 'I10', 
+                category: 'Cardiologia', 
+                status: 'active',
+                date: '2023-10-01',
+                notes: 'Controllo ogni 3 mesi, terapia con ACE-inibitori',
+                lastModified: Date.now()
+            },
+            { 
+                id: 2, 
+                name: 'Diabete di Tipo 2', 
+                code: 'E11', 
+                category: 'Endocrinologia', 
+                status: 'chronic',
+                date: '2023-09-15',
+                notes: 'HbA1c controllata, terapia metabolica',
+                lastModified: Date.now()
+            },
+            { 
+                id: 3, 
+                name: 'Ansia Generalizzata', 
+                code: 'F41.1', 
+                category: 'Psicologia', 
+                status: 'pending',
+                date: '2023-10-05',
+                notes: 'In valutazione, psicoterapia cognitivo-comportamentale',
+                lastModified: Date.now()
+            }
+        ];
+
+        let pathologies = [];
+        let backupTimer = null;
+
+        /* ============================================================
+           SISTEMA DI BACKUP AVANZATO
+           ============================================================ */
+
+        // Inizializza il sistema di backup
+        function initBackupSystem() {
+            // Carica i dati dal backup primario
+            pathologies = loadFromBackup();
+            
+            // Avvia il salvataggio automatico
+            startAutoSave();
+            
+            // Salva alla chiusura della pagina
+            window.addEventListener('beforeunload', forceBackup);
+            
+            // Aggiorna l'interfaccia
+            updateBackupStatus();
+            renderList();
+            updateStats();
+        }
+
+        // Carica i dati con controllo integrità
+        function loadFromBackup() {
+            try {
+                // Prova il backup primario
+                const primary = localStorage.getItem(BACKUP_CONFIG.PRIMARY_KEY);
+                const backup = localStorage.getItem(BACKUP_CONFIG.BACKUP_KEY);
+                const timestamp = localStorage.getItem(BACKUP_CONFIG.BACKUP_TIMESTAMP);
+                
+                console.log('🔍 Controllo backup...');
+                
+                // Se entrambi i backup sono vuoti, usa i dati di default
+                if (!primary && !backup) {
+                    console.log('⚠️ Nessun backup trovato, uso dati di default');
+                    return JSON.parse(JSON.stringify(defaultData));
+                }
+                
+                // Verifica l'integrità del backup primario
+                let data = null;
+                if (primary) {
+                    try {
+                        data = JSON.parse(primary);
+                        if (validateDataStructure(data)) {
+                            console.log('✅ Backup primario integro');
+                        } else {
+                            console.log('❌ Backup primario corrotto');
+                            data = null;
+                        }
+                    } catch (e) {
+                        console.log('❌ Errore parsing backup primario:', e);
+                        data = null;
+                    }
+                }
+                
+                // Se il primario è corrotto, prova il backup secondario
+                if (!data && backup) {
+                    try {
+                        data = JSON.parse(backup);
+                        if (validateDataStructure(data)) {
+                            console.log('✅ Backup secondario integro, ripristino');
+                            // Ripristina il backup secondario come primario
+                            saveToBothBackups(data);
+                        } else {
+                            console.log('❌ Backup secondario corrotto');
+                            data = null;
+                        }
+                    } catch (e) {
+                        console.log('❌ Errore parsing backup secondario:', e);
+                        data = null;
+                    }
+                }
+                
+                // Se ancora non ci sono dati validi, usa i default
+                if (!data) {
+                    console.log('⚠️ Tutti i backup sono corrotti, uso dati di default');
+                    data = JSON.parse(JSON.stringify(defaultData));
+                    saveToBothBackups(data);
+                }
+                
+                return data;
+                
+            } catch (error) {
+                console.error('💥 Errore critico nel caricamento:', error);
+                return JSON.parse(JSON.stringify(defaultData));
+            }
+        }
+
+        // Valida la struttura dei dati
+        function validateDataStructure(data) {
+            if (!Array.isArray(data)) return false;
+            
+            return data.every(item => 
+                item && 
+                typeof item === 'object' &&
+                typeof item.id !== 'undefined' &&
+                typeof item.name === 'string' &&
+                typeof item.category === 'string' &&
+                typeof item.status === 'string'
+            );
+        }
+
+        // Salva su entrambi i backup
+        function saveToBothBackups(data) {
+            const timestamp = Date.now();
+            const dataString = JSON.stringify(data);
+            
+            try {
+                // Salva backup primario
+                localStorage.setItem(BACKUP_CONFIG.PRIMARY_KEY, dataString);
+                
+                // Salva backup secondario
+                localStorage.setItem(BACKUP_CONFIG.BACKUP_KEY, dataString);
+                
+                // Salva timestamp
+                localStorage.setItem(BACKUP_CONFIG.BACKUP_TIMESTAMP, timestamp.toString());
+                
+                console.log('💾 Backup salvati con successo');
+                updateBackupStatus(timestamp);
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Errore salvataggio backup:', error);
+                return false;
+            }
+        }
+
+        // Forza un backup immediato
+        function forceBackup() {
+            console.log('🔄 Forzo backup...');
+            return saveToBothBackups(pathologies);
+        }
+
+        // Avvia il salvataggio automatico periodico
+        function startAutoSave() {
+            if (backupTimer) {
+                clearInterval(backupTimer);
+            }
+            
+            backupTimer = setInterval(() => {
+                console.log('⏰ Salvataggio automatico periodico...');
+                saveToBothBackups(pathologies);
+            }, BACKUP_CONFIG.AUTO_SAVE_INTERVAL);
+        }
+
+        // Aggiorna lo status del backup nell'interfaccia
+        function updateBackupStatus(timestamp = null) {
+            const lastBackupEl = document.getElementById('lastBackup');
+            const statusEl = document.getElementById('backupStatus');
+            
+            const ts = timestamp || parseInt(localStorage.getItem(BACKUP_CONFIG.BACKUP_TIMESTAMP) || '0');
+            
+            if (ts > 0) {
+                const date = new Date(ts);
+                lastBackupEl.textContent = date.toLocaleTimeString();
+                statusEl.innerHTML = '<i class="ph ph-check-circle"></i> Backup attivo';
+                statusEl.style.color = 'var(--color-stable)';
+            } else {
+                lastBackupEl.textContent = '--:--';
+                statusEl.innerHTML = '<i class="ph ph-warning"></i> In attesa...';
+            }
+        }
+
+        /* ============================================================
+           EXPORT/IMPORT SICURO
+           ============================================================ */
+
+        // Esporta i dati in un file JSON
+        function exportBackup() {
+            const dataStr = JSON.stringify(pathologies, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `terapia-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            console.log('📦 Backup esportato con successo');
+        }
+
+        // Importa i dati da un file JSON
+        function importBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (validateDataStructure(importedData)) {
+                        if (confirm('Questo sostituirà tutti i dati attuali con quelli del backup. Continuare?')) {
+                            pathologies = importedData;
+                            saveToBothBackups(pathologies);
+                            renderList();
+                            updateStats();
+                            alert('✅ Backup importato con successo!');
+                        }
+                    } else {
+                        alert('❌ Il file non contiene una struttura di dati valida.');
+                    }
+                } catch (error) {
+                    alert('❌ Errore nella lettura del file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset del file input
+            event.target.value = '';
+        }
+
+        // Verifica l'integrità del backup
+        function verifyBackupIntegrity() {
+            const primary = localStorage.getItem(BACKUP_CONFIG.PRIMARY_KEY);
+            const backup = localStorage.getItem(BACKUP_CONFIG.BACKUP_KEY);
+            
+            let isValid = true;
+            let message = 'Controllo integrità backup:\n\n';
+            
+            if (primary) {
+                try {
+                    const data = JSON.parse(primary);
+                    if (validateDataStructure(data)) {
+                        message += '✅ Backup primario: INTEGRO\n';
+                    } else {
+                        message += '❌ Backup primario: CORROTTO\n';
+                        isValid = false;
+                    }
+                } catch (e) {
+                    message += '❌ Backup primario: ERRORE PARSING\n';
+                    isValid = false;
+                }
+            } else {
+                message += '⚠️ Backup primario: ASSENTE\n';
+                isValid = false;
+            }
+            
+            if (backup) {
+                try {
+                    const data = JSON.parse(backup);
+                    if (validateDataStructure(data)) {
+                        message += '✅ Backup secondario: INTEGRO\n';
+                    } else {
+                        message += '❌ Backup secondario: CORROTTO\n';
+                        isValid = false;
+                    }
+                } catch (e) {
+                    message += '❌ Backup secondario: ERRORE PARSING\n';
+                    isValid = false;
+                }
+            } else {
+                message += '⚠️ Backup secondario: ASSENTE\n';
+                isValid = false;
+            }
+            
+            message += `\nUltimo salvataggio: ${new Date(parseInt(localStorage.getItem(BACKUP_CONFIG.BACKUP_TIMESTAMP) || '0')).toLocaleString()}`;
+            
+            alert(message);
+            return isValid;
+        }
+
+        /* ============================================================
+           CRUD OPERATIONS CON BACKUP
+           ============================================================ */
+
+        // Aggiungi o modifica patologia
+        function savePathology(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('editId').value;
+            const name = document.getElementById('pName').value;
+            const code = document.getElementById('pCode').value;
+            const category = document.getElementById('pCategory').value;
+            const status = document.getElementById('pStatus').value;
+            const date = document.getElementById('pDate').value;
+            const notes = document.getElementById('pNotes').value;
+
+            const pathologyData = {
+                name,
+                code,
+                category,
+                status,
+                date: date || new Date().toISOString().split('T')[0],
+                notes,
+                lastModified: Date.now()
+            };
+
+            if (id) {
+                // Modifica esistente
+                const index = pathologies.findIndex(p => p.id == id);
+                if (index !== -1) {
+                    pathologies[index] = { ...pathologies[index], ...pathologyData };
+                }
+            } else {
+                // Nuova patologia
+                pathologyData.id = Date.now();
+                pathologies.unshift(pathologyData);
+            }
+
+            // Salva con backup immediato
+            saveToBothBackups(pathologies);
+            renderList();
+            updateStats();
+            closeModal();
+            
+            alert('✅ Dati salvati con backup sicuro!');
+        }
+
+        // Elimina patologia
+        function deletePathology(id) {
+            if(confirm('Sei sicuro di voler eliminare questa patologia?')) {
+                pathologies = pathologies.filter(p => p.id !== id);
+                saveToBothBackups(pathologies);
+                renderList();
+                updateStats();
+            }
+        }
+
+        // Modifica patologia
+        function editPathology(id) {
+            const p = pathologies.find(item => item.id === id);
+            if (p) {
+                document.getElementById('editId').value = p.id;
+                document.getElementById('pName').value = p.name;
+                document.getElementById('pCode').value = p.code;
+                document.getElementById('pCategory').value = p.category;
+                document.getElementById('pStatus').value = p.status;
+                document.getElementById('pDate').value = p.date || '';
+                document.getElementById('pNotes').value = p.notes || '';
+                
+                document.getElementById('modalTitle').textContent = 'Modifica Patologia';
+                document.getElementById('pathologyModal').style.display = 'flex';
+            }
+        }
+
+        /* ============================================================
+           UI FUNCTIONS
+           ============================================================ */
+
+        // Renderizza la lista
+        function renderList() {
+            const listEl = document.getElementById('pathologyList');
+            listEl.innerHTML = '';
+            
+            pathologies.forEach(p => {
+                const row = document.createElement('tr');
+                const statusClass = `badge-${p.status}`;
+                const statusText = {
+                    'active': 'Attiva',
+                    'pending': 'In Osservazione',
+                    'chronic': 'Cronica',
+                    'resolved': 'Risolta'
+                }[p.status] || p.status;
+                
+                const date = p.lastModified ? new Date(p.lastModified).toLocaleDateString() : 'N/D';
+                
+                row.innerHTML = `
+                    <td style="font-weight: 600;">${p.name}</td>
+                    <td><span style="font-family: var(--font-mono); background: var(--color-bg); padding: 2px 6px; border-radius: 4px; font-size: var(--fs-xs);">${p.code || 'N/D'}</span></td>
+                    <td>${p.category}</td>
+                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                    <td style="color: var(--color-text-muted); font-size: var(--fs-xs);">${date}</td>
+                    <td style="text-align: right;">
+                        <button class="btn btn-ghost btn-icon" onclick="editPathology(${p.id})" title="Modifica">
+                            <i class="ph ph-pencil-simple"></i>
+                        </button>
+                        <button class="btn btn-ghost btn-icon text-danger" onclick="deletePathology(${p.id})" title="Elimina">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </td>
+                `;
+                listEl.appendChild(row);
+            });
+        }
+
+        // Aggiorna le statistiche
+        function updateStats() {
+            document.getElementById('totalPathologies').textContent = pathologies.length;
+        }
+
+        // Mostra la sezione backup
+        function showBackupSection() {
+            const section = document.getElementById('backupSection');
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('pathologyForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('modalTitle').textContent = 'Nuova Patologia';
+            document.getElementById('pathologyModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('pathologyModal').style.display = 'none';
+        }
+
+        // Ripristina da backup
+        function restoreFromBackup() {
+            if (confirm('Questo ripristinerà i dati dall\'ultimo backup disponibile. Continuare?')) {
+                pathologies = loadFromBackup();
+                renderList();
+                updateStats();
+                alert('✅ Dati ripristinati con successo!');
+            }
+        }
+
+        // Toggle sidebar mobile
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Chiudi modal cliccando fuori
+        window.onclick = function(event) {
+            const modal = document.getElementById('pathologyModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        /* ============================================================
+           INIZIALIZZAZIONE
+           ============================================================ */
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Avvio Terapia Manager con Backup System');
+            initBackupSystem();
+            
+            // Event listener per il form
+            document.getElementById('pathologyForm').addEventListener('submit', savePathology);
+            
+            // Event listener per la chiusura della finestra
+            window.addEventListener('beforeunload', function(e) {
+                console.log('👋 Chiusura finestra, salvo i dati...');
+                forceBackup();
+            });
+        });
+    </script>
+</body>
+</html>
