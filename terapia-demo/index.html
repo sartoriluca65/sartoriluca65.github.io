@@ -1,518 +1,471 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terapia Manager Pro</title>
-    <!-- Font e Icone -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <style>
-        :root {
-            /* Palette Colori Medical/Professional */
-            --primary: #0ea5e9;       /* Sky Blue */
-            --primary-dark: #0284c7;
-            --secondary: #64748b;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            
-            --bg-body: #f1f5f9;
-            --bg-card: #ffffff;
-            --bg-sidebar: #1e293b;
-            
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            
-            --radius: 12px;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* --- SIDEBAR --- */
-        .sidebar {
-            width: 280px;
-            background: var(--bg-sidebar);
-            color: white;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            height: 100vh;
-            transition: transform 0.3s ease;
-        }
-
-        .brand {
-            font-size: 22px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-            color: white;
-        }
-
-        .brand i { color: var(--primary); font-size: 32px; }
-
-        .nav-links { list-style: none; }
-        .nav-item {
-            padding: 14px 16px;
-            margin-bottom: 8px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #94a3b8;
-            font-weight: 500;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-        
-        .nav-item.active { border-left: 4px solid var(--primary); }
-
-        /* --- MAIN CONTENT --- */
-        .main-content {
-            margin-left: 280px;
-            flex: 1;
-            padding: 32px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-        }
-
-        h1 { font-size: 28px; font-weight: 700; color: var(--text-main); }
-        .subtitle { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
-
-        /* --- STATS CARDS --- */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            padding: 24px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-        }
-
-        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-        .stat-icon {
-            width: 48px; height: 48px;
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
-        }
-        .icon-blue { background: #e0f2fe; color: var(--primary); }
-        .icon-green { background: #d1fae5; color: var(--success); }
-        .icon-orange { background: #ffedd5; color: var(--warning); }
-
-        .stat-value { font-size: 32px; font-weight: 700; color: var(--text-main); }
-        .stat-label { color: var(--text-muted); font-size: 14px; font-weight: 500; }
-
-        /* --- TABLE SECTION --- */
-        .table-container {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-
-        .table-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.2s;
-        }
-
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        
-        .btn-sm { padding: 6px 12px; font-size: 13px; }
-        .btn-edit { background: #e0f2fe; color: var(--primary); }
-        .btn-edit:hover { background: #bae6fd; }
-        .btn-delete { background: #fee2e2; color: var(--danger); }
-        .btn-delete:hover { background: #fecaca; }
-
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 16px 24px; color: var(--text-muted); font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--border); }
-        td { padding: 16px 24px; border-bottom: 1px solid var(--border); color: var(--text-main); font-size: 14px; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background: #f8fafc; }
-
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .status-active { background: #d1fae5; color: #059669; }
-        .status-pending { background: #ffedd5; color: #d97706; }
-
-        /* --- MODAL --- */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            padding: 32px;
-            border-radius: var(--radius);
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .modal-header { margin-bottom: 24px; }
-        .modal-title { font-size: 20px; font-weight: 700; }
-
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: var(--text-main); }
-        .form-input, .form-select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: 0.2s;
-        }
-        .form-input:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); }
-
-        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
-        .btn-secondary { background: white; border: 1px solid var(--border); color: var(--text-main); }
-        .btn-secondary:hover { background: #f8fafc; }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); z-index: 999; }
-            .sidebar.active { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 16px; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .mobile-menu-btn { display: block; margin-right: 16px; font-size: 24px; cursor: pointer; }
-        }
-        @media (min-width: 769px) { .mobile-menu-btn { display: none; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terapia Demo - Sistema Backup Funzionante</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/phosphor-icons/phosphor.js"></script>
+<style>
+:root {
+  --bs-primary: #0d9488;
+  --bs-primary-rgb: 13, 148, 136;
+}
+body { background-color: #f4f7f9; }
+</style>
 </head>
 <body>
-
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="brand">
-            <i class="ph ph-heartbeat"></i>
-            Terapia Manager
-        </div>
-        <ul class="nav-links">
-            <li class="nav-item active">
-                <i class="ph ph-squares-four"></i> Dashboard
-            </li>
-            <li class="nav-item">
-                <i class="ph ph-users"></i> Pazienti
-            </li>
-            <li class="nav-item">
-                <i class="ph ph-calendar"></i> Appuntamenti
-            </li>
-            <li class="nav-item">
-                <i class="ph ph-gear"></i> Impostazioni
-            </li>
-        </ul>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <header>
-            <div style="display: flex; align-items: center;">
-                <i class="ph ph-list mobile-menu-btn" onclick="toggleSidebar()"></i>
-                <div>
-                    <h1>Gestione Patologie</h1>
-                    <p class="subtitle">Panoramica e gestione del database clinico</p>
-                </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="text-align: right;">
-                    <div style="font-weight: 600; font-size: 14px;">Dr. Luca Sartori</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">Amministratore</div>
-                </div>
-                <div style="width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">LS</div>
-            </div>
-        </header>
-
-        <!-- Stats -->
-        <div class="stats-grid">
-            <div class="card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-label">Totale Patologie</div>
-                        <div class="stat-value" id="totalPathologies">0</div>
-                    </div>
-                    <div class="stat-icon icon-blue"><i class="ph ph-files"></i></div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-label">Pazienti in Terapia</div>
-                        <div class="stat-value" id="activePatients">12</div>
-                    </div>
-                    <div class="stat-icon icon-green"><i class="ph ph-user-check"></i></div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-label">Appuntamenti Oggi</div>
-                        <div class="stat-value">5</div>
-                    </div>
-                    <div class="stat-icon icon-orange"><i class="ph ph-clock"></i></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Table Section -->
-        <div class="table-container">
-            <div class="table-header">
-                <h3 style="font-size: 18px;">Elenco Patologie</h3>
-                <button class="btn btn-primary" onclick="openModal()">
-                    <i class="ph ph-plus"></i> Aggiungi Patologia
-                </button>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome Patologia</th>
-                        <th>Codice ICD-10</th>
-                        <th>Categoria</th>
-                        <th>Stato</th>
-                        <th style="text-align: right;">Azioni</th>
-                    </tr>
-                </thead>
-                <tbody id="pathologyList">
-                    <!-- Items injected via JS -->
-                </tbody>
-            </table>
-        </div>
-    </main>
-
-    <!-- Modal Form -->
-    <div class="modal" id="pathologyModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="modalTitle">Nuova Patologia</h2>
-            </div>
-            <form id="pathologyForm">
-                <input type="hidden" id="editId">
-                <div class="form-group">
-                    <label class="form-label">Nome Patologia</label>
-                    <input type="text" class="form-input" id="pName" placeholder="Es. Ipertensione Arteriosa" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Codice ICD-10</label>
-                    <input type="text" class="form-input" id="pCode" placeholder="Es. I10">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Categoria</label>
-                    <select class="form-select" id="pCategory">
-                        <option value="Cardiologia">Cardiologia</option>
-                        <option value="Neurologia">Neurologia</option>
-                        <option value="Ortopedia">Ortopedia</option>
-                        <option value="Psicologia">Psicologia</option>
-                        <option value="Altro">Altro</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Stato</label>
-                    <select class="form-select" id="pStatus">
-                        <option value="active">Attiva</option>
-                        <option value="pending">In Osservazione</option>
-                    </select>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annulla</button>
-                    <button type="submit" class="btn btn-primary">Salva</button>
-                </div>
-            </form>
-        </div>
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="text-primary"><i class="ph-bold ph-heart-pulse"></i> Terapia Manager</h1>
+      <p class="text-muted">Gestione patologie con backup locale sicuro</p>
     </div>
+  </div>
 
-    <script>
-        // --- DATA MANAGEMENT ---
-        // Dati iniziali di esempio se il LocalStorage è vuoto
-        const defaultData = [
-            { id: 1, name: 'Ipertensione Essenziale', code: 'I10', category: 'Cardiologia', status: 'active' },
-            { id: 2, name: 'Diabete di Tipo 2', code: 'E11', category: 'Endocrinologia', status: 'active' },
-            { id: 3, name: 'Ansia Generalizzata', code: 'F41.1', category: 'Psicologia', status: 'pending' },
-            { id: 4, name: 'Lombalgia Acuta', code: 'M54.5', category: 'Ortopedia', status: 'active' }
-        ];
+  <!-- Stats Cards -->
+  <div class="row mb-4">
+    <div class="col-12 col-md-4 mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <div class="display-6 text-primary fw-bold" id="totalPatologie">0</div>
+          <small class="text-muted">Totale Patologie</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4 mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <div class="display-6 text-success fw-bold" id="terapieAttive">0</div>
+          <small class="text-muted">Terapie Attive</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4 mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <div class="display-6 text-info fw-bold" id="ultimoBackup">N/D</div>
+          <small class="text-muted">Ultimo Backup</small>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        let pathologies = JSON.parse(localStorage.getItem('terapiaPathologies')) || defaultData;
+  <!-- Azioni -->
+  <div class="row mb-4">
+    <div class="col-12 d-flex flex-wrap gap-2">
+      <button class="btn btn-primary" onclick="openModal('nuova')">
+        <i class="ph-bold ph-plus"></i> Nuova Patologia
+      </button>
+      <button class="btn btn-outline-secondary" onclick="document.getElementById('importFile').click()">
+        <i class="ph-bold ph-upload"></i> Importa Backup
+      </button>
+      <button class="btn btn-outline-success" onclick="exportData()">
+        <i class="ph-bold ph-download"></i> Esporta Backup
+      </button>
+      <button class="btn btn-outline-info" onclick="verifyBackupIntegrity()">
+        <i class="ph-bold ph-shield-check"></i> Verifica Integrità
+      </button>
+      <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+    </div>
+  </div>
 
-        // --- DOM ELEMENTS ---
-        const listEl = document.getElementById('pathologyList');
-        const modal = document.getElementById('pathologyModal');
-        const form = document.getElementById('pathologyForm');
-        const modalTitle = document.getElementById('modalTitle');
-        const totalEl = document.getElementById('totalPathologies');
+  <!-- Tabella -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          Elenco Patologie
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Codice ICD-10</th>
+                <th>Categoria</th>
+                <th>Stato</th>
+                <th>Data</th>
+                <th>Note</th>
+                <th>Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="patologieTable">
+              <!-- Popolato dinamicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // --- INITIALIZATION ---
-        function init() {
-            renderList();
-            updateStats();
+<!-- Modal Nuova/Modifica -->
+<div class="modal fade" id="patologiaModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="patologiaForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Nuova Patologia</h5>
+          <button type="button" class="btn-close" onclick="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="patologiaId">
+          
+          <div class="mb-3">
+            <label class="form-label">Nome Patologia *</label>
+            <input type="text" class="form-control" id="nomePatologia" required>
+          </div>
+          
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Codice ICD-10</label>
+              <input type="text" class="form-control" id="codiceIcd" placeholder="Es. I10">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Categoria *</label>
+              <select class="form-select" id="categoriaPatologia" required>
+                <option value="">Seleziona...</option>
+                <option>Cardiologia</option>
+                <option>Neurologia</option>
+                <option>Ortopedia</option>
+                <option>Psicologia</option>
+                <option>Endocrinologia</option>
+                <option>Altro</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Stato *</label>
+              <select class="form-select" id="statoPatologia" required>
+                <option value="">Seleziona...</option>
+                <option value="active">Attiva</option>
+                <option value="chronic">Cronica</option>
+                <option value="pending">In osservazione</option>
+                <option value="resolved">Risolta</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Data Diagnosi</label>
+              <input type="date" class="form-control" id="dataDiagnosi">
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Note Cliniche</label>
+            <textarea class="form-control" id="noteCliniche" rows="3" placeholder="Dettagli terapeutici, dosaggi, follow-up..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Annulla</button>
+          <button type="submit" class="btn btn-primary">Salva</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Configurazione backup
+const BACKUP_KEYS = {
+  primary: 'terapiaPatologiePrimary',
+  backup: 'terapiaPatologieBackup',
+  timestamp: 'terapiaLastBackup'
+};
+
+// Stati patologie
+const STATUS_MAP = {
+  'active': { label: 'Attiva', class: 'badge bg-success' },
+  'chronic': { label: 'Cronica', class: 'badge bg-info' },
+  'pending': { label: 'In Osservazione', class: 'badge bg-warning text-dark' },
+  'resolved': { label: 'Risolta', class: 'badge bg-secondary' }
+};
+
+// Dati predefiniti
+const DEFAULT_DATA = [
+  { id: Date.now()-3, name: 'Ipertensione arteriosa', code: 'I10', category: 'Cardiologia', status: 'chronic', date: '2023-05-12', notes: 'Controllo trimestrale con ACE inibitori' },
+  { id: Date.now()-2, name: 'Diabete mellito tipo 2', code: 'E11', category: 'Endocrinologia', status: 'active', date: '2023-08-01', notes: 'HbA1c 6.8%, terapia con metformina' },
+  { id: Date.now()-1, name: 'Ansia generalizzata', code: 'F41.1', category: 'Psicologia', status: 'pending', date: '2023-10-03', notes: 'Valutazione psicoterapia' }
+];
+
+// Carica dati con backup sicuro
+function loadData() {
+  try {
+    const primary = localStorage.getItem(BACKUP_KEYS.primary);
+    const backup = localStorage.getItem(BACKUP_KEYS.backup);
+    const timestamp = localStorage.getItem(BACKUP_KEYS.timestamp);
+    
+    if (primary) {
+      const data = JSON.parse(primary);
+      if (Array.isArray(data)) return data;
+    }
+    
+    if (backup) {
+      const data = JSON.parse(backup);
+      if (Array.isArray(data)) {
+        localStorage.setItem(BACKUP_KEYS.primary, backup);
+        return data;
+      }
+    }
+    
+    return DEFAULT_DATA;
+  } catch(e) {
+    console.error("Errore nel caricamento dati:", e);
+    return DEFAULT_DATA;
+  }
+}
+
+// Salva dati con backup doppio
+function saveData(data) {
+  try {
+    const dataStr = JSON.stringify(data);
+    localStorage.setItem(BACKUP_KEYS.primary, dataStr);
+    localStorage.setItem(BACKUP_KEYS.backup, dataStr);
+    const now = new Date();
+    localStorage.setItem(BACKUP_KEYS.timestamp, now.toISOString());
+    return true;
+  } catch(e) {
+    console.error("Errore nel salvataggio:", e);
+    return false;
+  }
+}
+
+// Esporta dati
+function exportData() {
+  let data = loadData();
+  const dataStr = JSON.stringify(data, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `terapia-backup-${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  alert("✅ Backup esportato con successo!");
+}
+
+// Importa dati
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      let data = JSON.parse(e.target.result);
+      
+      // Validazione estesa - accetta anche formati leggermente diversi
+      if (!Array.isArray(data)) {
+        if (data && typeof data === 'object' && Array.isArray(data.patologie)) {
+          data = data.patologie;
+        } else {
+          throw new Error("Formato non valido");
         }
+      }
+      
+      // Normalizza i campi mancanti
+      data = data.map(item => ({
+        id: item.id || Date.now(),
+        name: item.name || item.nome || item.nomePatologia || 'Senza nome',
+        code: item.code || item.codice || '',
+        category: item.category || item.categoria || 'Altro',
+        status: item.status || item.stato || 'active',
+        date: item.date || item.data || new Date().toISOString().split('T')[0],
+        notes: item.notes || item.note || ''
+      }));
+      
+      if (confirm(`Importare ${data.length} patologie? Questo sostituirà i dati attuali.`)) {
+        saveData(data);
+        renderList();
+        updateStats();
+        alert("✅ Importazione completata con successo!");
+      }
+    } catch(error) {
+      console.error("Errore importazione:", error);
+      alert("❌ Errore nella lettura del file:\n\n" + error.message + "\n\nAssicurati che sia un file JSON valido.");
+    }
+  };
+  reader.readAsText(file);
+  
+  // Resetta l'input per permettere di r-caricare lo stesso file
+  event.target.value = '';
+}
 
-        // --- CORE FUNCTIONS ---
-        function renderList() {
-            listEl.innerHTML = '';
-            pathologies.forEach(p => {
-                const row = document.createElement('tr');
-                const statusClass = p.status === 'active' ? 'status-active' : 'status-pending';
-                const statusText = p.status === 'active' ? 'Attiva' : 'In Osservazione';
-                
-                row.innerHTML = `
-                    <td style="font-weight: 600;">${p.name}</td>
-                    <td><span style="font-family: monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${p.code}</span></td>
-                    <td>${p.category}</td>
-                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                    <td style="text-align: right;">
-                        <button class="btn btn-sm btn-edit" onclick="editPathology(${p.id})">
-                            <i class="ph ph-pencil-simple"></i>
-                        </button>
-                        <button class="btn btn-sm btn-delete" onclick="deletePathology(${p.id})">
-                            <i class="ph ph-trash"></i>
-                        </button>
-                    </td>
-                `;
-                listEl.appendChild(row);
-            });
-            saveData();
-        }
+// Verifica integrità backup
+function verifyBackupIntegrity() {
+  const primary = localStorage.getItem(BACKUP_KEYS.primary);
+  const backup = localStorage.getItem(BACKUP_KEYS.backup);
+  const timestamp = localStorage.getItem(BACKUP_KEYS.timestamp);
 
-        function saveData() {
-            localStorage.setItem('terapiaPathologies', JSON.stringify(pathologies));
-            updateStats();
-        }
+  let msg = "🔍 Verifica Integrità Backup:\n\n";
+  
+  msg += "✅ Backup Primario: ";
+  try {
+    const data = JSON.parse(primary);
+    msg += `${Array.isArray(data) ? `OK (${data.length} record)` : 'Formato non valido'}\n`;
+  } catch(e) {
+    msg += "Non disponibile\n";
+  }
 
-        function updateStats() {
-            totalEl.innerText = pathologies.length;
-        }
+  msg += "✅ Backup Secondario: ";
+  try {
+    const data = JSON.parse(backup);
+    msg += `${Array.isArray(data) ? `OK (${data.length} record)` : 'Formato non valido'}\n`;
+  } catch(e) {
+    msg += "Non disponibile\n";
+  }
 
-        // --- CRUD OPERATIONS ---
-        
-        // Add / Update Handler
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const id = document.getElementById('editId').value;
-            const name = document.getElementById('pName').value;
-            const code = document.getElementById('pCode').value;
-            const category = document.getElementById('pCategory').value;
-            const status = document.getElementById('pStatus').value;
+  msg += `\nUltimo Backup: ${timestamp ? new Date(timestamp).toLocaleString() : 'Mai'}`;
 
-            if (id) {
-                // Edit Mode
-                const index = pathologies.findIndex(p => p.id == id);
-                if (index !== -1) {
-                    pathologies[index] = { id: parseInt(id), name, code, category, status };
-                }
-            } else {
-                // Add Mode
-                const newId = Date.now();
-                pathologies.push({ id: newId, name, code, category, status });
-            }
+  alert(msg);
+}
 
-            renderList();
-            closeModal();
-        });
+// Renderizza la lista
+function renderList() {
+  const data = loadData();
+  const tbody = document.getElementById('patologieTable');
+  tbody.innerHTML = '';
+  
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-5 text-muted">Nessuna patologia registrata</td></tr>';
+  }
+  
+  data.forEach((p, i) => {
+    const statusInfo = STATUS_MAP[p.status] || STATUS_MAP['pending'];
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td class="fw-bold">${p.name}</td>
+      <td><code>${p.code || '-'}</code></td>
+      <td>${p.category}</td>
+      <td><span class="${statusInfo.class}">${statusInfo.label}</span></td>
+      <td>${p.date || '-'}</td>
+      <td>${p.notes ? p.notes.substring(0, 50) + (p.notes.length > 50 ? '...' : '') : '-'}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" onclick="editPatologia(${p.id})">
+          <i class="ph-bold ph-pencil"></i> Modifica
+        </button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deletePatologia(${p.id})">
+          <i class="ph-bold ph-trash"></i> Elimina
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
-        // Delete
-        function deletePathology(id) {
-            if(confirm('Sei sicuro di voler eliminare questa patologia? Questa azione non può essere annullata.')) {
-                pathologies = pathologies.filter(p => p.id !== id);
-                renderList();
-            }
-        }
+// Aggiorna statistiche
+function updateStats() {
+  const data = loadData();
+  document.getElementById('totalPatologie').textContent = data.length;
+  document.getElementById('terapieAttive').textContent = 
+    data.filter(p => p.status === 'active' || p.status === 'chronic').length;
+  
+  const timestamp = localStorage.getItem(BACKUP_KEYS.timestamp);
+  document.getElementById('ultimoBackup').textContent = timestamp ? 
+    new Date(timestamp).toLocaleTimeString() : 'N/D';
+}
 
-        // Edit Prep
-        function editPathology(id) {
-            const p = pathologies.find(item => item.id === id);
-            if (p) {
-                document.getElementById('editId').value = p.id;
-                document.getElementById('pName').value = p.name;
-                document.getElementById('pCode').value = p.code;
-                document.getElementById('pCategory').value = p.category;
-                document.getElementById('pStatus').value = p.status;
-                
-                modalTitle.innerText = 'Modifica Patologia';
-                modal.style.display = 'flex';
-            }
-        }
+// Apri/Chiudi modale
+function openModal(action = 'nuova', id = null) {
+  document.getElementById('patologiaForm').reset();
+  document.getElementById('patologiaId').value = '';
+  document.getElementById('patologiaModal').classList.add('show');
+  document.getElementById('patologiaModal').style.display = 'block';
+  
+  if (action === 'modifica' && id) {
+    const data = loadData();
+    const patologia = data.find(p => p.id == id);
+    if (patologia) {
+      document.querySelector('.modal-title').textContent = 'Modifica Patologia';
+      document.getElementById('patologiaId').value = patologia.id;
+      document.getElementById('nomePatologia').value = patologia.name;
+      document.getElementById('codiceIcd').value = patologia.code;
+      document.getElementById('categoriaPatologia').value = patologia.category;
+      document.getElementById('statoPatologia').value = patologia.status;
+      document.getElementById('dataDiagnosi').value = patologia.date;
+      document.getElementById('noteCliniche').value = patologia.notes;
+    }
+  } else {
+    document.querySelector('.modal-title').textContent = 'Nuova Patologia';
+  }
+  
+  // Chiudi cliccando fuori
+  window.onclick = function(e) {
+    if (e.target === document.getElementById('patologiaModal')) {
+      closeModal();
+    }
+  };
+}
 
-        // --- MODAL UTILS ---
-        function openModal() {
-            form.reset();
-            document.getElementById('editId').value = '';
-            modalTitle.innerText = 'Nuova Patologia';
-            modal.style.display = 'flex';
-        }
+function closeModal() {
+  document.getElementById('patologiaModal').classList.remove('show');
+  document.getElementById('patologiaModal').style.display = 'none';
+}
 
-        function closeModal() {
-            modal.style.display = 'none';
-        }
+// Salva patologia
+document.getElementById('patologiaForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const id = document.getElementById('patologiaId').value;
+  const data = loadData();
+  
+  const patologia = {
+    id: id ? parseInt(id) : Date.now(),
+    name: document.getElementById('nomePatologia').value,
+    code: document.getElementById('codiceIcd').value,
+    category: document.getElementById('categoriaPatologia').value,
+    status: document.getElementById('statoPatologia').value,
+    date: document.getElementById('dataDiagnosi').value,
+    notes: document.getElementById('noteCliniche').value
+  };
+  
+  if (id) {
+    const index = data.findIndex(p => p.id == id);
+    if (index > -1) data[index] = patologia;
+  } else {
+    data.unshift(patologia);
+  }
+  
+  saveData(data);
+  renderList();
+  updateStats();
+  closeModal();
+});
 
-        // Close modal if clicked outside
-        window.onclick = function(event) {
-            if (event.target == modal) closeModal();
-        }
+// Elimina patologia
+function deletePatologia(id) {
+  const data = loadData();
+  const patologia = data.find(p => p.id == id);
+  if (confirm(`Eliminare "${patologia?.name}"?`)) {
+    const newData = data.filter(p => p.id != id);
+    saveData(newData);
+    renderList();
+    updateStats();
+  }
+}
 
-        // Mobile Sidebar
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
-        }
+// Modifica patologia
+function editPatologia(id) {
+  openModal('modifica', id);
+}
 
-        // Start App
-        init();
-    </script>
+// Inizializza
+document.addEventListener('DOMContentLoaded', function() {
+  renderList();
+  updateStats();
+});
+
+// Auto-salvataggio periodico
+setInterval(() => {
+  const data = loadData();
+  saveData(data);
+}, 30000);
+</script>
 </body>
 </html>
