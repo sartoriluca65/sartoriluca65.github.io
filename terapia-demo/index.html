@@ -87,7 +87,6 @@
       background: transparent;
     }
 
-    /* OVERLAY MOBILE */
     .overlay {
       display: none;
       position: fixed;
@@ -101,7 +100,6 @@
       display: block;
     }
 
-    /* SIDEBAR */
     .sidebar {
       position: fixed;
       inset: 0 auto 0 0;
@@ -179,6 +177,7 @@
       color: var(--ink-2);
       font-weight: 500;
       transition: all .15s ease;
+      text-decoration: none;
     }
 
     .nav-item i {
@@ -239,7 +238,6 @@
       color: var(--ink-3);
     }
 
-    /* MAIN */
     .main {
       flex: 1;
       margin-left: 260px;
@@ -342,7 +340,15 @@
       background: var(--gray-soft);
     }
 
-    /* STATS */
+    .btn-danger {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
@@ -413,7 +419,6 @@
       color: var(--ink-2);
     }
 
-    /* PANEL */
     .panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -633,7 +638,177 @@
       margin-top: 2px;
     }
 
-    /* RESPONSIVE */
+    .empty-state {
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--ink-3);
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .55);
+      backdrop-filter: blur(3px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: var(--r-lg);
+      box-shadow: var(--sh-lg);
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalIn .2s ease;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--r-sm);
+      display: grid;
+      place-items: center;
+      color: var(--ink-2);
+      font-size: 20px;
+    }
+
+    .modal-close:hover {
+      background: var(--gray-soft);
+    }
+
+    .modal-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-2);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 10px 14px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border-strong);
+      font-size: 14px;
+      background: var(--surface);
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, .12);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 16px 24px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: var(--ink);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: var(--r-sm);
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: var(--sh-lg);
+      animation: toastIn .25s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast.success {
+      background: var(--green);
+    }
+
+    .toast.error {
+      background: var(--red);
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     @media (min-width: 720px) {
       .stat-card {
         grid-column: span 6;
@@ -714,19 +889,19 @@
 
     <nav class="nav-section">
       <span class="nav-label">Menu principale</span>
-      <a class="nav-item active">
+      <a class="nav-item active" href="#">
         <i class="ph ph-squares-four"></i>
         <span>Dashboard</span>
       </a>
-      <a class="nav-item">
+      <a class="nav-item" href="#">
         <i class="ph ph-first-aid"></i>
         <span>Patologie</span>
       </a>
-      <a class="nav-item">
+      <a class="nav-item" href="#">
         <i class="ph ph-users"></i>
         <span>Pazienti</span>
       </a>
-      <a class="nav-item">
+      <a class="nav-item" href="#">
         <i class="ph ph-calendar-check"></i>
         <span>Appuntamenti</span>
       </a>
@@ -734,15 +909,15 @@
 
     <nav class="nav-section">
       <span class="nav-label">Sistema</span>
-      <a class="nav-item">
+      <a class="nav-item" href="#">
         <i class="ph ph-cloud-arrow-up"></i>
         <span>Backup &amp; Sicurezza</span>
       </a>
-      <a class="nav-item">
+      <a class="nav-item" href="#">
         <i class="ph ph-gear"></i>
         <span>Impostazioni</span>
       </a>
-      <a class="nav-item">
+      <a class="nav-item" href="#">
         <i class="ph ph-question"></i>
         <span>Aiuto</span>
       </a>
@@ -762,7 +937,7 @@
   <main class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="menu-btn" id="menuBtn">
+        <button class="menu-btn" id="menuBtn" type="button" aria-label="Apri menu">
           <i class="ph ph-list"></i>
         </button>
         <div class="heading-group">
@@ -774,15 +949,16 @@
         </div>
       </div>
       <div class="topbar-actions">
-        <button class="btn btn-ghost">
+        <button class="btn btn-ghost" id="exportBtn" type="button">
           <i class="ph ph-download-simple"></i>
           Esporta backup
         </button>
-        <button class="btn btn-ghost">
+        <button class="btn btn-ghost" id="importBtn" type="button">
           <i class="ph ph-upload-simple"></i>
           Importa backup
         </button>
-        <button class="btn btn-primary">
+        <input type="file" id="importFile" accept=".json" hidden>
+        <button class="btn btn-primary" id="newPathologyBtn" type="button">
           <i class="ph ph-plus"></i>
           Nuova patologia
         </button>
@@ -799,7 +975,7 @@
             <i class="ph ph-files"></i>
           </div>
         </header>
-        <span class="stat-value">3</span>
+        <span class="stat-value" id="statTotal">0</span>
         <footer class="stat-footer">
           <i class="ph ph-database"></i>
           Registro aggiornato
@@ -814,7 +990,7 @@
             <i class="ph ph-activity"></i>
           </div>
         </header>
-        <span class="stat-value">2</span>
+        <span class="stat-value" id="statActive">0</span>
         <footer class="stat-footer">
           <i class="ph ph-trend-up"></i>
           Patologie croniche/attive
@@ -829,7 +1005,7 @@
             <i class="ph ph-cloud-check"></i>
           </div>
         </header>
-        <span class="stat-value" style="font-size: clamp(22px, 4vw, 26px);">Automatico</span>
+        <span class="stat-value" id="statBackup" style="font-size: clamp(18px, 3.5vw, 22px);">Mai</span>
         <footer class="stat-footer">
           <i class="ph ph-shield-check"></i>
           Sistema di doppia copia attivo
@@ -846,9 +1022,9 @@
         <div class="panel-actions">
           <div class="search-field">
             <i class="ph ph-magnifying-glass"></i>
-            <input type="search" placeholder="Cerca per nome, codice ICD-10...">
+            <input type="search" id="searchInput" placeholder="Cerca per nome, codice ICD-10...">
           </div>
-          <button class="btn btn-primary">
+          <button class="btn btn-primary" id="addPathologyBtn" type="button">
             <i class="ph ph-plus"></i>
             Aggiungi patologia
           </button>
@@ -865,72 +1041,13 @@
               <th style="text-align: right;">Azioni</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>
-                <div class="cell-name">
-                  <span class="name-main">Ipertensione arteriosa</span>
-                  <span class="name-sub">Scheda clinica</span>
-                </div>
-              </td>
-              <td><span class="code-pill">I10</span></td>
-              <td>Cardiologia</td>
-              <td><span class="badge badge-chronic">Cronica</span></td>
-              <td>
-                <div class="actions-cell">
-                  <button class="icon-btn edit">
-                    <i class="ph ph-pencil-simple"></i>
-                  </button>
-                  <button class="icon-btn delete">
-                    <i class="ph ph-trash"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="cell-name">
-                  <span class="name-main">Ansia generalizzata</span>
-                  <span class="name-sub">Scheda clinica</span>
-                </div>
-              </td>
-              <td><span class="code-pill">F41.1</span></td>
-              <td>Psicologia</td>
-              <td><span class="badge badge-active">Attiva</span></td>
-              <td>
-                <div class="actions-cell">
-                  <button class="icon-btn edit">
-                    <i class="ph ph-pencil-simple"></i>
-                  </button>
-                  <button class="icon-btn delete">
-                    <i class="ph ph-trash"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="cell-name">
-                  <span class="name-main">Lombalgia acuta</span>
-                  <span class="name-sub">Scheda clinica</span>
-                </div>
-              </td>
-              <td><span class="code-pill">M54.5</span></td>
-              <td>Ortopedia</td>
-              <td><span class="badge badge-pending">In osservazione</span></td>
-              <td>
-                <div class="actions-cell">
-                  <button class="icon-btn edit">
-                    <i class="ph ph-pencil-simple"></i>
-                  </button>
-                  <button class="icon-btn delete">
-                    <i class="ph ph-trash"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
+          <tbody id="pathologyTableBody"></tbody>
         </table>
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <i class="ph ph-folder-open"></i>
+          <p>Nessuna patologia registrata</p>
+          <p style="margin-top: 6px; font-size: 13px;">Clicca su “Nuova patologia” per iniziare</p>
+        </div>
       </div>
     </section>
 
@@ -942,30 +1059,530 @@
     </div>
   </main>
 
+  <!-- MODAL CREA / MODIFICA -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Nuova patologia</h3>
+        <button class="modal-close" id="modalClose" type="button" aria-label="Chiudi">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <form id="pathologyForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="fieldName">Nome patologia *</label>
+            <input type="text" id="fieldName" required placeholder="Es. Ipertensione arteriosa" maxlength="120">
+          </div>
+          <div class="form-group">
+            <label for="fieldCode">Codice ICD-10 *</label>
+            <input type="text" id="fieldCode" required placeholder="Es. I10" maxlength="12" style="font-family: var(--mono);">
+          </div>
+          <div class="form-group">
+            <label for="fieldCategory">Categoria *</label>
+            <select id="fieldCategory" required>
+              <option value="">Seleziona categoria</option>
+              <option value="Cardiologia">Cardiologia</option>
+              <option value="Psicologia">Psicologia</option>
+              <option value="Ortopedia">Ortopedia</option>
+              <option value="Neurologia">Neurologia</option>
+              <option value="Endocrinologia">Endocrinologia</option>
+              <option value="Pneumologia">Pneumologia</option>
+              <option value="Gastroenterologia">Gastroenterologia</option>
+              <option value="Dermatologia">Dermatologia</option>
+              <option value="Altro">Altro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="fieldStatus">Stato *</label>
+            <select id="fieldStatus" required>
+              <option value="active">Attiva</option>
+              <option value="chronic">Cronica</option>
+              <option value="pending">In osservazione</option>
+              <option value="resolved">Risolta</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="fieldNotes">Note cliniche</label>
+            <textarea id="fieldNotes" placeholder="Annotazioni opzionali..." maxlength="500"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="modalCancel">Annulla</button>
+          <button type="submit" class="btn btn-primary" id="modalSave">Salva</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL CONFERMA ELIMINAZIONE -->
+  <div class="modal-overlay" id="deleteOverlay">
+    <div class="modal" style="max-width: 400px;" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title">Conferma eliminazione</h3>
+        <button class="modal-close" id="deleteClose" type="button" aria-label="Chiudi">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Sei sicuro di voler eliminare la patologia <strong id="deleteName"></strong>?</p>
+        <p style="margin-top: 8px; font-size: 13px; color: var(--ink-3);">Questa azione non può essere annullata.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="deleteCancel">Annulla</button>
+        <button type="button" class="btn btn-danger" id="deleteConfirm">Elimina</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
   <script>
-    const sidebar = document.getElementById('sidebar');
-    const menuBtn = document.getElementById('menuBtn');
-    const overlay = document.getElementById('overlay');
+    (function () {
+      'use strict';
 
-    const toggleMenu = () => {
-      sidebar.classList.toggle('open');
-      overlay.classList.toggle('active');
-    };
+      var STORAGE_KEY = 'terapia_manager_pathologies';
+      var BACKUP_KEY = 'terapia_manager_last_backup';
 
-    const closeMenu = () => {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('active');
-    };
-
-    menuBtn.addEventListener('click', toggleMenu);
-    overlay.addEventListener('click', closeMenu);
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 1024) {
-        closeMenu();
+      function generateId() {
+        if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+          return crypto.randomUUID();
+        }
+        return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 11);
       }
-    });
+
+      var pathologies = [];
+      var editingId = null;
+      var deleteId = null;
+
+      var sidebar = document.getElementById('sidebar');
+      var menuBtn = document.getElementById('menuBtn');
+      var overlay = document.getElementById('overlay');
+      var tableBody = document.getElementById('pathologyTableBody');
+      var emptyState = document.getElementById('emptyState');
+      var searchInput = document.getElementById('searchInput');
+      var statTotal = document.getElementById('statTotal');
+      var statActive = document.getElementById('statActive');
+      var statBackup = document.getElementById('statBackup');
+
+      var modalOverlay = document.getElementById('modalOverlay');
+      var modalTitle = document.getElementById('modalTitle');
+      var pathologyForm = document.getElementById('pathologyForm');
+      var fieldName = document.getElementById('fieldName');
+      var fieldCode = document.getElementById('fieldCode');
+      var fieldCategory = document.getElementById('fieldCategory');
+      var fieldStatus = document.getElementById('fieldStatus');
+      var fieldNotes = document.getElementById('fieldNotes');
+
+      var deleteOverlay = document.getElementById('deleteOverlay');
+      var deleteName = document.getElementById('deleteName');
+
+      function toggleMenu() {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+      }
+
+      function closeMenu() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      }
+
+      menuBtn.addEventListener('click', toggleMenu);
+      overlay.addEventListener('click', closeMenu);
+      window.addEventListener('resize', function () {
+        if (window.innerWidth > 1024) closeMenu();
+      });
+
+      function getSeedData() {
+        return [
+          {
+            id: generateId(),
+            name: 'Ipertensione arteriosa',
+            code: 'I10',
+            category: 'Cardiologia',
+            status: 'chronic',
+            notes: '',
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: generateId(),
+            name: 'Ansia generalizzata',
+            code: 'F41.1',
+            category: 'Psicologia',
+            status: 'active',
+            notes: '',
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: generateId(),
+            name: 'Lombalgia acuta',
+            code: 'M54.5',
+            category: 'Ortopedia',
+            status: 'pending',
+            notes: '',
+            createdAt: new Date().toISOString()
+          }
+        ];
+      }
+
+      function loadData() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            pathologies = JSON.parse(raw);
+            if (!Array.isArray(pathologies)) {
+              pathologies = getSeedData();
+            }
+          } else {
+            pathologies = getSeedData();
+            saveData();
+          }
+        } catch (e) {
+          console.warn('Errore caricamento dati:', e);
+          pathologies = getSeedData();
+        }
+        updateLastBackupDisplay();
+      }
+
+      function saveData() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(pathologies));
+        } catch (e) {
+          console.warn('Errore salvataggio dati:', e);
+          showToast('Impossibile salvare i dati (localStorage bloccato)', 'error');
+        }
+      }
+
+      function getStatusBadge(status) {
+        var map = {
+          active: { cls: 'badge-active', label: 'Attiva' },
+          chronic: { cls: 'badge-chronic', label: 'Cronica' },
+          pending: { cls: 'badge-pending', label: 'In osservazione' },
+          resolved: { cls: 'badge-resolved', label: 'Risolta' }
+        };
+        var s = map[status] || map.active;
+        return '<span class="badge ' + s.cls + '">' + s.label + '</span>';
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function renderTable(filter) {
+        filter = filter || '';
+        var q = filter.trim().toLowerCase();
+        var filtered = pathologies.filter(function (p) {
+          if (!q) return true;
+          return (
+            (p.name && p.name.toLowerCase().indexOf(q) !== -1) ||
+            (p.code && p.code.toLowerCase().indexOf(q) !== -1) ||
+            (p.category && p.category.toLowerCase().indexOf(q) !== -1) ||
+            (p.notes && p.notes.toLowerCase().indexOf(q) !== -1)
+          );
+        });
+
+        if (filtered.length === 0) {
+          tableBody.innerHTML = '';
+          emptyState.style.display = 'block';
+        } else {
+          emptyState.style.display = 'none';
+          tableBody.innerHTML = filtered.map(function (p) {
+            return (
+              '<tr data-id="' + p.id + '">' +
+                '<td>' +
+                  '<div class="cell-name">' +
+                    '<span class="name-main">' + escapeHtml(p.name) + '</span>' +
+                    '<span class="name-sub">Scheda clinica</span>' +
+                  '</div>' +
+                '</td>' +
+                '<td><span class="code-pill">' + escapeHtml(p.code) + '</span></td>' +
+                '<td>' + escapeHtml(p.category) + '</td>' +
+                '<td>' + getStatusBadge(p.status) + '</td>' +
+                '<td>' +
+                  '<div class="actions-cell">' +
+                    '<button class="icon-btn edit" data-action="edit" data-id="' + p.id + '" title="Modifica" type="button">' +
+                      '<i class="ph ph-pencil-simple"></i>' +
+                    '</button>' +
+                    '<button class="icon-btn delete" data-action="delete" data-id="' + p.id + '" title="Elimina" type="button">' +
+                      '<i class="ph ph-trash"></i>' +
+                    '</button>' +
+                  '</div>' +
+                '</td>' +
+              '</tr>'
+            );
+          }).join('');
+        }
+
+        updateStats();
+      }
+
+      function updateStats() {
+        statTotal.textContent = pathologies.length;
+        var activeCount = pathologies.filter(function (p) {
+          return p.status === 'active' || p.status === 'chronic';
+        }).length;
+        statActive.textContent = activeCount;
+      }
+
+      function updateLastBackupDisplay() {
+        var last = localStorage.getItem(BACKUP_KEY);
+        if (last) {
+          var d = new Date(last);
+          statBackup.textContent = d.toLocaleDateString('it-IT', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        } else {
+          statBackup.textContent = 'Mai';
+        }
+      }
+
+      function showToast(message, type) {
+        type = type || 'success';
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast ' + type;
+        var icon = type === 'success' ? 'ph-check-circle' : 'ph-warning-circle';
+        toast.innerHTML = '<i class="ph ' + icon + '"></i> ' + message;
+        container.appendChild(toast);
+        setTimeout(function () {
+          toast.style.opacity = '0';
+          toast.style.transition = 'opacity .3s';
+          setTimeout(function () {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+          }, 300);
+        }, 2800);
+      }
+
+      function openModal(id) {
+        editingId = id || null;
+        if (id) {
+          var p = null;
+          for (var i = 0; i < pathologies.length; i++) {
+            if (pathologies[i].id === id) {
+              p = pathologies[i];
+              break;
+            }
+          }
+          if (!p) return;
+          modalTitle.textContent = 'Modifica patologia';
+          fieldName.value = p.name || '';
+          fieldCode.value = p.code || '';
+          fieldCategory.value = p.category || '';
+          fieldStatus.value = p.status || 'active';
+          fieldNotes.value = p.notes || '';
+        } else {
+          modalTitle.textContent = 'Nuova patologia';
+          pathologyForm.reset();
+          fieldStatus.value = 'active';
+        }
+        modalOverlay.classList.add('open');
+        setTimeout(function () {
+          fieldName.focus();
+        }, 50);
+      }
+
+      function closeModal() {
+        modalOverlay.classList.remove('open');
+        editingId = null;
+        pathologyForm.reset();
+      }
+
+      function openDeleteModal(id) {
+        var p = null;
+        for (var i = 0; i < pathologies.length; i++) {
+          if (pathologies[i].id === id) {
+            p = pathologies[i];
+            break;
+          }
+        }
+        if (!p) return;
+        deleteId = id;
+        deleteName.textContent = p.name;
+        deleteOverlay.classList.add('open');
+      }
+
+      function closeDeleteModal() {
+        deleteOverlay.classList.remove('open');
+        deleteId = null;
+      }
+
+      function confirmDelete() {
+        if (!deleteId) return;
+        pathologies = pathologies.filter(function (p) {
+          return p.id !== deleteId;
+        });
+        saveData();
+        renderTable(searchInput.value);
+        closeDeleteModal();
+        showToast('Patologia eliminata');
+      }
+
+      pathologyForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var data = {
+          name: fieldName.value.trim(),
+          code: fieldCode.value.trim().toUpperCase(),
+          category: fieldCategory.value,
+          status: fieldStatus.value,
+          notes: fieldNotes.value.trim()
+        };
+
+        if (!data.name || !data.code || !data.category) {
+          showToast('Compila tutti i campi obbligatori', 'error');
+          return;
+        }
+
+        if (editingId) {
+          for (var i = 0; i < pathologies.length; i++) {
+            if (pathologies[i].id === editingId) {
+              pathologies[i].name = data.name;
+              pathologies[i].code = data.code;
+              pathologies[i].category = data.category;
+              pathologies[i].status = data.status;
+              pathologies[i].notes = data.notes;
+              pathologies[i].updatedAt = new Date().toISOString();
+              break;
+            }
+          }
+          showToast('Patologia aggiornata');
+        } else {
+          pathologies.unshift({
+            id: generateId(),
+            name: data.name,
+            code: data.code,
+            category: data.category,
+            status: data.status,
+            notes: data.notes,
+            createdAt: new Date().toISOString()
+          });
+          showToast('Patologia aggiunta');
+        }
+
+        saveData();
+        renderTable(searchInput.value);
+        closeModal();
+      });
+
+      document.getElementById('exportBtn').addEventListener('click', function () {
+        var payload = {
+          exportedAt: new Date().toISOString(),
+          version: 1,
+          pathologies: pathologies
+        };
+        var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'terapia-manager-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        localStorage.setItem(BACKUP_KEY, new Date().toISOString());
+        updateLastBackupDisplay();
+        showToast('Backup esportato con successo');
+      });
+
+      document.getElementById('importBtn').addEventListener('click', function () {
+        document.getElementById('importFile').click();
+      });
+
+      document.getElementById('importFile').addEventListener('change', function (e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          try {
+            var data = JSON.parse(ev.target.result);
+            if (!data.pathologies || !Array.isArray(data.pathologies)) {
+              throw new Error('Formato non valido');
+            }
+            var valid = true;
+            for (var i = 0; i < data.pathologies.length; i++) {
+              var p = data.pathologies[i];
+              if (!p.name || !p.code || !p.category || !p.status) {
+                valid = false;
+                break;
+              }
+            }
+            if (!valid) throw new Error('Dati incompleti');
+            pathologies = data.pathologies;
+            saveData();
+            localStorage.setItem(BACKUP_KEY, new Date().toISOString());
+            updateLastBackupDisplay();
+            renderTable(searchInput.value);
+            showToast('Importate ' + pathologies.length + ' patologie');
+          } catch (err) {
+            showToast('File di backup non valido', 'error');
+          }
+          e.target.value = '';
+        };
+        reader.readAsText(file);
+      });
+
+      document.getElementById('newPathologyBtn').addEventListener('click', function () {
+        openModal();
+      });
+
+      document.getElementById('addPathologyBtn').addEventListener('click', function () {
+        openModal();
+      });
+
+      document.getElementById('modalClose').addEventListener('click', closeModal);
+      document.getElementById('modalCancel').addEventListener('click', closeModal);
+
+      modalOverlay.addEventListener('click', function (e) {
+        if (e.target === modalOverlay) closeModal();
+      });
+
+      document.getElementById('deleteClose').addEventListener('click', closeDeleteModal);
+      document.getElementById('deleteCancel').addEventListener('click', closeDeleteModal);
+      document.getElementById('deleteConfirm').addEventListener('click', confirmDelete);
+
+      deleteOverlay.addEventListener('click', function (e) {
+        if (e.target === deleteOverlay) closeDeleteModal();
+      });
+
+      tableBody.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var id = btn.getAttribute('data-id');
+        var action = btn.getAttribute('data-action');
+        if (action === 'edit') openModal(id);
+        if (action === 'delete') openDeleteModal(id);
+      });
+
+      var searchTimeout;
+      searchInput.addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function () {
+          renderTable(searchInput.value);
+        }, 180);
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          closeModal();
+          closeDeleteModal();
+        }
+      });
+
+      try {
+        loadData();
+        renderTable();
+      } catch (err) {
+        console.error('Errore di inizializzazione:', err);
+        alert('Errore di inizializzazione. Apri la console (F12) per i dettagli.');
+      }
+    })();
   </script>
 </body>
 
 </html>
-```
