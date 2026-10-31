@@ -1,928 +1,168 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terapia Manager • Clinical Edition</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <style>
     :root {
-      --bg: #f4f7fa;
-      --surface: #ffffff;
-      --border: #e2e8f0;
-      --border-strong: #cbd5e1;
-      --primary: #0d9488;
-      --primary-dark: #0f766e;
-      --primary-soft: #e0f5f2;
-      --ink: #0f172a;
-      --ink-2: #475569;
-      --ink-3: #94a3b8;
-      --green: #16a34a;
-      --green-soft: #dcfce7;
-      --blue: #2563eb;
-      --blue-soft: #dbeafe;
-      --orange: #ea580c;
-      --orange-soft: #ffedd5;
-      --red: #dc2626;
-      --red-soft: #fee2e2;
-      --gray-soft: #f1f5f9;
-      --r-sm: 6px;
-      --r-md: 10px;
-      --r-lg: 14px;
-      --sh: 0 1px 2px rgba(15, 23, 42, .05), 0 1px 3px rgba(15, 23, 42, .06);
-      --sh-lg: 0 12px 30px -8px rgba(15, 23, 42, .18);
-      --sans: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      --mono: 'JetBrains Mono', monospace;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html {
-      font-size: 14px;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    body {
-      font-family: var(--sans);
-      background: var(--bg);
-      color: var(--ink);
-      line-height: 1.6;
-      min-height: 100dvh;
-    }
-
-    button {
-      font-family: inherit;
-      cursor: pointer;
-      border: none;
-      background: none;
-    }
-
-    input,
-    select,
-    textarea {
-      font-family: inherit;
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--border-strong);
-      border-radius: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, .5);
-      backdrop-filter: blur(2px);
-      z-index: 40;
-    }
-
-    .overlay.active {
-      display: block;
-    }
-
-    .sidebar {
-      position: fixed;
-      inset: 0 auto 0 0;
-      width: 260px;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      padding: 22px 16px;
-      z-index: 50;
-      transition: transform .3s ease;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 4px 6px 22px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 16px;
-    }
-
-    .brand-logo {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--primary), #14b8a6);
-      color: #fff;
-      display: grid;
-      place-items: center;
-      font-size: 22px;
-      flex-shrink: 0;
-    }
-
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .brand-title {
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: -.01em;
-    }
-
-    .brand-subtitle {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--ink-3);
-    }
-
-    .nav-section {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-bottom: 22px;
-    }
-
-    .nav-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--ink-3);
-      padding: 0 10px 8px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 9px 12px;
-      border-radius: var(--r-sm);
-      color: var(--ink-2);
-      font-weight: 500;
-      transition: all .15s ease;
-      text-decoration: none;
-    }
-
-    .nav-item i {
-      font-size: 19px;
-      width: 22px;
-      text-align: center;
-    }
-
-    .nav-item:hover {
-      background: var(--primary-soft);
-      color: var(--primary);
-    }
-
-    .nav-item.active {
-      background: var(--primary-soft);
-      color: var(--primary);
-      font-weight: 600;
-    }
-
-    .sidebar-footer {
-      margin-top: auto;
-      border-top: 1px solid var(--border);
-      padding-top: 16px;
-    }
-
-    .user-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 9px 12px;
-      background: var(--gray-soft);
-      border-radius: var(--r-sm);
-    }
-
-    .user-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--primary-soft);
-      color: var(--primary);
-      display: grid;
-      place-items: center;
-      font-weight: 700;
-    }
-
-    .user-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .user-name {
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .user-role {
-      font-size: 11px;
-      color: var(--ink-3);
-    }
-
-    .main {
-      flex: 1;
-      margin-left: 260px;
-      padding: clamp(16px, 4vw, 34px);
-      display: flex;
-      flex-direction: column;
-      gap: clamp(18px, 3vw, 28px);
-      max-width: 1380px;
-      width: 100%;
-    }
-
-    .topbar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .topbar-left {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-    }
-
-    .menu-btn {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      width: 42px;
-      height: 42px;
-      border-radius: var(--r-sm);
-      background: var(--surface);
-      border: 1px solid var(--border-strong);
-      color: var(--ink);
-      font-size: 22px;
-    }
-
-    .heading-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .page-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: clamp(22px, 4vw, 30px);
-      font-weight: 700;
-      letter-spacing: -.02em;
-    }
-
-    .page-title i {
-      color: var(--primary);
-    }
-
-    .page-subtitle {
-      color: var(--ink-2);
-    }
-
-    .topbar-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 16px;
-      border-radius: var(--r-sm);
-      font-size: 13px;
-      font-weight: 600;
-      transition: all .15s ease;
-      white-space: nowrap;
-    }
-
-    .btn i {
-      font-size: 18px;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .btn-ghost {
-      background: var(--surface);
-      color: var(--ink);
-      border: 1px solid var(--border-strong);
-    }
-
-    .btn-ghost:hover {
-      background: var(--gray-soft);
-    }
-
-    .btn-danger {
-      background: var(--red);
-      color: #fff;
-    }
-
-    .btn-danger:hover {
-      background: #b91c1c;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: clamp(14px, 2vw, 18px);
-    }
-
-    .stat-card {
-      grid-column: span 12;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-md);
-      box-shadow: var(--sh);
-      padding: clamp(16px, 3vw, 20px);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .stat-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      font-weight: 600;
-      color: var(--ink-3);
-    }
-
-    .stat-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 9px;
-      display: grid;
-      place-items: center;
-      font-size: 20px;
-    }
-
-    .stat-icon.teal {
-      background: var(--primary-soft);
-      color: var(--primary);
-    }
-
-    .stat-icon.green {
-      background: var(--green-soft);
-      color: var(--green);
-    }
-
-    .stat-icon.blue {
-      background: var(--blue-soft);
-      color: var(--blue);
-    }
-
-    .stat-value {
-      font-size: clamp(30px, 6vw, 38px);
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .stat-footer {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--ink-2);
-    }
-
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      box-shadow: var(--sh);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .panel-header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: clamp(16px, 3vw, 20px) clamp(18px, 4vw, 26px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .panel-title-group {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .panel-title {
-      font-size: clamp(16px, 2vw, 18px);
-      font-weight: 600;
-    }
-
-    .panel-subtitle {
-      font-size: 13px;
-      color: var(--ink-3);
-    }
-
-    .panel-actions {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .search-field {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .search-field i {
-      position: absolute;
-      left: 12px;
-      font-size: 18px;
-      color: var(--ink-3);
-    }
-
-    .search-field input {
-      width: min(280px, 80vw);
-      padding: 9px 14px 9px 38px;
-      border-radius: var(--r-sm);
-      border: 1px solid var(--border-strong);
-      font-size: 13px;
-      background: var(--surface);
-    }
-
-    .search-field input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(13, 148, 136, .12);
-    }
-
-    .table-wrapper {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 720px;
-    }
-
-    thead th {
-      text-align: left;
-      padding: 12px clamp(18px, 4vw, 26px);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      font-weight: 600;
-      color: var(--ink-3);
-      background: var(--gray-soft);
-      border-bottom: 1px solid var(--border);
-    }
-
-    tbody td {
-      padding: 14px clamp(18px, 4vw, 26px);
-      border-bottom: 1px solid var(--border);
-      vertical-align: middle;
-    }
-
-    tbody tr:last-child td {
-      border-bottom: none;
-    }
-
-    tbody tr:hover {
-      background: rgba(241, 245, 249, .6);
-    }
-
-    .cell-name {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .name-main {
-      font-weight: 600;
-    }
-
-    .name-sub {
-      font-size: 12px;
-      color: var(--ink-3);
-    }
-
-    .code-pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 8px;
-      border-radius: 4px;
-      background: var(--gray-soft);
-      font-family: var(--mono);
-      font-size: 12px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .badge::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-
-    .badge-active {
-      background: var(--green-soft);
-      color: var(--green);
-    }
-
-    .badge-chronic {
-      background: var(--blue-soft);
-      color: var(--blue);
-    }
-
-    .badge-pending {
-      background: var(--orange-soft);
-      color: var(--orange);
-    }
-
-    .badge-resolved {
-      background: var(--gray-soft);
-      color: var(--ink-2);
-    }
-
-    .actions-cell {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-
-    .icon-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: var(--r-sm);
-      display: grid;
-      place-items: center;
-      border: 1px solid transparent;
-      color: var(--ink-2);
-      transition: all .15s ease;
-    }
-
-    .icon-btn:hover {
-      background: var(--gray-soft);
-    }
-
-    .icon-btn.edit:hover {
-      color: var(--blue);
-    }
-
-    .icon-btn.delete:hover {
-      color: var(--red);
-    }
-
-    .privacy-note {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      padding: clamp(14px, 3vw, 18px) clamp(18px, 4vw, 26px);
-      border-radius: var(--r-md);
-      border: 1px dashed var(--border-strong);
-      background: rgba(255, 255, 255, .8);
-      color: var(--ink-2);
-      font-size: 13px;
-    }
-
-    .privacy-note i {
-      font-size: 20px;
-      color: var(--primary);
-      margin-top: 2px;
-    }
-
-    .empty-state {
-      padding: 48px 24px;
-      text-align: center;
-      color: var(--ink-3);
-    }
-
-    .empty-state i {
-      font-size: 48px;
-      margin-bottom: 12px;
-      display: block;
-    }
-
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, .55);
-      backdrop-filter: blur(3px);
-      z-index: 100;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .modal-overlay.open {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--surface);
-      border-radius: var(--r-lg);
-      box-shadow: var(--sh-lg);
-      width: 100%;
-      max-width: 520px;
-      max-height: 90vh;
-      overflow-y: auto;
-      animation: modalIn .2s ease;
-    }
-
-    @keyframes modalIn {
-      from {
-        opacity: 0;
-        transform: translateY(12px) scale(.98);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 24px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .modal-title {
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .modal-close {
-      width: 36px;
-      height: 36px;
-      border-radius: var(--r-sm);
-      display: grid;
-      place-items: center;
-      color: var(--ink-2);
-      font-size: 20px;
-    }
-
-    .modal-close:hover {
-      background: var(--gray-soft);
-    }
-
-    .modal-body {
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .form-group label {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--ink-2);
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      padding: 10px 14px;
-      border-radius: var(--r-sm);
-      border: 1px solid var(--border-strong);
-      font-size: 14px;
-      background: var(--surface);
-      transition: border-color .15s, box-shadow .15s;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(13, 148, 136, .12);
-    }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      padding: 16px 24px 24px;
-      border-top: 1px solid var(--border);
-    }
-
-    .toast-container {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 200;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .toast {
-      background: var(--ink);
-      color: #fff;
-      padding: 12px 18px;
-      border-radius: var(--r-sm);
-      font-size: 13px;
-      font-weight: 500;
-      box-shadow: var(--sh-lg);
-      animation: toastIn .25s ease;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .toast.success {
-      background: var(--green);
-    }
-
-    .toast.error {
-      background: var(--red);
-    }
-
-    @keyframes toastIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @media (min-width: 720px) {
-      .stat-card {
-        grid-column: span 6;
-      }
-    }
-
-    @media (min-width: 1080px) {
-      .stat-card {
-        grid-column: span 4;
-      }
-    }
-
+      --bg: #f4f7fa; --surface: #fff; --border: #e2e8f0; --border-strong: #cbd5e1;
+      --primary: #0d9488; --primary-dark: #0f766e; --primary-soft: #e0f5f2;
+      --ink: #0f172a; --ink-2: #475569; --ink-3: #94a3b8;
+      --green: #16a34a; --green-soft: #dcfce7; --blue: #2563eb; --blue-soft: #dbeafe;
+      --orange: #ea580c; --orange-soft: #ffedd5; --red: #dc2626; --red-soft: #fee2e2;
+      --gray-soft: #f1f5f9; --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
+      --sh: 0 1px 2px rgba(15,23,42,.05), 0 1px 3px rgba(15,23,42,.06);
+      --sh-lg: 0 12px 30px -8px rgba(15,23,42,.18);
+      --sans: 'IBM Plex Sans', system-ui, sans-serif; --mono: 'JetBrains Mono', monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; min-height: 100dvh; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    input, select, textarea { font-family: inherit; }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.5); z-index: 40; }
+    .overlay.active { display: block; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; width: 260px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 22px 16px; z-index: 50; transition: transform .3s ease; }
+    .brand { display: flex; align-items: center; gap: 12px; padding: 4px 6px 22px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+    .brand-logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, var(--primary), #14b8a6); color: #fff; display: grid; place-items: center; font-size: 22px; }
+    .brand-title { font-size: 16px; font-weight: 700; }
+    .brand-subtitle { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+    .nav-section { display: flex; flex-direction: column; gap: 4px; margin-bottom: 22px; }
+    .nav-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); padding: 0 10px 8px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: var(--r-sm); color: var(--ink-2); font-weight: 500; text-decoration: none; }
+    .nav-item:hover, .nav-item.active { background: var(--primary-soft); color: var(--primary); }
+    .nav-item.active { font-weight: 600; }
+    .nav-item i { font-size: 19px; width: 22px; text-align: center; }
+    .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border); padding-top: 16px; }
+    .user-card { display: flex; align-items: center; gap: 12px; padding: 9px 12px; background: var(--gray-soft); border-radius: var(--r-sm); }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); display: grid; place-items: center; font-weight: 700; }
+    .user-name { font-size: 13px; font-weight: 600; }
+    .user-role { font-size: 11px; color: var(--ink-3); }
+    .main { flex: 1; margin-left: 260px; padding: clamp(16px, 4vw, 34px); display: flex; flex-direction: column; gap: clamp(18px, 3vw, 28px); max-width: 1380px; width: 100%; }
+    .topbar { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .topbar-left { display: flex; align-items: flex-start; gap: 14px; }
+    .menu-btn { display: none; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: var(--r-sm); background: var(--surface); border: 1px solid var(--border-strong); font-size: 22px; }
+    .page-title { display: flex; align-items: center; gap: 10px; font-size: clamp(22px, 4vw, 30px); font-weight: 700; }
+    .page-title i { color: var(--primary); }
+    .page-subtitle { color: var(--ink-2); }
+    .topbar-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: var(--r-sm); font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .btn i { font-size: 18px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--border-strong); }
+    .btn-ghost:hover { background: var(--gray-soft); }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover { background: #b91c1c; }
+    .stats-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: clamp(14px, 2vw, 18px); }
+    .stat-card { grid-column: span 12; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: var(--sh); padding: clamp(16px, 3vw, 20px); display: flex; flex-direction: column; gap: 12px; }
+    .stat-header { display: flex; justify-content: space-between; }
+    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; color: var(--ink-3); }
+    .stat-icon { width: 38px; height: 38px; border-radius: 9px; display: grid; place-items: center; font-size: 20px; }
+    .stat-icon.teal { background: var(--primary-soft); color: var(--primary); }
+    .stat-icon.green { background: var(--green-soft); color: var(--green); }
+    .stat-icon.blue { background: var(--blue-soft); color: var(--blue); }
+    .stat-value { font-size: clamp(30px, 6vw, 38px); font-weight: 700; }
+    .stat-footer { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--sh); overflow: hidden; }
+    .panel-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: clamp(16px, 3vw, 20px) clamp(18px, 4vw, 26px); border-bottom: 1px solid var(--border); }
+    .panel-title { font-size: clamp(16px, 2vw, 18px); font-weight: 600; }
+    .panel-subtitle { font-size: 13px; color: var(--ink-3); }
+    .panel-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .search-field { position: relative; display: flex; align-items: center; }
+    .search-field i { position: absolute; left: 12px; font-size: 18px; color: var(--ink-3); }
+    .search-field input { width: min(280px, 80vw); padding: 9px 14px 9px 38px; border-radius: var(--r-sm); border: 1px solid var(--border-strong); font-size: 13px; }
+    .search-field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(13,148,136,.12); }
+    .table-wrapper { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    thead th { text-align: left; padding: 12px clamp(18px, 4vw, 26px); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; color: var(--ink-3); background: var(--gray-soft); border-bottom: 1px solid var(--border); }
+    tbody td { padding: 14px clamp(18px, 4vw, 26px); border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(241,245,249,.6); }
+    .cell-name { display: flex; flex-direction: column; gap: 2px; }
+    .name-main { font-weight: 600; }
+    .name-sub { font-size: 12px; color: var(--ink-3); }
+    .code-pill { display: inline-flex; padding: 2px 8px; border-radius: 4px; background: var(--gray-soft); font-family: var(--mono); font-size: 12px; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .badge-active { background: var(--green-soft); color: var(--green); }
+    .badge-chronic { background: var(--blue-soft); color: var(--blue); }
+    .badge-pending { background: var(--orange-soft); color: var(--orange); }
+    .badge-resolved { background: var(--gray-soft); color: var(--ink-2); }
+    .actions-cell { display: flex; justify-content: flex-end; gap: 8px; }
+    .icon-btn { width: 34px; height: 34px; border-radius: var(--r-sm); display: grid; place-items: center; color: var(--ink-2); }
+    .icon-btn:hover { background: var(--gray-soft); }
+    .icon-btn.edit:hover { color: var(--blue); }
+    .icon-btn.delete:hover { color: var(--red); }
+    .privacy-note { display: flex; gap: 12px; align-items: flex-start; padding: clamp(14px, 3vw, 18px) clamp(18px, 4vw, 26px); border-radius: var(--r-md); border: 1px dashed var(--border-strong); background: rgba(255,255,255,.8); color: var(--ink-2); font-size: 13px; }
+    .privacy-note i { font-size: 20px; color: var(--primary); margin-top: 2px; }
+    .empty-state { padding: 48px 24px; text-align: center; color: var(--ink-3); }
+    .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); backdrop-filter: blur(3px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--sh-lg); width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+    .modal-title { font-size: 18px; font-weight: 600; }
+    .modal-close { width: 36px; height: 36px; border-radius: var(--r-sm); display: grid; place-items: center; color: var(--ink-2); font-size: 20px; }
+    .modal-close:hover { background: var(--gray-soft); }
+    .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+    .form-group input, .form-group select, .form-group textarea { padding: 10px 14px; border-radius: var(--r-sm); border: 1px solid var(--border-strong); font-size: 14px; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(13,148,136,.12); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px 24px; border-top: 1px solid var(--border); }
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 10px; }
+    .toast { background: var(--ink); color: #fff; padding: 12px 18px; border-radius: var(--r-sm); font-size: 13px; font-weight: 500; box-shadow: var(--sh-lg); display: flex; align-items: center; gap: 10px; }
+    .toast.success { background: var(--green); }
+    .toast.error { background: var(--red); }
+    .js-status { position: fixed; top: 8px; right: 8px; z-index: 9999; font-size: 11px; padding: 4px 10px; border-radius: 4px; background: #dc2626; color: #fff; }
+    .js-status.ok { background: #16a34a; }
+    @media (min-width: 720px) { .stat-card { grid-column: span 6; } }
+    @media (min-width: 1080px) { .stat-card { grid-column: span 4; } }
     @media (max-width: 1024px) {
-      .sidebar {
-        transform: translateX(-100%);
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .main {
-        margin-left: 0;
-      }
-
-      .menu-btn {
-        display: flex;
-      }
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .menu-btn { display: flex; }
     }
-
     @media (max-width: 640px) {
-      .topbar-actions {
-        width: 100%;
-        justify-content: stretch;
-      }
-
-      .topbar-actions .btn {
-        flex: 1 1 100%;
-        justify-content: center;
-      }
-
-      .panel-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .panel-actions {
-        width: 100%;
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .search-field,
-      .search-field input {
-        width: 100%;
-      }
-
-      .search-field input {
-        min-width: 0;
-      }
+      .topbar-actions { width: 100%; }
+      .topbar-actions .btn { flex: 1 1 100%; justify-content: center; }
+      .panel-header { flex-direction: column; align-items: flex-start; }
+      .panel-actions { width: 100%; flex-direction: column; align-items: stretch; }
+      .search-field, .search-field input { width: 100%; }
     }
   </style>
 </head>
-
 <body>
+  <div class="js-status" id="jsStatus">JS non caricato</div>
   <div class="overlay" id="overlay"></div>
 
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-logo">
-        <i class="ph ph-heartbeat"></i>
-      </div>
+      <div class="brand-logo"><i class="ph ph-heartbeat"></i></div>
       <div class="brand-text">
         <span class="brand-title">Terapia Manager</span>
         <span class="brand-subtitle">Clinical Edition</span>
       </div>
     </div>
-
     <nav class="nav-section">
       <span class="nav-label">Menu principale</span>
-      <a class="nav-item active" href="#">
-        <i class="ph ph-squares-four"></i>
-        <span>Dashboard</span>
-      </a>
-      <a class="nav-item" href="#">
-        <i class="ph ph-first-aid"></i>
-        <span>Patologie</span>
-      </a>
-      <a class="nav-item" href="#">
-        <i class="ph ph-users"></i>
-        <span>Pazienti</span>
-      </a>
-      <a class="nav-item" href="#">
-        <i class="ph ph-calendar-check"></i>
-        <span>Appuntamenti</span>
-      </a>
+      <a class="nav-item active" href="#"><i class="ph ph-squares-four"></i><span>Dashboard</span></a>
+      <a class="nav-item" href="#"><i class="ph ph-first-aid"></i><span>Patologie</span></a>
+      <a class="nav-item" href="#"><i class="ph ph-users"></i><span>Pazienti</span></a>
+      <a class="nav-item" href="#"><i class="ph ph-calendar-check"></i><span>Appuntamenti</span></a>
     </nav>
-
     <nav class="nav-section">
       <span class="nav-label">Sistema</span>
-      <a class="nav-item" href="#">
-        <i class="ph ph-cloud-arrow-up"></i>
-        <span>Backup &amp; Sicurezza</span>
-      </a>
-      <a class="nav-item" href="#">
-        <i class="ph ph-gear"></i>
-        <span>Impostazioni</span>
-      </a>
-      <a class="nav-item" href="#">
-        <i class="ph ph-question"></i>
-        <span>Aiuto</span>
-      </a>
+      <a class="nav-item" href="#"><i class="ph ph-cloud-arrow-up"></i><span>Backup &amp; Sicurezza</span></a>
+      <a class="nav-item" href="#"><i class="ph ph-gear"></i><span>Impostazioni</span></a>
+      <a class="nav-item" href="#"><i class="ph ph-question"></i><span>Aiuto</span></a>
     </nav>
-
     <div class="sidebar-footer">
       <div class="user-card">
         <div class="user-avatar">LS</div>
@@ -937,97 +177,50 @@
   <main class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="menu-btn" id="menuBtn" type="button" aria-label="Apri menu">
-          <i class="ph ph-list"></i>
-        </button>
+        <button class="menu-btn" id="menuBtn" type="button" onclick="window.TM && TM.toggleMenu()"><i class="ph ph-list"></i></button>
         <div class="heading-group">
-          <h1 class="page-title">
-            <i class="ph ph-first-aid"></i>
-            Gestione Patologie
-          </h1>
+          <h1 class="page-title"><i class="ph ph-first-aid"></i> Gestione Patologie</h1>
           <p class="page-subtitle">Cartella clinica digitale • Dati salvati localmente sul dispositivo</p>
         </div>
       </div>
       <div class="topbar-actions">
-        <button class="btn btn-ghost" id="exportBtn" type="button">
-          <i class="ph ph-download-simple"></i>
-          Esporta backup
-        </button>
-        <button class="btn btn-ghost" id="importBtn" type="button">
-          <i class="ph ph-upload-simple"></i>
-          Importa backup
-        </button>
-        <input type="file" id="importFile" accept=".json" hidden>
-        <button class="btn btn-primary" id="newPathologyBtn" type="button">
-          <i class="ph ph-plus"></i>
-          Nuova patologia
-        </button>
+        <button class="btn btn-ghost" type="button" onclick="window.TM && TM.exportBackup()"><i class="ph ph-download-simple"></i> Esporta backup</button>
+        <button class="btn btn-ghost" type="button" onclick="window.TM && TM.importBackup()"><i class="ph ph-upload-simple"></i> Importa backup</button>
+        <input type="file" id="importFile" accept=".json,application/json" hidden>
+        <button class="btn btn-primary" type="button" onclick="window.TM && TM.openModal()"><i class="ph ph-plus"></i> Nuova patologia</button>
       </div>
     </header>
 
     <section class="stats-grid">
       <article class="stat-card">
-        <header class="stat-header">
-          <div>
-            <span class="stat-label">Totale patologie</span>
-          </div>
-          <div class="stat-icon teal">
-            <i class="ph ph-files"></i>
-          </div>
-        </header>
+        <header class="stat-header"><span class="stat-label">Totale patologie</span><div class="stat-icon teal"><i class="ph ph-files"></i></div></header>
         <span class="stat-value" id="statTotal">0</span>
-        <footer class="stat-footer">
-          <i class="ph ph-database"></i>
-          Registro aggiornato
-        </footer>
+        <footer class="stat-footer"><i class="ph ph-database"></i> Registro aggiornato</footer>
       </article>
       <article class="stat-card">
-        <header class="stat-header">
-          <div>
-            <span class="stat-label">In terapia attiva</span>
-          </div>
-          <div class="stat-icon green">
-            <i class="ph ph-activity"></i>
-          </div>
-        </header>
+        <header class="stat-header"><span class="stat-label">In terapia attiva</span><div class="stat-icon green"><i class="ph ph-activity"></i></div></header>
         <span class="stat-value" id="statActive">0</span>
-        <footer class="stat-footer">
-          <i class="ph ph-trend-up"></i>
-          Patologie croniche/attive
-        </footer>
+        <footer class="stat-footer"><i class="ph ph-trend-up"></i> Patologie croniche/attive</footer>
       </article>
       <article class="stat-card">
-        <header class="stat-header">
-          <div>
-            <span class="stat-label">Ultimo backup</span>
-          </div>
-          <div class="stat-icon blue">
-            <i class="ph ph-cloud-check"></i>
-          </div>
-        </header>
-        <span class="stat-value" id="statBackup" style="font-size: clamp(18px, 3.5vw, 22px);">Mai</span>
-        <footer class="stat-footer">
-          <i class="ph ph-shield-check"></i>
-          Sistema di doppia copia attivo
-        </footer>
+        <header class="stat-header"><span class="stat-label">Ultimo backup</span><div class="stat-icon blue"><i class="ph ph-cloud-check"></i></div></header>
+        <span class="stat-value" id="statBackup" style="font-size:clamp(18px,3.5vw,22px)">Mai</span>
+        <footer class="stat-footer"><i class="ph ph-shield-check"></i> Sistema di doppia copia attivo</footer>
       </article>
     </section>
 
     <section class="panel">
       <header class="panel-header">
-        <div class="panel-title-group">
+        <div>
           <h2 class="panel-title">Elenco Patologie</h2>
           <p class="panel-subtitle">Visualizzazione in stile cartella clinica</p>
         </div>
         <div class="panel-actions">
           <div class="search-field">
             <i class="ph ph-magnifying-glass"></i>
-            <input type="search" id="searchInput" placeholder="Cerca per nome, codice ICD-10...">
+            <input type="search" id="searchInput" placeholder="Cerca per nome, codice ICD-10..." oninput="window.TM && TM.onSearch(this.value)">
           </div>
-          <button class="btn btn-primary" id="addPathologyBtn" type="button">
-            <i class="ph ph-plus"></i>
-            Aggiungi patologia
-          </button>
+          <button class="btn btn-primary" type="button" onclick="window.TM && TM.openModal()"><i class="ph ph-plus"></i> Aggiungi patologia</button>
         </div>
       </header>
       <div class="table-wrapper">
@@ -1038,45 +231,41 @@
               <th>Codice ICD-10</th>
               <th>Categoria</th>
               <th>Stato</th>
-              <th style="text-align: right;">Azioni</th>
+              <th style="text-align:right">Azioni</th>
             </tr>
           </thead>
           <tbody id="pathologyTableBody"></tbody>
         </table>
-        <div class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-state" id="emptyState" style="display:none">
           <i class="ph ph-folder-open"></i>
           <p>Nessuna patologia registrata</p>
-          <p style="margin-top: 6px; font-size: 13px;">Clicca su “Nuova patologia” per iniziare</p>
+          <p style="margin-top:6px;font-size:13px">Clicca su “Nuova patologia” per iniziare</p>
         </div>
       </div>
     </section>
 
     <div class="privacy-note">
       <i class="ph ph-lock-key"></i>
-      <div>
-        <strong>Riservatezza garantita.</strong> I dati sono salvati esclusivamente nel LocalStorage di questo browser. Nessun invio a server esterni. Utilizza "Esporta backup" per salvare una copia sul tuo dispositivo.
-      </div>
+      <div><strong>Riservatezza garantita.</strong> I dati sono salvati esclusivamente nel LocalStorage di questo browser. Nessun invio a server esterni.</div>
     </div>
   </main>
 
-  <!-- MODAL CREA / MODIFICA -->
+  <!-- MODAL -->
   <div class="modal-overlay" id="modalOverlay">
-    <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal">
       <div class="modal-header">
         <h3 class="modal-title" id="modalTitle">Nuova patologia</h3>
-        <button class="modal-close" id="modalClose" type="button" aria-label="Chiudi">
-          <i class="ph ph-x"></i>
-        </button>
+        <button class="modal-close" type="button" onclick="window.TM && TM.closeModal()"><i class="ph ph-x"></i></button>
       </div>
-      <form id="pathologyForm">
+      <form id="pathologyForm" onsubmit="return window.TM && TM.saveForm(event)">
         <div class="modal-body">
           <div class="form-group">
             <label for="fieldName">Nome patologia *</label>
-            <input type="text" id="fieldName" required placeholder="Es. Ipertensione arteriosa" maxlength="120">
+            <input type="text" id="fieldName" required maxlength="120" placeholder="Es. Ipertensione arteriosa">
           </div>
           <div class="form-group">
             <label for="fieldCode">Codice ICD-10 *</label>
-            <input type="text" id="fieldCode" required placeholder="Es. I10" maxlength="12" style="font-family: var(--mono);">
+            <input type="text" id="fieldCode" required maxlength="12" placeholder="Es. I10" style="font-family:var(--mono)">
           </div>
           <div class="form-group">
             <label for="fieldCategory">Categoria *</label>
@@ -1104,33 +293,31 @@
           </div>
           <div class="form-group">
             <label for="fieldNotes">Note cliniche</label>
-            <textarea id="fieldNotes" placeholder="Annotazioni opzionali..." maxlength="500"></textarea>
+            <textarea id="fieldNotes" maxlength="500" placeholder="Annotazioni opzionali..."></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-ghost" id="modalCancel">Annulla</button>
-          <button type="submit" class="btn btn-primary" id="modalSave">Salva</button>
+          <button type="button" class="btn btn-ghost" onclick="window.TM && TM.closeModal()">Annulla</button>
+          <button type="submit" class="btn btn-primary">Salva</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL CONFERMA ELIMINAZIONE -->
+  <!-- DELETE MODAL -->
   <div class="modal-overlay" id="deleteOverlay">
-    <div class="modal" style="max-width: 400px;" role="dialog" aria-modal="true">
+    <div class="modal" style="max-width:400px">
       <div class="modal-header">
         <h3 class="modal-title">Conferma eliminazione</h3>
-        <button class="modal-close" id="deleteClose" type="button" aria-label="Chiudi">
-          <i class="ph ph-x"></i>
-        </button>
+        <button class="modal-close" type="button" onclick="window.TM && TM.closeDelete()"><i class="ph ph-x"></i></button>
       </div>
       <div class="modal-body">
         <p>Sei sicuro di voler eliminare la patologia <strong id="deleteName"></strong>?</p>
-        <p style="margin-top: 8px; font-size: 13px; color: var(--ink-3);">Questa azione non può essere annullata.</p>
+        <p style="margin-top:8px;font-size:13px;color:var(--ink-3)">Questa azione non può essere annullata.</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-ghost" id="deleteCancel">Annulla</button>
-        <button type="button" class="btn btn-danger" id="deleteConfirm">Elimina</button>
+        <button type="button" class="btn btn-ghost" onclick="window.TM && TM.closeDelete()">Annulla</button>
+        <button type="button" class="btn btn-danger" onclick="window.TM && TM.confirmDelete()">Elimina</button>
       </div>
     </div>
   </div>
@@ -1138,451 +325,338 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
-    (function () {
-      'use strict';
+  (function () {
+    var STORAGE_KEY = 'terapia_manager_pathologies_v2';
+    var BACKUP_KEY = 'terapia_manager_last_backup_v2';
+    var pathologies = [];
+    var editingId = null;
+    var deleteId = null;
+    var searchTimer = null;
 
-      var STORAGE_KEY = 'terapia_manager_pathologies';
-      var BACKUP_KEY = 'terapia_manager_last_backup';
+    function uid() {
+      return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+    }
 
-      function generateId() {
-        if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-          return crypto.randomUUID();
+    function seed() {
+      return [
+        { id: uid(), name: 'Ipertensione arteriosa', code: 'I10', category: 'Cardiologia', status: 'chronic', notes: '', createdAt: new Date().toISOString() },
+        { id: uid(), name: 'Ansia generalizzata', code: 'F41.1', category: 'Psicologia', status: 'active', notes: '', createdAt: new Date().toISOString() },
+        { id: uid(), name: 'Lombalgia acuta', code: 'M54.5', category: 'Ortopedia', status: 'pending', notes: '', createdAt: new Date().toISOString() }
+      ];
+    }
+
+    function load() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          var data = JSON.parse(raw);
+          pathologies = Array.isArray(data) ? data : seed();
+        } else {
+          pathologies = seed();
+          save();
         }
-        return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 11);
+      } catch (e) {
+        pathologies = seed();
       }
+      updateBackupLabel();
+    }
 
-      var pathologies = [];
-      var editingId = null;
-      var deleteId = null;
-
-      var sidebar = document.getElementById('sidebar');
-      var menuBtn = document.getElementById('menuBtn');
-      var overlay = document.getElementById('overlay');
-      var tableBody = document.getElementById('pathologyTableBody');
-      var emptyState = document.getElementById('emptyState');
-      var searchInput = document.getElementById('searchInput');
-      var statTotal = document.getElementById('statTotal');
-      var statActive = document.getElementById('statActive');
-      var statBackup = document.getElementById('statBackup');
-
-      var modalOverlay = document.getElementById('modalOverlay');
-      var modalTitle = document.getElementById('modalTitle');
-      var pathologyForm = document.getElementById('pathologyForm');
-      var fieldName = document.getElementById('fieldName');
-      var fieldCode = document.getElementById('fieldCode');
-      var fieldCategory = document.getElementById('fieldCategory');
-      var fieldStatus = document.getElementById('fieldStatus');
-      var fieldNotes = document.getElementById('fieldNotes');
-
-      var deleteOverlay = document.getElementById('deleteOverlay');
-      var deleteName = document.getElementById('deleteName');
-
-      function toggleMenu() {
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('active');
+    function save() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(pathologies));
+      } catch (e) {
+        toast('Impossibile salvare (localStorage bloccato)', 'error');
       }
+    }
 
-      function closeMenu() {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('active');
-      }
+    function esc(s) {
+      if (!s) return '';
+      var d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
 
-      menuBtn.addEventListener('click', toggleMenu);
-      overlay.addEventListener('click', closeMenu);
-      window.addEventListener('resize', function () {
-        if (window.innerWidth > 1024) closeMenu();
+    function badge(st) {
+      var m = {
+        active: ['badge-active', 'Attiva'],
+        chronic: ['badge-chronic', 'Cronica'],
+        pending: ['badge-pending', 'In osservazione'],
+        resolved: ['badge-resolved', 'Risolta']
+      };
+      var x = m[st] || m.active;
+      return '<span class="badge ' + x[0] + '">' + x[1] + '</span>';
+    }
+
+    function render(filter) {
+      filter = (filter || '').trim().toLowerCase();
+      var list = pathologies.filter(function (p) {
+        if (!filter) return true;
+        return (p.name && p.name.toLowerCase().indexOf(filter) >= 0) ||
+               (p.code && p.code.toLowerCase().indexOf(filter) >= 0) ||
+               (p.category && p.category.toLowerCase().indexOf(filter) >= 0) ||
+               (p.notes && p.notes.toLowerCase().indexOf(filter) >= 0);
       });
 
-      function getSeedData() {
-        return [
-          {
-            id: generateId(),
-            name: 'Ipertensione arteriosa',
-            code: 'I10',
-            category: 'Cardiologia',
-            status: 'chronic',
-            notes: '',
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: generateId(),
-            name: 'Ansia generalizzata',
-            code: 'F41.1',
-            category: 'Psicologia',
-            status: 'active',
-            notes: '',
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: generateId(),
-            name: 'Lombalgia acuta',
-            code: 'M54.5',
-            category: 'Ortopedia',
-            status: 'pending',
-            notes: '',
-            createdAt: new Date().toISOString()
-          }
-        ];
+      var tbody = document.getElementById('pathologyTableBody');
+      var empty = document.getElementById('emptyState');
+
+      if (list.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+      } else {
+        empty.style.display = 'none';
+        tbody.innerHTML = list.map(function (p) {
+          return '<tr>' +
+            '<td><div class="cell-name"><span class="name-main">' + esc(p.name) + '</span><span class="name-sub">Scheda clinica</span></div></td>' +
+            '<td><span class="code-pill">' + esc(p.code) + '</span></td>' +
+            '<td>' + esc(p.category) + '</td>' +
+            '<td>' + badge(p.status) + '</td>' +
+            '<td><div class="actions-cell">' +
+              '<button class="icon-btn edit" type="button" title="Modifica" onclick="window.TM.openModal(\'' + p.id + '\')"><i class="ph ph-pencil-simple"></i></button>' +
+              '<button class="icon-btn delete" type="button" title="Elimina" onclick="window.TM.openDelete(\'' + p.id + '\')"><i class="ph ph-trash"></i></button>' +
+            '</div></td></tr>';
+        }).join('');
       }
 
-      function loadData() {
-        try {
-          var raw = localStorage.getItem(STORAGE_KEY);
-          if (raw) {
-            pathologies = JSON.parse(raw);
-            if (!Array.isArray(pathologies)) {
-              pathologies = getSeedData();
-            }
-          } else {
-            pathologies = getSeedData();
-            saveData();
-          }
-        } catch (e) {
-          console.warn('Errore caricamento dati:', e);
-          pathologies = getSeedData();
-        }
-        updateLastBackupDisplay();
+      document.getElementById('statTotal').textContent = pathologies.length;
+      var act = 0;
+      for (var i = 0; i < pathologies.length; i++) {
+        if (pathologies[i].status === 'active' || pathologies[i].status === 'chronic') act++;
       }
+      document.getElementById('statActive').textContent = act;
+    }
 
-      function saveData() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(pathologies));
-        } catch (e) {
-          console.warn('Errore salvataggio dati:', e);
-          showToast('Impossibile salvare i dati (localStorage bloccato)', 'error');
-        }
+    function updateBackupLabel() {
+      var last = localStorage.getItem(BACKUP_KEY);
+      var el = document.getElementById('statBackup');
+      if (last) {
+        var d = new Date(last);
+        el.textContent = d.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      } else {
+        el.textContent = 'Mai';
       }
+    }
 
-      function getStatusBadge(status) {
-        var map = {
-          active: { cls: 'badge-active', label: 'Attiva' },
-          chronic: { cls: 'badge-chronic', label: 'Cronica' },
-          pending: { cls: 'badge-pending', label: 'In osservazione' },
-          resolved: { cls: 'badge-resolved', label: 'Risolta' }
-        };
-        var s = map[status] || map.active;
-        return '<span class="badge ' + s.cls + '">' + s.label + '</span>';
-      }
+    function toast(msg, type) {
+      type = type || 'success';
+      var c = document.getElementById('toastContainer');
+      var t = document.createElement('div');
+      t.className = 'toast ' + type;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(function () {
+        t.style.opacity = '0';
+        t.style.transition = 'opacity .3s';
+        setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 300);
+      }, 2800);
+    }
 
-      function escapeHtml(str) {
-        if (!str) return '';
-        var div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-      }
-
-      function renderTable(filter) {
-        filter = filter || '';
-        var q = filter.trim().toLowerCase();
-        var filtered = pathologies.filter(function (p) {
-          if (!q) return true;
-          return (
-            (p.name && p.name.toLowerCase().indexOf(q) !== -1) ||
-            (p.code && p.code.toLowerCase().indexOf(q) !== -1) ||
-            (p.category && p.category.toLowerCase().indexOf(q) !== -1) ||
-            (p.notes && p.notes.toLowerCase().indexOf(q) !== -1)
-          );
-        });
-
-        if (filtered.length === 0) {
-          tableBody.innerHTML = '';
-          emptyState.style.display = 'block';
-        } else {
-          emptyState.style.display = 'none';
-          tableBody.innerHTML = filtered.map(function (p) {
-            return (
-              '<tr data-id="' + p.id + '">' +
-                '<td>' +
-                  '<div class="cell-name">' +
-                    '<span class="name-main">' + escapeHtml(p.name) + '</span>' +
-                    '<span class="name-sub">Scheda clinica</span>' +
-                  '</div>' +
-                '</td>' +
-                '<td><span class="code-pill">' + escapeHtml(p.code) + '</span></td>' +
-                '<td>' + escapeHtml(p.category) + '</td>' +
-                '<td>' + getStatusBadge(p.status) + '</td>' +
-                '<td>' +
-                  '<div class="actions-cell">' +
-                    '<button class="icon-btn edit" data-action="edit" data-id="' + p.id + '" title="Modifica" type="button">' +
-                      '<i class="ph ph-pencil-simple"></i>' +
-                    '</button>' +
-                    '<button class="icon-btn delete" data-action="delete" data-id="' + p.id + '" title="Elimina" type="button">' +
-                      '<i class="ph ph-trash"></i>' +
-                    '</button>' +
-                  '</div>' +
-                '</td>' +
-              '</tr>'
-            );
-          }).join('');
-        }
-
-        updateStats();
-      }
-
-      function updateStats() {
-        statTotal.textContent = pathologies.length;
-        var activeCount = pathologies.filter(function (p) {
-          return p.status === 'active' || p.status === 'chronic';
-        }).length;
-        statActive.textContent = activeCount;
-      }
-
-      function updateLastBackupDisplay() {
-        var last = localStorage.getItem(BACKUP_KEY);
-        if (last) {
-          var d = new Date(last);
-          statBackup.textContent = d.toLocaleDateString('it-IT', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          });
-        } else {
-          statBackup.textContent = 'Mai';
-        }
-      }
-
-      function showToast(message, type) {
-        type = type || 'success';
-        var container = document.getElementById('toastContainer');
-        var toast = document.createElement('div');
-        toast.className = 'toast ' + type;
-        var icon = type === 'success' ? 'ph-check-circle' : 'ph-warning-circle';
-        toast.innerHTML = '<i class="ph ' + icon + '"></i> ' + message;
-        container.appendChild(toast);
-        setTimeout(function () {
-          toast.style.opacity = '0';
-          toast.style.transition = 'opacity .3s';
-          setTimeout(function () {
-            if (toast.parentNode) toast.parentNode.removeChild(toast);
-          }, 300);
-        }, 2800);
-      }
-
-      function openModal(id) {
-        editingId = id || null;
-        if (id) {
-          var p = null;
-          for (var i = 0; i < pathologies.length; i++) {
-            if (pathologies[i].id === id) {
-              p = pathologies[i];
-              break;
-            }
-          }
-          if (!p) return;
-          modalTitle.textContent = 'Modifica patologia';
-          fieldName.value = p.name || '';
-          fieldCode.value = p.code || '';
-          fieldCategory.value = p.category || '';
-          fieldStatus.value = p.status || 'active';
-          fieldNotes.value = p.notes || '';
-        } else {
-          modalTitle.textContent = 'Nuova patologia';
-          pathologyForm.reset();
-          fieldStatus.value = 'active';
-        }
-        modalOverlay.classList.add('open');
-        setTimeout(function () {
-          fieldName.focus();
-        }, 50);
-      }
-
-      function closeModal() {
-        modalOverlay.classList.remove('open');
-        editingId = null;
-        pathologyForm.reset();
-      }
-
-      function openDeleteModal(id) {
+    function openModal(id) {
+      editingId = id || null;
+      var form = document.getElementById('pathologyForm');
+      if (id) {
         var p = null;
+        for (var i = 0; i < pathologies.length; i++) if (pathologies[i].id === id) { p = pathologies[i]; break; }
+        if (!p) return;
+        document.getElementById('modalTitle').textContent = 'Modifica patologia';
+        document.getElementById('fieldName').value = p.name || '';
+        document.getElementById('fieldCode').value = p.code || '';
+        document.getElementById('fieldCategory').value = p.category || '';
+        document.getElementById('fieldStatus').value = p.status || 'active';
+        document.getElementById('fieldNotes').value = p.notes || '';
+      } else {
+        document.getElementById('modalTitle').textContent = 'Nuova patologia';
+        form.reset();
+        document.getElementById('fieldStatus').value = 'active';
+      }
+      document.getElementById('modalOverlay').classList.add('open');
+      setTimeout(function () { document.getElementById('fieldName').focus(); }, 50);
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+      editingId = null;
+    }
+
+    function saveForm(e) {
+      e.preventDefault();
+      var name = document.getElementById('fieldName').value.trim();
+      var code = document.getElementById('fieldCode').value.trim().toUpperCase();
+      var category = document.getElementById('fieldCategory').value;
+      var status = document.getElementById('fieldStatus').value;
+      var notes = document.getElementById('fieldNotes').value.trim();
+
+      if (!name || !code || !category) {
+        toast('Compila tutti i campi obbligatori', 'error');
+        return false;
+      }
+
+      if (editingId) {
         for (var i = 0; i < pathologies.length; i++) {
-          if (pathologies[i].id === id) {
-            p = pathologies[i];
+          if (pathologies[i].id === editingId) {
+            pathologies[i].name = name;
+            pathologies[i].code = code;
+            pathologies[i].category = category;
+            pathologies[i].status = status;
+            pathologies[i].notes = notes;
+            pathologies[i].updatedAt = new Date().toISOString();
             break;
           }
         }
-        if (!p) return;
-        deleteId = id;
-        deleteName.textContent = p.name;
-        deleteOverlay.classList.add('open');
-      }
-
-      function closeDeleteModal() {
-        deleteOverlay.classList.remove('open');
-        deleteId = null;
-      }
-
-      function confirmDelete() {
-        if (!deleteId) return;
-        pathologies = pathologies.filter(function (p) {
-          return p.id !== deleteId;
+        toast('Patologia aggiornata');
+      } else {
+        pathologies.unshift({
+          id: uid(),
+          name: name,
+          code: code,
+          category: category,
+          status: status,
+          notes: notes,
+          createdAt: new Date().toISOString()
         });
-        saveData();
-        renderTable(searchInput.value);
-        closeDeleteModal();
-        showToast('Patologia eliminata');
+        toast('Patologia aggiunta');
       }
+      save();
+      render(document.getElementById('searchInput').value);
+      closeModal();
+      return false;
+    }
 
-      pathologyForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var data = {
-          name: fieldName.value.trim(),
-          code: fieldCode.value.trim().toUpperCase(),
-          category: fieldCategory.value,
-          status: fieldStatus.value,
-          notes: fieldNotes.value.trim()
-        };
+    function openDelete(id) {
+      var p = null;
+      for (var i = 0; i < pathologies.length; i++) if (pathologies[i].id === id) { p = pathologies[i]; break; }
+      if (!p) return;
+      deleteId = id;
+      document.getElementById('deleteName').textContent = p.name;
+      document.getElementById('deleteOverlay').classList.add('open');
+    }
 
-        if (!data.name || !data.code || !data.category) {
-          showToast('Compila tutti i campi obbligatori', 'error');
-          return;
-        }
+    function closeDelete() {
+      document.getElementById('deleteOverlay').classList.remove('open');
+      deleteId = null;
+    }
 
-        if (editingId) {
-          for (var i = 0; i < pathologies.length; i++) {
-            if (pathologies[i].id === editingId) {
-              pathologies[i].name = data.name;
-              pathologies[i].code = data.code;
-              pathologies[i].category = data.category;
-              pathologies[i].status = data.status;
-              pathologies[i].notes = data.notes;
-              pathologies[i].updatedAt = new Date().toISOString();
-              break;
+    function confirmDelete() {
+      if (!deleteId) return;
+      pathologies = pathologies.filter(function (p) { return p.id !== deleteId; });
+      save();
+      render(document.getElementById('searchInput').value);
+      closeDelete();
+      toast('Patologia eliminata');
+    }
+
+    function exportBackup() {
+      var payload = { exportedAt: new Date().toISOString(), version: 2, pathologies: pathologies };
+      var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'terapia-manager-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      localStorage.setItem(BACKUP_KEY, new Date().toISOString());
+      updateBackupLabel();
+      toast('Backup esportato');
+    }
+
+    function importBackup() {
+      document.getElementById('importFile').click();
+    }
+
+    function onFileSelected(e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        try {
+          var data = JSON.parse(ev.target.result);
+          var list = data.pathologies || data;
+          if (!Array.isArray(list)) throw new Error('Formato non valido');
+          for (var i = 0; i < list.length; i++) {
+            if (!list[i].name || !list[i].code || !list[i].category || !list[i].status) {
+              throw new Error('Dati incompleti');
             }
+            if (!list[i].id) list[i].id = uid();
           }
-          showToast('Patologia aggiornata');
-        } else {
-          pathologies.unshift({
-            id: generateId(),
-            name: data.name,
-            code: data.code,
-            category: data.category,
-            status: data.status,
-            notes: data.notes,
-            createdAt: new Date().toISOString()
-          });
-          showToast('Patologia aggiunta');
+          pathologies = list;
+          save();
+          localStorage.setItem(BACKUP_KEY, new Date().toISOString());
+          updateBackupLabel();
+          render('');
+          document.getElementById('searchInput').value = '';
+          toast('Importate ' + pathologies.length + ' patologie');
+        } catch (err) {
+          toast('File di backup non valido: ' + err.message, 'error');
         }
+        e.target.value = '';
+      };
+      reader.onerror = function () {
+        toast('Errore lettura file', 'error');
+        e.target.value = '';
+      };
+      reader.readAsText(file);
+    }
 
-        saveData();
-        renderTable(searchInput.value);
-        closeModal();
-      });
+    function toggleMenu() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('overlay').classList.toggle('active');
+    }
 
-      document.getElementById('exportBtn').addEventListener('click', function () {
-        var payload = {
-          exportedAt: new Date().toISOString(),
-          version: 1,
-          pathologies: pathologies
-        };
-        var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = 'terapia-manager-backup-' + new Date().toISOString().slice(0, 10) + '.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        localStorage.setItem(BACKUP_KEY, new Date().toISOString());
-        updateLastBackupDisplay();
-        showToast('Backup esportato con successo');
-      });
+    function closeMenu() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('overlay').classList.remove('active');
+    }
 
-      document.getElementById('importBtn').addEventListener('click', function () {
-        document.getElementById('importFile').click();
-      });
+    function onSearch(val) {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function () { render(val); }, 150);
+    }
 
-      document.getElementById('importFile').addEventListener('change', function (e) {
-        var file = e.target.files[0];
-        if (!file) return;
-        var reader = new FileReader();
-        reader.onload = function (ev) {
-          try {
-            var data = JSON.parse(ev.target.result);
-            if (!data.pathologies || !Array.isArray(data.pathologies)) {
-              throw new Error('Formato non valido');
-            }
-            var valid = true;
-            for (var i = 0; i < data.pathologies.length; i++) {
-              var p = data.pathologies[i];
-              if (!p.name || !p.code || !p.category || !p.status) {
-                valid = false;
-                break;
-              }
-            }
-            if (!valid) throw new Error('Dati incompleti');
-            pathologies = data.pathologies;
-            saveData();
-            localStorage.setItem(BACKUP_KEY, new Date().toISOString());
-            updateLastBackupDisplay();
-            renderTable(searchInput.value);
-            showToast('Importate ' + pathologies.length + ' patologie');
-          } catch (err) {
-            showToast('File di backup non valido', 'error');
-          }
-          e.target.value = '';
-        };
-        reader.readAsText(file);
-      });
+    // Esponi API globale (usata dagli onclick)
+    window.TM = {
+      openModal: openModal,
+      closeModal: closeModal,
+      saveForm: saveForm,
+      openDelete: openDelete,
+      closeDelete: closeDelete,
+      confirmDelete: confirmDelete,
+      exportBackup: exportBackup,
+      importBackup: importBackup,
+      toggleMenu: toggleMenu,
+      onSearch: onSearch
+    };
 
-      document.getElementById('newPathologyBtn').addEventListener('click', function () {
-        openModal();
-      });
+    // Eventi aggiuntivi
+    document.getElementById('importFile').addEventListener('change', onFileSelected);
+    document.getElementById('overlay').addEventListener('click', closeMenu);
+    document.getElementById('modalOverlay').addEventListener('click', function (e) {
+      if (e.target === this) closeModal();
+    });
+    document.getElementById('deleteOverlay').addEventListener('click', function (e) {
+      if (e.target === this) closeDelete();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { closeModal(); closeDelete(); }
+    });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 1024) closeMenu();
+    });
 
-      document.getElementById('addPathologyBtn').addEventListener('click', function () {
-        openModal();
-      });
-
-      document.getElementById('modalClose').addEventListener('click', closeModal);
-      document.getElementById('modalCancel').addEventListener('click', closeModal);
-
-      modalOverlay.addEventListener('click', function (e) {
-        if (e.target === modalOverlay) closeModal();
-      });
-
-      document.getElementById('deleteClose').addEventListener('click', closeDeleteModal);
-      document.getElementById('deleteCancel').addEventListener('click', closeDeleteModal);
-      document.getElementById('deleteConfirm').addEventListener('click', confirmDelete);
-
-      deleteOverlay.addEventListener('click', function (e) {
-        if (e.target === deleteOverlay) closeDeleteModal();
-      });
-
-      tableBody.addEventListener('click', function (e) {
-        var btn = e.target.closest('[data-action]');
-        if (!btn) return;
-        var id = btn.getAttribute('data-id');
-        var action = btn.getAttribute('data-action');
-        if (action === 'edit') openModal(id);
-        if (action === 'delete') openDeleteModal(id);
-      });
-
-      var searchTimeout;
-      searchInput.addEventListener('input', function () {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(function () {
-          renderTable(searchInput.value);
-        }, 180);
-      });
-
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-          closeModal();
-          closeDeleteModal();
-        }
-      });
-
-      try {
-        loadData();
-        renderTable();
-      } catch (err) {
-        console.error('Errore di inizializzazione:', err);
-        alert('Errore di inizializzazione. Apri la console (F12) per i dettagli.');
-      }
-    })();
+    // Avvio
+    try {
+      load();
+      render();
+      var st = document.getElementById('jsStatus');
+      st.textContent = 'JS OK';
+      st.className = 'js-status ok';
+      setTimeout(function () { st.style.display = 'none'; }, 2500);
+    } catch (err) {
+      document.getElementById('jsStatus').textContent = 'Errore JS: ' + err.message;
+      console.error(err);
+    }
+  })();
   </script>
 </body>
-
 </html>
