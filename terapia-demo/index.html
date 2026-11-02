@@ -255,7 +255,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         <p style="color:var(--muted);font-size:.88rem">I documenti ancora presenti soltanto sul Mac devono prima essere caricati. Il backup conserva tutti i dati. Nuovo formato fino a 8 GB, singolo allegato fino a 1 GB, secondo lo spazio disponibile. I precedenti ZIP/JSON restano importabili.</p>
         <div class="actions"><button class="btn btn-primary" onclick="downloadBackup()">💾 Salva archivio completo (.tlbackup)</button><button type="button" class="btn btn-outline" onclick="downloadBackupJson()">📄 Salva JSON completo (.json)</button><label class="btn btn-outline">♻️ Ripristina da backup <input type="file" accept=".tlenc,.tlbackup,.zip,.json,application/octet-stream,application/zip,application/json" style="display:none" onchange="importBackup(event)"></label><button class="btn btn-outline" id="undoRestoreButton" onclick="undoRestore()" hidden>↩️ Annulla ultimo ripristino</button></div>
         <p class="muted" style="margin-top:1rem"><strong>Archivio .tlbackup:</strong> dati e allegati nel formato compatto consigliato. <strong>JSON .json:</strong> dati clinici e allegati incorporati in Base64, file più grande ma completo e reimportabile. <strong>Ripristina:</strong> accetta entrambi, ZIP e i vecchi JSON (i vecchi JSON conservano solo i riferimenti agli allegati online).</p>
-        <p id="backupStatus" role="status" aria-live="polite" style="margin-top:1rem"></p>
+        <div class="actions"><button type="button" class="btn btn-outline" onclick="cleanupTerapiaTemp()">Libera file temporanei di backup</button></div><p class="muted">La pulizia elimina solo file temporanei di Terapia rimasti da tentativi precedenti; non elimina documenti clinici o backup salvati nel Finder.</p><p id="backupStatus" role="status" aria-live="polite" style="margin-top:1rem"></p>
         <div id="restoreReview" hidden style="padding:1rem;background:#eff6f3;border-radius:10px;margin-top:1rem"><h3>Controlla il backup selezionato</h3><div id="restoreSummary"></div><p>Il ripristino sostituirà i dati correnti. Una copia della situazione precedente sarà conservata su questo dispositivo.</p><div class="actions"><button class="btn btn-primary" onclick="restorePreparedBackup()">Ripristina adesso</button><button class="btn btn-outline" onclick="cancelPreparedBackup()">Annulla</button></div></div>
       </div>
     </div>
@@ -1607,6 +1607,12 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         el('restoreReview').hidden=false;backupStatus('File verificato. Premi “Ripristina adesso” per ricaricare tutti i dati.');
       }catch(e){preparedBackup=null;el('restoreReview').hidden=true;backupStatus('Backup non caricato: '+e.message);alert(e.message);}
       finally{uploadsPending--;transferLock(false);ev.target.value='';syncNow();}
+    }
+    async function cleanupTerapiaTemp(){
+      if(backupBusy||uploadsPending||preparedBackup){alert('Termina o annulla prima qualsiasi backup o ripristino in corso.');return;}
+      if(!confirm('Eliminare esclusivamente i file temporanei di backup di Terapia abbandonati nella memoria interna di questo browser? I documenti clinici e i backup scaricati non saranno eliminati.'))return;
+      try{const result=await TerapiaBackupStream.cleanupAbandonedTemp();backupStatus('Pulizia completata: '+result.count+' file temporanei eliminati, '+(result.bytes/1024/1024).toFixed(1)+' MB recuperati.');}
+      catch(e){backupStatus('Pulizia non completata: '+e.message);alert(e.message);}
     }
     function cancelPreparedBackup(){if(backupBusy)return;preparedBackup?.dispose?.().catch(()=>{});preparedBackup=null;el('restoreReview').hidden=true;backupStatus('Ripristino annullato.');}
     async function recoveryWrite(state){await cacheQueue;await cachePut('beforeRestore',state);}
