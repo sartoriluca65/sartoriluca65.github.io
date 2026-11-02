@@ -1055,7 +1055,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         map[k].documenti++;
       });
       if(supplementList().length){const group=map['Integratori']||={eventi:0,farmaci:0,documenti:0,allegati:0};group.integratori=supplementList().length;group.allegati+=supplementList().reduce((n,s)=>n+(s.allegati||[]).length,0);}
-      const keys = Object.keys(map).sort();
+      const keys = [...new Set([...Object.keys(map),'Endocrinologia'])].sort();
       archivioGrid.innerHTML = keys.map(k => `
         <div class="arch-card" onclick="apriArchivioDettaglio('${esc(k).replace(/'/g,"\\'")}')">
           <h3>${esc(k)}</h3>
