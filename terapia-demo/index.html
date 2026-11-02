@@ -1078,9 +1078,14 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       salvaDati();renderArchivio();chiudiArchivioDettaglio();mostraToast('Area aggiornata · '+changes+' elementi');
     }
     function eliminaAreaClinica(area){
-      const linked=data.eventi.some(e=>ramoArchivio(e.ramo||e.patologia||e.tipo)===area)||data.farmaci.some(f=>ramoArchivio(f.patologia||'Terapia')===area)||(data.documenti||[]).some(d=>documentArea(d)===area);
-      if(linked){alert('Questa area contiene dati clinici. Per sicurezza non viene eliminata: modifica o riclassifica prima gli elementi collegati.');return;}
-      if(confirm('Rimuovere l’area vuota '+area+'?')){renderArchivio();chiudiArchivioDettaglio();}
+      const events=data.eventi.filter(e=>ramoArchivio(e.ramo||e.patologia||e.tipo)===area);
+      const drugs=data.farmaci.filter(f=>ramoArchivio(f.patologia||'Terapia')===area);
+      const docs=(data.documenti||[]).filter(d=>documentArea(d)===area);
+      if(!confirm('Rimuovere la classificazione '+area+'? '+events.length+' eventi, '+drugs.length+' farmaci e '+docs.length+' documenti resteranno conservati, ma saranno spostati nelle categorie generali.'))return;
+      for(const e of events){e.ramo='Medico';e.patologia='';}
+      for(const f of drugs)f.patologia='Generale';
+      for(const d of docs)d.ramo='Documenti da classificare';
+      salvaDati();renderArchivio();chiudiArchivioDettaglio();mostraToast('Classificazione rimossa; dati clinici conservati');
     }
     function apriArchivioDettaglio(pat) {
       archivioDettaglio.style.display = 'block';
