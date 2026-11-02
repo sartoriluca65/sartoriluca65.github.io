@@ -320,7 +320,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       <div class="card" id="documentiCliniciCard">
         <h2>PDF originali per ramo medico</h2>
         <p style="font-size:.85rem;color:var(--muted);margin:-.45rem 0 .8rem">Carica i PDF dalla cartella sul telefono o sul Mac: saranno conservati solo in questo browser. Apri un documento dal nome e scegli l’area medica dal menu accanto.</p>
-        <div class="actions no-print" style="margin-bottom:1rem"><button class="btn btn-primary" onclick="apriNuovoPdf()">➕ Aggiungi PDF</button><label class="btn btn-outline">📁 Carica più PDF <input type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="importOriginalFolder(event)"></label><label>Area per i nuovi PDF <select id="importDocumentArea"><option value="">Riconosci dal nome (se possibile)</option><option>Cardiologia</option><option>Nefrologia</option><option>Urologia</option><option>Dermatologia</option><option>Pneumologia</option><option>Neurologia</option><option>Otorinolaringoiatria</option><option>Oculistica</option><option>Esami strumentali</option><option>Sangue e laboratorio</option><option>Terapia</option><option>Medico</option><option>Vaccinazioni</option><option>Documenti da classificare</option></select></label></div><div id="listaDocumentiClinici"></div>
+        <div class="actions no-print" style="margin-bottom:1rem"><button class="btn btn-primary" onclick="apriNuovoPdf()">➕ Aggiungi PDF</button><label class="btn btn-outline">📁 Carica più PDF <input type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="importOriginalFolder(event)"></label><label>Area per i nuovi PDF <select id="importDocumentArea"><option value="">Riconosci dal nome (se possibile)</option><option>Cardiologia</option><option>Endocrinologia</option><option>Nefrologia</option><option>Urologia</option><option>Dermatologia</option><option>Pneumologia</option><option>Neurologia</option><option>Otorinolaringoiatria</option><option>Oculistica</option><option>Esami strumentali</option><option>Sangue e laboratorio</option><option>Terapia</option><option>Medico</option><option>Vaccinazioni</option><option>Documenti da classificare</option></select></label></div><div id="listaDocumentiClinici"></div>
       </div>
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;flex-wrap:wrap;gap:.5rem">
@@ -1021,6 +1021,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       const s=(testo||'').toLocaleLowerCase('it');
       if(/strumental|ecografia|ecografie|tc |tac|risonanz|radiolog|rx torace/.test(s)) return 'Esami strumentali';
       if(/cardio|coronar|ipertension/.test(s)) return 'Cardiologia';
+      if(/endocrin|tiroid|diabet|ormon/.test(s)) return 'Endocrinologia';
       if(/nefrolog/.test(s)) return 'Nefrologia';
       if(/urolog/.test(s)) return 'Urologia';
       if(/laboratorio|sangue|ematolog|ematochim|urine/.test(s)) return 'Esami da laboratorio';
@@ -1625,7 +1626,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         for(let i=0;i<refs.length;i++){
           const ref=refs[i];backupStatus(`Ripristino allegato ${i+1} di ${refs.length}…`);
           if(source.legacy){const r=await localFileResponse(ref.key);if(!r.ok)throw Error('Il vecchio JSON non contiene il file '+ref.nome+'. Serve un backup ZIP completo.');mapping.set(ref.key,ref.key);}
-          else{const f=source.files.get(ref.key);if(!f)throw Error('File mancante nel backup');const alreadyStored=await TerapiaRestoreFile.exists(ref.key,f.bytes.size);await TerapiaRestoreFile.put(ref.key,f.bytes,f.nome);if(!alreadyStored)createdFiles.push(ref.key);mapping.set(ref.key,ref.key);}
+          else{const f=source.files.get(ref.key);if(!f)throw Error('File mancante nel backup');const alreadyStored=await TerapiaRestoreFile.exists(ref.key,f.bytes.size);await TerapiaRestoreFile.put(ref.key,f.bytes,f.nome,p=>{const pct=p.total?Math.round(100*p.done/p.total):0;const phase=p.phase==='compare'?'Confronto file già presente':p.phase==='save'?'Salvataggio file':'Verifica salvataggio';backupStatus(`Ripristino allegato ${i+1} di ${refs.length} · ${phase} (${pct}%) · ${p.name||ref.nome||'Allegato'}…`);});if(!alreadyStored)createdFiles.push(ref.key);mapping.set(ref.key,ref.key);}
         }
         const remote=await fetchArchive();
         await recoveryWrite({data:structuredClone(data),savedAt:new Date().toISOString()});
