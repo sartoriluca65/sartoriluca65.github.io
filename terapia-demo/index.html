@@ -1625,7 +1625,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         for(let i=0;i<refs.length;i++){
           const ref=refs[i];backupStatus(`Ripristino allegato ${i+1} di ${refs.length}…`);
           if(source.legacy){const r=await localFileResponse(ref.key);if(!r.ok)throw Error('Il vecchio JSON non contiene il file '+ref.nome+'. Serve un backup ZIP completo.');mapping.set(ref.key,ref.key);}
-          else{const f=source.files.get(ref.key);if(!f)throw Error('File mancante nel backup');const alreadyStored=await TerapiaRestoreFile.exists(ref.key,f.bytes.size);await TerapiaRestoreFile.put(ref.key,f.bytes,f.nome);if(!alreadyStored)createdFiles.push(ref.key);mapping.set(ref.key,ref.key);}
+          else{const f=source.files.get(ref.key);if(!f)throw Error('File mancante nel backup');const alreadyStored=await TerapiaRestoreFile.exists(ref.key,f.bytes.size);await TerapiaRestoreFile.put(ref.key,f.bytes,f.nome,p=>{const pct=p.total?Math.round(100*p.done/p.total):0;const phase=p.phase==='compare'?'Confronto file già presente':p.phase==='save'?'Salvataggio file':'Verifica salvataggio';backupStatus(`Ripristino allegato ${i+1} di ${refs.length} · ${phase} (${pct}%) · ${p.name||ref.nome||'Allegato'}…`);});if(!alreadyStored)createdFiles.push(ref.key);mapping.set(ref.key,ref.key);}
         }
         const remote=await fetchArchive();
         await recoveryWrite({data:structuredClone(data),savedAt:new Date().toISOString()});
