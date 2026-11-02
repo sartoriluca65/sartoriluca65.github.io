@@ -80,5 +80,6 @@
   return {data:manifest.data,files,createdAt:manifest.createdAt};
  }
  async function verify(sink,result,progress){const file=await sink.file();if(file.size!==result.size)throw Error('Dimensione del backup salvato diversa da quella creata');await unpackStream(file,progress);return file;}
- root.TerapiaBackupStream={createSink,pack:packStream,unpack:unpackStream,verify,CHUNK,MAX,MAX_FILE};
+ async function cleanupAbandonedTemp(){if(!navigator.storage?.getDirectory)throw Error('Pulizia temporanei non supportata da questo Safari');const dir=await navigator.storage.getDirectory();let count=0,bytes=0;for await(const [name,handle] of dir.entries()){if(!/^terapia-backup-[a-f0-9-]+\.tmp$/.test(name)||handle.kind!=='file')continue;try{const f=await handle.getFile();await dir.removeEntry(name);count++;bytes+=f.size;}catch(e){if(e.name!=='NoModificationAllowedError'&&e.name!=='InvalidStateError')throw e;}}return {count,bytes};}
+ root.TerapiaBackupStream={createSink,pack:packStream,unpack:unpackStream,verify,cleanupAbandonedTemp,CHUNK,MAX,MAX_FILE};
 })(globalThis);
