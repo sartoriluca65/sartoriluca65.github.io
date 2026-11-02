@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <script src="./document-categories.js?v=20261102-endocrinologia"></script>
+  <script src="./document-categories.js?v=20261102-family"></script>
   <script src="./reliability-core.js?v=20261024-compact-grouped"></script>
   <script src="./profile-context.js?v=20261023-2"></script>
   <script src="./profiles-local.js?v=20261023-2"></script>
@@ -320,7 +320,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       <div class="card" id="documentiCliniciCard">
         <h2>PDF originali per ramo medico</h2>
         <p style="font-size:.85rem;color:var(--muted);margin:-.45rem 0 .8rem">Carica i PDF dalla cartella sul telefono o sul Mac: saranno conservati solo in questo browser. Apri un documento dal nome e scegli l’area medica dal menu accanto.</p>
-        <div class="actions no-print" style="margin-bottom:1rem"><button class="btn btn-primary" onclick="apriNuovoPdf()">➕ Aggiungi PDF</button><label class="btn btn-outline">📁 Carica più PDF <input type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="importOriginalFolder(event)"></label><label>Area per i nuovi PDF <select id="importDocumentArea"><option value="">Riconosci dal nome (se possibile)</option><option>Cardiologia</option><option>Endocrinologia</option><option>Nefrologia</option><option>Urologia</option><option>Dermatologia</option><option>Pneumologia</option><option>Neurologia</option><option>Otorinolaringoiatria</option><option>Oculistica</option><option>Esami strumentali</option><option>Sangue e laboratorio</option><option>Terapia</option><option>Medico</option><option>Vaccinazioni</option><option>Documenti da classificare</option></select></label></div><div id="listaDocumentiClinici"></div>
+        <div class="actions no-print" style="margin-bottom:1rem"><button class="btn btn-primary" onclick="apriNuovoPdf()">➕ Aggiungi PDF</button><label class="btn btn-outline">📁 Carica più PDF <input type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="importOriginalFolder(event)"></label><label>Area per i nuovi PDF <select id="importDocumentArea"><option value="">Riconosci dal nome (se possibile)</option><option>Cardiologia</option><option>Endocrinologia</option><option>Nefrologia</option><option>Urologia</option><option>Dermatologia</option><option>Pneumologia</option><option>Neurologia</option><option>Otorinolaringoiatria</option><option>Oculistica</option><option>Esami strumentali</option><option>Sangue e laboratorio</option><option>Terapia</option><option>Medico di famiglia</option><option>Vaccinazioni</option><option>Documenti da classificare</option></select></label></div><div id="listaDocumentiClinici"></div>
       </div>
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;flex-wrap:wrap;gap:.5rem">
@@ -430,7 +430,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalPdf"><div class="modal"><h2>Aggiungi PDF</h2><div class="form-grid"><div class="form-group full"><label for="nuovoPdfFile">Seleziona PDF *</label><input type="file" id="nuovoPdfFile" accept="application/pdf,.pdf" onchange="document.getElementById('nuovoPdfNome').value=this.files[0]?.name||''"></div><div class="form-group full"><label for="nuovoPdfNome">Nome del PDF *</label><input id="nuovoPdfNome" maxlength="220" placeholder="Es. Visita cardiologica ottobre 2026.pdf"></div><div class="form-group"><label for="nuovoPdfArea">Area clinica</label><select id="nuovoPdfArea"></select></div><div class="form-group full"><label for="nuovoPdfNota">Note</label><textarea id="nuovoPdfNota" rows="3"></textarea></div></div><div class="actions"><button class="btn btn-outline" onclick="chiudiModal('modalPdf')">Annulla</button><button class="btn btn-primary" id="nuovoPdfSalva" onclick="salvaNuovoPdf()">Carica PDF</button></div></div></div>
+  <div class="modal-overlay" id="modalPdf"><div class="modal"><h2>Aggiungi PDF</h2><div class="form-grid"><div class="form-group full"><label for="nuovoPdfFile">Seleziona PDF *</label><input type="file" id="nuovoPdfFile" accept="application/pdf,.pdf" onchange="document.getElementById('nuovoPdfNome').value=this.files[0]?.name||''"></div><div class="form-group full"><label for="nuovoPdfNome">Nome del PDF *</label><input id="nuovoPdfNome" maxlength="220" placeholder="Es. Visita cardiologica ottobre 2026.pdf"></div><div class="form-group"><label for="nuovoPdfArea">Area clinica</label><select id="nuovoPdfArea"></select><button type="button" class="btn btn-outline btn-sm" onclick="aggiungiAreaClinica()">➕ Aggiungi area manualmente</button></div><div class="form-group full"><label for="nuovoPdfNota">Note</label><textarea id="nuovoPdfNota" rows="3"></textarea></div><div class="form-group full"><label><input type="checkbox" id="pdfVisitaRichiesta" onchange="document.getElementById('pdfVisitaCampi').hidden=!this.checked"> Il medico ha prescritto una nuova visita o un esame?</label><div id="pdfVisitaCampi" hidden><label>Visita o esame da programmare <input id="pdfVisitaTitolo" placeholder="Es. TAC torace"></label><label>Stato <select id="pdfVisitaStato"><option value="da_prenotare">Da prenotare</option><option value="fissata">Prenotata (aggiungi poi la data in Prossime visite)</option></select></label></div></div></div><div class="actions"><button class="btn btn-outline" onclick="chiudiModal('modalPdf')">Annulla</button><button class="btn btn-primary" id="nuovoPdfSalva" onclick="salvaNuovoPdf()">Carica PDF</button></div></div></div>
   <div class="modal-overlay" id="modalSupplement">
     <div class="modal" style="max-width:760px">
       <h3 id="sModalTitle">Aggiungi integratore</h3>
@@ -1020,6 +1020,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     function ramoArchivio(testo) {
       testo=TerapiaCategories.canonical(testo);
       if(testo==='Vaccinazioni')return testo;
+      if(testo==='Medico di famiglia')return testo;
       const s=(testo||'').toLocaleLowerCase('it');
       if(/strumental|ecografia|ecografie|tc |tac|risonanz|radiolog|rx torace/.test(s)) return 'Esami strumentali';
       if(/cardio|coronar|ipertension/.test(s)) return 'Cardiologia';
@@ -1055,7 +1056,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         map[k].documenti++;
       });
       if(supplementList().length){const group=map['Integratori']||={eventi:0,farmaci:0,documenti:0,allegati:0};group.integratori=supplementList().length;group.allegati+=supplementList().reduce((n,s)=>n+(s.allegati||[]).length,0);}
-      if(!map.Endocrinologia)map.Endocrinologia={eventi:0,farmaci:0,allegati:0,documenti:0};
+      for(const area of ['Endocrinologia','Medico di famiglia',...(data.areePersonalizzate||[])])if(!map[area])map[area]={eventi:0,farmaci:0,allegati:0,documenti:0};
       const keys = Object.keys(map).sort();
       archivioGrid.innerHTML = keys.map(k => `
         <div class="arch-card" onclick="apriArchivioDettaglio('${esc(k).replace(/'/g,"\\'")}')">
@@ -1091,7 +1092,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     function apriArchivioDettaglio(pat) {
       archivioDettaglio.style.display = 'block';
       archTitolo.textContent = pat;
-      const ev = data.eventi.filter(e=>ramoArchivio(e.ramo||e.patologia||e.tipo)===pat).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+      const ev = data.eventi.filter(e=>e.tipo!=='visita_futura'&&ramoArchivio(e.ramo||e.patologia||e.tipo)===pat).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
       const farm = data.farmaci.filter(f=>ramoArchivio(f.patologia||'Terapia')===pat);
       const docs = (data.documenti||[]).filter(d=>documentArea(d)===pat).sort((a,b)=>a.nome.localeCompare(b.nome));
       let html = '<button class="btn btn-primary no-print" onclick="apriNuovoPdf(true)">➕ Aggiungi PDF in questa area</button>';
@@ -1496,11 +1497,12 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         salvaDati();repaint();refreshArchiveDetail();mostraToast('Nome aggiornato');
       }catch(error){alert(error.message);}
     }
+    function aggiungiAreaClinica(){const raw=prompt('Nome della nuova area clinica:');if(raw===null)return;const area=raw.trim().replace(/[<>]/g,'');if(!area||area.length>80){alert('Inserisci un nome valido, massimo 80 caratteri.');return;}data.areePersonalizzate||=[];if(!data.areePersonalizzate.includes(area))data.areePersonalizzate.push(area);syncChanged();const select=el('nuovoPdfArea');if(select){select.add(new Option(area,area));select.value=area;}mostraToast('Area clinica aggiunta');}
     function apriNuovoPdf(inArea=false){
       if(uploadsPending||backupBusy){alert('Attendi il termine delle operazioni in corso.');return;}
-      el('nuovoPdfFile').value='';el('nuovoPdfNome').value='';el('nuovoPdfNota').value='';
-      el('nuovoPdfArea').innerHTML=documentAreas.map(area=>`<option value="${esc(area)}">${esc(area)}</option>`).join('');
-      el('nuovoPdfArea').value=inArea&&documentAreas.includes(archTitolo.textContent)?archTitolo.textContent:'Documenti da classificare';
+      el('nuovoPdfFile').value='';el('nuovoPdfNome').value='';el('nuovoPdfNota').value='';el('pdfVisitaRichiesta').checked=false;el('pdfVisitaCampi').hidden=true;el('pdfVisitaTitolo').value='';
+      el('nuovoPdfArea').innerHTML=[...new Set([...documentAreas,...TerapiaCategories.options(data),...(data.areePersonalizzate||[])])].map(area=>`<option value="${esc(area)}">${esc(area)}</option>`).join('');
+      el('nuovoPdfArea').value=inArea&&[...el('nuovoPdfArea').options].some(o=>o.value===archTitolo.textContent)?archTitolo.textContent:'Documenti da classificare';
       el('modalPdf').classList.add('open');
     }
     async function salvaNuovoPdf(){
@@ -1508,18 +1510,20 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       const file=el('nuovoPdfFile').files[0];if(!file){alert('Seleziona un PDF.');return;}
       let nome;try{nome=nomePdf(el('nuovoPdfNome').value||file.name);}catch(error){alert(error.message);return;}
       const area=el('nuovoPdfArea').value,nota=el('nuovoPdfNota').value.trim();
+      const visitaRichiesta=el('pdfVisitaRichiesta')?.checked;const visitaTitolo=el('pdfVisitaTitolo')?.value.trim();const visitaStato=el('pdfVisitaStato')?.value||'da_prenotare';if(visitaRichiesta&&!visitaTitolo){alert('Indica quale visita o esame è stato prescritto.');return;}
       uploadsPending++;el('modalPdf').inert=true;el('nuovoPdfSalva').disabled=true;
       try{
         if(await file.slice(0,5).text()!=='%PDF-')throw Error('Il file selezionato non è un PDF valido.');
         const a=await uploadFile(file);
         data.documenti.push({id:'doc_uploaded_'+crypto.randomUUID(),nome,ramo:area,path:'uploaded/'+crypto.randomUUID()+'/'+file.name,nota,fileKey:a.fileKey,tipo:a.tipo,size:a.size});
+        if(visitaRichiesta){data.controlli||=[];data.controlli.push({id:'ctrl_'+crypto.randomUUID(),titolo:visitaTitolo,ramo:area,stato:visitaStato,data:'',documentoId:data.documenti[data.documenti.length-1].id,note:'Prescritto nel documento: '+nome});}
         syncChanged();await syncUploadCheckpoint();el('modalPdf').classList.remove('open');repaint();refreshArchiveDetail();mostraToast('PDF aggiunto');
       }catch(error){alert(error.message);}finally{uploadsPending--;el('modalPdf').inert=false;el('nuovoPdfSalva').disabled=false;syncNow();}
     }
-    const documentAreas=['Medico','Vaccinazioni','Cardiologia','Nefrologia','Urologia','Dermatologia','Pneumologia','Neurologia','Otorinolaringoiatria','Oculistica','Esami strumentali','Esami da laboratorio','Terapia','Integratori','Documenti da classificare'];
-    function documentArea(d){d={...d,ramo:TerapiaCategories.canonical(d.ramo)};return documentAreas.includes(d.ramo)?d.ramo:ramoArchivio((d.ramo||'')+' '+(d.nome||''));}
+    const documentAreas=['Medico di famiglia','Vaccinazioni','Cardiologia','Endocrinologia','Nefrologia','Urologia','Dermatologia','Pneumologia','Neurologia','Otorinolaringoiatria','Oculistica','Esami strumentali','Esami da laboratorio','Terapia','Integratori','Documenti da classificare'];
+    function documentArea(d){const area=TerapiaCategories.canonical(d.ramo);return area&&area!=='Documenti da classificare'?area:area||'Documenti da classificare';}
     function documentControls(d){const index=data.documenti.indexOf(d);return `<label class="no-print" style="display:inline-block;margin:.35rem .5rem;font-size:.78rem">Area <select aria-label="Area di ${esc(d.nome)}" onchange="setDocumentArea(${index},this.value)" style="max-width:220px;padding:.3rem">${(!documentAreas.includes(d.ramo)&&d.ramo?[d.ramo,...documentAreas]:documentAreas).map(area=>`<option value="${esc(area)}" ${d.ramo===area?'selected':''}>${esc(area)}</option>`).join('')}</select></label>`;}
-    function setDocumentArea(index,area){if(!documentAreas.includes(area)||!data.documenti[index])return;data.documenti[index].ramo=area;syncChanged();renderDocumentiClinici();renderArchivio();refreshArchiveDetail();}
+    function setDocumentArea(index,area){if(!area||!data.documenti[index])return;data.documenti[index].ramo=area;syncChanged();renderDocumentiClinici();renderArchivio();refreshArchiveDetail();}
     async function importOriginalFolder(ev){
       const files=[...(ev.target.files||[])].filter(f=>/\.pdf$/i.test(f.name));if(!files.length)return;
       if(uploadsPending||backupBusy){alert('Attendi il termine dei caricamenti in corso');ev.target.value='';return;}
@@ -1725,7 +1729,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 })();
 
 </script>
-<script defer src="./care-experience.js?v=20261102-profile-full"></script>
+<script defer src="./care-experience.js?v=20261102-clean-profile"></script>
 <script defer src="./profiles-ui.js?v=20261023-2"></script>
 <link rel="stylesheet" href="./care-tools.css?v=20261024-compact-grouped">
 <script defer src="./pressure-diary.js?v=20261024-compact-grouped"></script>
