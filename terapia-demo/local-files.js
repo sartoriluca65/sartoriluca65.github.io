@@ -15,6 +15,7 @@ async function demoFileStore(action,key,value){
   }),action==='put'?120000:10000);
 }
 async function demoFilesReady(){for(const f of await demoFileStore('getAll'))demoUrls.set(f.key,URL.createObjectURL(f.blob));}
+async function demoFileExists(key,size){const saved=await demoFileStore('get',key);return !!saved?.blob&&saved.blob.size===size;}
 function demoFileUrl(key){return demoUrls.get(key)||'';}
 async function demoFileDelete(key){await demoFileStore('delete',key);const old=demoUrls.get(key);if(old)URL.revokeObjectURL(old);demoUrls.delete(key);}
 async function localFileResponse(key){const f=await demoFileStore('get',key);return f?new Response(f.blob):new Response('File non trovato',{status:404});}
