@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <script src="./document-categories.js?v=20261102-endocrinologia"></script>
+  <script src="./document-categories.js?v=20261102-family"></script>
   <script src="./reliability-core.js?v=20261024-compact-grouped"></script>
   <script src="./profile-context.js?v=20261023-2"></script>
   <script src="./profiles-local.js?v=20261023-2"></script>
@@ -430,7 +430,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalPdf"><div class="modal"><h2>Aggiungi PDF</h2><div class="form-grid"><div class="form-group full"><label for="nuovoPdfFile">Seleziona PDF *</label><input type="file" id="nuovoPdfFile" accept="application/pdf,.pdf" onchange="document.getElementById('nuovoPdfNome').value=this.files[0]?.name||''"></div><div class="form-group full"><label for="nuovoPdfNome">Nome del PDF *</label><input id="nuovoPdfNome" maxlength="220" placeholder="Es. Visita cardiologica ottobre 2026.pdf"></div><div class="form-group"><label for="nuovoPdfArea">Area clinica</label><select id="nuovoPdfArea"></select><button type="button" class="btn btn-outline btn-sm" onclick="aggiungiAreaClinica()">➕ Aggiungi area manualmente</button></div><div class="form-group full"><label for="nuovoPdfNota">Note</label><textarea id="nuovoPdfNota" rows="3"></textarea></div></div><div class="actions"><button class="btn btn-outline" onclick="chiudiModal('modalPdf')">Annulla</button><button class="btn btn-primary" id="nuovoPdfSalva" onclick="salvaNuovoPdf()">Carica PDF</button></div></div></div>
+  <div class="modal-overlay" id="modalPdf"><div class="modal"><h2>Aggiungi PDF</h2><div class="form-grid"><div class="form-group full"><label for="nuovoPdfFile">Seleziona PDF *</label><input type="file" id="nuovoPdfFile" accept="application/pdf,.pdf" onchange="document.getElementById('nuovoPdfNome').value=this.files[0]?.name||''"></div><div class="form-group full"><label for="nuovoPdfNome">Nome del PDF *</label><input id="nuovoPdfNome" maxlength="220" placeholder="Es. Visita cardiologica ottobre 2026.pdf"></div><div class="form-group"><label for="nuovoPdfArea">Area clinica</label><select id="nuovoPdfArea"></select><button type="button" class="btn btn-outline btn-sm" onclick="aggiungiAreaClinica()">➕ Aggiungi area manualmente</button></div><div class="form-group full"><label for="nuovoPdfNota">Note</label><textarea id="nuovoPdfNota" rows="3"></textarea></div><div class="form-group full"><label><input type="checkbox" id="pdfVisitaRichiesta" onchange="document.getElementById('pdfVisitaCampi').hidden=!this.checked"> Il medico ha prescritto una nuova visita o un esame?</label><div id="pdfVisitaCampi" hidden><label>Visita o esame da programmare <input id="pdfVisitaTitolo" placeholder="Es. TAC torace"></label><label>Stato <select id="pdfVisitaStato"><option value="da_prenotare">Da prenotare</option><option value="fissata">Prenotata (aggiungi poi la data in Prossime visite)</option></select></label></div></div></div><div class="actions"><button class="btn btn-outline" onclick="chiudiModal('modalPdf')">Annulla</button><button class="btn btn-primary" id="nuovoPdfSalva" onclick="salvaNuovoPdf()">Carica PDF</button></div></div></div>
   <div class="modal-overlay" id="modalSupplement">
     <div class="modal" style="max-width:760px">
       <h3 id="sModalTitle">Aggiungi integratore</h3>
@@ -1500,7 +1500,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     function aggiungiAreaClinica(){const raw=prompt('Nome della nuova area clinica:');if(raw===null)return;const area=raw.trim().replace(/[<>]/g,'');if(!area||area.length>80){alert('Inserisci un nome valido, massimo 80 caratteri.');return;}data.areePersonalizzate||=[];if(!data.areePersonalizzate.includes(area))data.areePersonalizzate.push(area);syncChanged();const select=el('nuovoPdfArea');if(select){select.add(new Option(area,area));select.value=area;}mostraToast('Area clinica aggiunta');}
     function apriNuovoPdf(inArea=false){
       if(uploadsPending||backupBusy){alert('Attendi il termine delle operazioni in corso.');return;}
-      el('nuovoPdfFile').value='';el('nuovoPdfNome').value='';el('nuovoPdfNota').value='';
+      el('nuovoPdfFile').value='';el('nuovoPdfNome').value='';el('nuovoPdfNota').value='';el('pdfVisitaRichiesta').checked=false;el('pdfVisitaCampi').hidden=true;el('pdfVisitaTitolo').value='';
       el('nuovoPdfArea').innerHTML=[...new Set([...documentAreas,...TerapiaCategories.options(data),...(data.areePersonalizzate||[])])].map(area=>`<option value="${esc(area)}">${esc(area)}</option>`).join('');
       el('nuovoPdfArea').value=inArea&&documentAreas.includes(archTitolo.textContent)?archTitolo.textContent:'Documenti da classificare';
       el('modalPdf').classList.add('open');
@@ -1510,11 +1510,13 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       const file=el('nuovoPdfFile').files[0];if(!file){alert('Seleziona un PDF.');return;}
       let nome;try{nome=nomePdf(el('nuovoPdfNome').value||file.name);}catch(error){alert(error.message);return;}
       const area=el('nuovoPdfArea').value,nota=el('nuovoPdfNota').value.trim();
+      const visitaRichiesta=el('pdfVisitaRichiesta')?.checked;const visitaTitolo=el('pdfVisitaTitolo')?.value.trim();const visitaStato=el('pdfVisitaStato')?.value||'da_prenotare';if(visitaRichiesta&&!visitaTitolo){alert('Indica quale visita o esame è stato prescritto.');return;}
       uploadsPending++;el('modalPdf').inert=true;el('nuovoPdfSalva').disabled=true;
       try{
         if(await file.slice(0,5).text()!=='%PDF-')throw Error('Il file selezionato non è un PDF valido.');
         const a=await uploadFile(file);
         data.documenti.push({id:'doc_uploaded_'+crypto.randomUUID(),nome,ramo:area,path:'uploaded/'+crypto.randomUUID()+'/'+file.name,nota,fileKey:a.fileKey,tipo:a.tipo,size:a.size});
+        if(visitaRichiesta){data.controlli||=[];data.controlli.push({id:'ctrl_'+crypto.randomUUID(),titolo:visitaTitolo,ramo:area,stato:visitaStato,data:'',note:'Prescritto nel documento: '+nome});}
         syncChanged();await syncUploadCheckpoint();el('modalPdf').classList.remove('open');repaint();refreshArchiveDetail();mostraToast('PDF aggiunto');
       }catch(error){alert(error.message);}finally{uploadsPending--;el('modalPdf').inert=false;el('nuovoPdfSalva').disabled=false;syncNow();}
     }
@@ -1727,7 +1729,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 })();
 
 </script>
-<script defer src="./care-experience.js?v=20261102-profile-full"></script>
+<script defer src="./care-experience.js?v=20261102-clean-profile"></script>
 <script defer src="./profiles-ui.js?v=20261023-2"></script>
 <link rel="stylesheet" href="./care-tools.css?v=20261024-compact-grouped">
 <script defer src="./pressure-diary.js?v=20261024-compact-grouped"></script>
