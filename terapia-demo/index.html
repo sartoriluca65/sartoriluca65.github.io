@@ -201,7 +201,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         <button class="btn btn-primary btn-sm" onclick="creaCartellaClinicaMedica()">📋 Crea cartella clinica medica</button>
       </div>
     </div>
-<div class="stats no-print" id="statsOggi"></div>
+<div class="card no-print" id="schedaProfilo" style="margin:.7rem 0"><h2>Il mio profilo · dati personali</h2><div id="datiProfiloVisibili" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.6rem;margin:.7rem 0"></div><button class="btn btn-outline btn-sm" onclick="apriModalPaziente()">✏️ Modifica dati personali</button></div><div class="stats no-print" id="statsOggi"></div>
     </div>
 
     <div class="tabs no-print">
@@ -372,7 +372,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       <div class="card">
         <h2>Archivio per patologia / area clinica</h2>
         <p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem">Clicca su un’area per vedere tutti gli eventi e i farmaci collegati.</p>
-        <div class="archivio-grid" id="archivioGrid"></div>
+        <div class="archivio-grid" id="archivioGrid"></div><p style="color:var(--muted);font-size:.85rem;margin-top:.8rem">Le modifiche ai nomi aggiornano le categorie associate; l’eliminazione è consentita solo per aree senza dati collegati.</p>
       </div>
       <div class="card" id="archivioDettaglio" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
@@ -581,7 +581,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
   </div>
 
   <datalist id="listaPatologie">
-    <option value="Cardiologia">
+    <option value="Cardiologia"><option value="Endocrinologia">
     <option value="Ipertensione">
     <option value="Respiratorio / Asma-BPCO">
     <option value="OSAS">
@@ -685,6 +685,8 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       if (p.cf) info.push(p.cf);
       info.push('Gruppo sanguigno: '+(p.gruppoSanguigno||'non indicato'));
       document.getElementById('pazienteInfo').textContent = info.join(' · ');
+      const fields=[['Nome',p.nome],['Cognome',p.cognome],['Data di nascita',p.nascita?formatData(p.nascita):''],['Codice fiscale',p.cf],['Indirizzo',p.indirizzo],['Telefono',p.telefono],['Medico',p.medico],['Gruppo sanguigno',p.gruppoSanguigno],['Note',p.note]];
+      document.getElementById('datiProfiloVisibili').innerHTML=fields.map(([label,value])=>`<div><small style="color:var(--muted)">${esc(label)}</small><div style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(value||'Non indicato')}</div></div>`).join('');
     }
     function calcolaEta(iso) {
       if (!iso) return null;
@@ -1058,7 +1060,32 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         <div class="arch-card" onclick="apriArchivioDettaglio('${esc(k).replace(/'/g,"\\'")}')">
           <h3>${esc(k)}</h3>
           <div class="cnt">${map[k].integratori?map[k].integratori+' integratori · ':''}${map[k].eventi} eventi · ${map[k].farmaci} farmaci · ${map[k].documenti} PDF · ${map[k].allegati} allegati</div>
+          <div class="actions no-print" style="margin-top:.6rem"><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();modificaAreaClinica('${esc(k).replace(/'/g,"\\'")}')">Modifica</button><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();eliminaAreaClinica('${esc(k).replace(/'/g,"\\'")}')">Elimina</button></div>
         </div>`).join('') || '<div class="empty-state">Nessun archivio</div>';
+    }
+    function modificaAreaClinica(area){
+      const nuovo=prompt('Nuovo nome dell’area clinica / patologia:',area);
+      if(nuovo===null)return;
+      const nome=nuovo.trim();
+      if(!nome||nome.length>100){alert('Inserisci un nome valido (massimo 100 caratteri).');return;}
+      if(nome===area)return;
+      if(!confirm('Rinominare '+area+' in '+nome+'? Gli eventi, i farmaci e i documenti collegati resteranno conservati.'))return;
+      let changes=0;
+      for(const e of data.eventi){if(ramoArchivio(e.ramo||e.patologia||e.tipo)===area){if(e.ramo){e.ramo=nome;}else{e.patologia=nome;}changes++;}}
+      for(const f of data.farmaci){if(ramoArchivio(f.patologia||'Terapia')===area){f.patologia=nome;changes++;}}
+      for(const d of data.documenti||[]){if(documentArea(d)===area){d.ramo=nome;changes++;}}
+      if(!changes){alert('Nessun elemento collegato da rinominare.');return;}
+      salvaDati();renderArchivio();chiudiArchivioDettaglio();mostraToast('Area aggiornata · '+changes+' elementi');
+    }
+    function eliminaAreaClinica(area){
+      const events=data.eventi.filter(e=>ramoArchivio(e.ramo||e.patologia||e.tipo)===area);
+      const drugs=data.farmaci.filter(f=>ramoArchivio(f.patologia||'Terapia')===area);
+      const docs=(data.documenti||[]).filter(d=>documentArea(d)===area);
+      if(!confirm('Rimuovere la classificazione '+area+'? '+events.length+' eventi, '+drugs.length+' farmaci e '+docs.length+' documenti resteranno conservati, ma saranno spostati nelle categorie generali.'))return;
+      for(const e of events){e.ramo='Medico';e.patologia='';}
+      for(const f of drugs)f.patologia='Generale';
+      for(const d of docs)d.ramo='Documenti da classificare';
+      salvaDati();renderArchivio();chiudiArchivioDettaglio();mostraToast('Classificazione rimossa; dati clinici conservati');
     }
     function apriArchivioDettaglio(pat) {
       archivioDettaglio.style.display = 'block';
