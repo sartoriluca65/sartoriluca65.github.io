@@ -1619,20 +1619,20 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     async function recoveryRead(){try{return await cacheGet('beforeRestore');}catch{return null;}}
     async function recoveryButton(){el('undoRestoreButton').hidden=!(await recoveryRead());}
     async function restorePreparedBackup(){
-      if(!preparedBackup||backupBusy||uploadsPending)return;const source=preparedBackup;transferLock(true);uploadsPending++;
+      if(!preparedBackup||backupBusy||uploadsPending)return;const source=preparedBackup,createdFiles=[];let committed=false;transferLock(true);uploadsPending++;
       try{
         const refs=TerapiaBackup.refs(source.data),mapping=new Map();
         for(let i=0;i<refs.length;i++){
           const ref=refs[i];backupStatus(`Ripristino allegato ${i+1} di ${refs.length}…`);
           if(source.legacy){const r=await localFileResponse(ref.key);if(!r.ok)throw Error('Il vecchio JSON non contiene il file '+ref.nome+'. Serve un backup ZIP completo.');mapping.set(ref.key,ref.key);}
-          else{const f=source.files.get(ref.key);if(!f)throw Error('File mancante nel backup');await TerapiaRestoreFile.put(ref.key,f.bytes,f.nome);mapping.set(ref.key,ref.key);}
+          else{const f=source.files.get(ref.key);if(!f)throw Error('File mancante nel backup');const alreadyStored=await TerapiaRestoreFile.exists(ref.key,f.bytes.size);await TerapiaRestoreFile.put(ref.key,f.bytes,f.nome);if(!alreadyStored)createdFiles.push(ref.key);mapping.set(ref.key,ref.key);}
         }
         const remote=await fetchArchive();
         await recoveryWrite({data:structuredClone(data),savedAt:new Date().toISOString()});
         const restored=TerapiaBackup.replaceRefs(source.data,mapping);restored.integratori ||= [];
-        data=restored;syncBase=remote.data?structuredClone(remote.data):null;syncVersion=remote.version;syncConflict=false;document.getElementById('syncConflict').style.display='none';syncDirty=true;await cacheWrite();repaint();
+        data=restored;committed=true;syncBase=remote.data?structuredClone(remote.data):null;syncVersion=remote.version;syncConflict=false;document.getElementById('syncConflict').style.display='none';syncDirty=true;await cacheWrite();repaint();
         await source.dispose?.();preparedBackup=null;el('restoreReview').hidden=true;el('undoRestoreButton').hidden=false;backupStatus('Dati e allegati ripristinati. Salvataggio locale in corso…');
-      }catch(e){backupStatus('Ripristino non completato: '+e.message);alert(e.message);}
+      }catch(e){if(!committed){for(const key of createdFiles.reverse())try{await TerapiaRestoreFile.removeNew(key);}catch{}}backupStatus('Ripristino non completato: '+e.message);alert(e.message);}
       finally{uploadsPending--;transferLock(false);await syncNow();if(syncDirty)backupStatus('Dati locali conservati: attendi “Salvato sul dispositivo” prima di chiudere la pagina.');else if(!preparedBackup)backupStatus('Ripristino completato e salvato sul dispositivo. La copia precedente resta recuperabile su questo dispositivo.');}
     }
     async function undoRestore(){
