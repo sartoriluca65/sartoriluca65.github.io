@@ -1092,7 +1092,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     function apriArchivioDettaglio(pat) {
       archivioDettaglio.style.display = 'block';
       archTitolo.textContent = pat;
-      const ev = data.eventi.filter(e=>ramoArchivio(e.ramo||e.patologia||e.tipo)===pat).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+      const ev = data.eventi.filter(e=>e.tipo!=='visita_futura'&&ramoArchivio(e.ramo||e.patologia||e.tipo)===pat).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
       const farm = data.farmaci.filter(f=>ramoArchivio(f.patologia||'Terapia')===pat);
       const docs = (data.documenti||[]).filter(d=>documentArea(d)===pat).sort((a,b)=>a.nome.localeCompare(b.nome));
       let html = '<button class="btn btn-primary no-print" onclick="apriNuovoPdf(true)">➕ Aggiungi PDF in questa area</button>';
@@ -1502,7 +1502,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       if(uploadsPending||backupBusy){alert('Attendi il termine delle operazioni in corso.');return;}
       el('nuovoPdfFile').value='';el('nuovoPdfNome').value='';el('nuovoPdfNota').value='';el('pdfVisitaRichiesta').checked=false;el('pdfVisitaCampi').hidden=true;el('pdfVisitaTitolo').value='';
       el('nuovoPdfArea').innerHTML=[...new Set([...documentAreas,...TerapiaCategories.options(data),...(data.areePersonalizzate||[])])].map(area=>`<option value="${esc(area)}">${esc(area)}</option>`).join('');
-      el('nuovoPdfArea').value=inArea&&documentAreas.includes(archTitolo.textContent)?archTitolo.textContent:'Documenti da classificare';
+      el('nuovoPdfArea').value=inArea&&[...el('nuovoPdfArea').options].some(o=>o.value===archTitolo.textContent)?archTitolo.textContent:'Documenti da classificare';
       el('modalPdf').classList.add('open');
     }
     async function salvaNuovoPdf(){
@@ -1516,12 +1516,12 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         if(await file.slice(0,5).text()!=='%PDF-')throw Error('Il file selezionato non è un PDF valido.');
         const a=await uploadFile(file);
         data.documenti.push({id:'doc_uploaded_'+crypto.randomUUID(),nome,ramo:area,path:'uploaded/'+crypto.randomUUID()+'/'+file.name,nota,fileKey:a.fileKey,tipo:a.tipo,size:a.size});
-        if(visitaRichiesta){data.controlli||=[];data.controlli.push({id:'ctrl_'+crypto.randomUUID(),titolo:visitaTitolo,ramo:area,stato:visitaStato,data:'',note:'Prescritto nel documento: '+nome});}
+        if(visitaRichiesta){data.controlli||=[];data.controlli.push({id:'ctrl_'+crypto.randomUUID(),titolo:visitaTitolo,ramo:area,stato:visitaStato,data:'',documentoId:data.documenti[data.documenti.length-1].id,note:'Prescritto nel documento: '+nome});}
         syncChanged();await syncUploadCheckpoint();el('modalPdf').classList.remove('open');repaint();refreshArchiveDetail();mostraToast('PDF aggiunto');
       }catch(error){alert(error.message);}finally{uploadsPending--;el('modalPdf').inert=false;el('nuovoPdfSalva').disabled=false;syncNow();}
     }
     const documentAreas=['Medico di famiglia','Vaccinazioni','Cardiologia','Endocrinologia','Nefrologia','Urologia','Dermatologia','Pneumologia','Neurologia','Otorinolaringoiatria','Oculistica','Esami strumentali','Esami da laboratorio','Terapia','Integratori','Documenti da classificare'];
-    function documentArea(d){const area=TerapiaCategories.canonical(d.ramo);return area&&area!=='Documenti da classificare'?area:ramoArchivio((area||'')+' '+(d.nome||''));}
+    function documentArea(d){const area=TerapiaCategories.canonical(d.ramo);return area&&area!=='Documenti da classificare'?area:area||'Documenti da classificare';}
     function documentControls(d){const index=data.documenti.indexOf(d);return `<label class="no-print" style="display:inline-block;margin:.35rem .5rem;font-size:.78rem">Area <select aria-label="Area di ${esc(d.nome)}" onchange="setDocumentArea(${index},this.value)" style="max-width:220px;padding:.3rem">${(!documentAreas.includes(d.ramo)&&d.ramo?[d.ramo,...documentAreas]:documentAreas).map(area=>`<option value="${esc(area)}" ${d.ramo===area?'selected':''}>${esc(area)}</option>`).join('')}</select></label>`;}
     function setDocumentArea(index,area){if(!area||!data.documenti[index])return;data.documenti[index].ramo=area;syncChanged();renderDocumentiClinici();renderArchivio();refreshArchiveDetail();}
     async function importOriginalFolder(ev){
