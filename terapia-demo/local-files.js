@@ -16,7 +16,7 @@ async function demoFileStore(action,key,value){
 }
 async function demoFilesReady(){for(const f of await demoFileStore('getAll'))demoUrls.set(f.key,URL.createObjectURL(f.blob));}
 async function demoFileExists(key,size){const saved=await demoFileStore('get',key);return !!saved?.blob&&saved.blob.size===size;}
-async function demoFileRestore(key,file,name){if(!/^[a-f0-9-]{36}$/.test(key))throw Error('Chiave allegato non valida');if(await demoFileExists(key,file.size))return key;const blob=file instanceof Blob?file:new Blob([file]);await demoFileStore('put',key,{key,blob,name});if(!await demoFileExists(key,blob.size))throw Error('Allegato non verificato: '+name);const old=demoUrls.get(key);if(old)URL.revokeObjectURL(old);demoUrls.set(key,URL.createObjectURL(blob));return key;}
+async function demoFileRestore(key,file,name){if(!/^[a-f0-9-]{36}$/.test(key))throw Error('Chiave allegato non valida');const existing=await demoFileStore('get',key);if(existing){if(existing.blob?.size!==file.size)throw Error('Conflitto allegato già presente: '+name);return key;}const blob=file instanceof Blob?file:new Blob([file]);await demoFileStore('put',key,{key,blob,name});if(!await demoFileExists(key,blob.size))throw Error('Allegato non verificato: '+name);const old=demoUrls.get(key);if(old)URL.revokeObjectURL(old);demoUrls.set(key,URL.createObjectURL(blob));return key;}
 globalThis.TerapiaRestoreFile={exists:demoFileExists,put:demoFileRestore};
 function demoFileUrl(key){return demoUrls.get(key)||'';}
 async function demoFileDelete(key){await demoFileStore('delete',key);const old=demoUrls.get(key);if(old)URL.revokeObjectURL(old);demoUrls.delete(key);}
