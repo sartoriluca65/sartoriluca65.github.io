@@ -97,7 +97,12 @@
  }
  function openProfile(){
   const archive=read();if(!archive){alert('Attendi il caricamento dell’archivio.');return;}
-  const box=dialog('Profilo e preferenze'),p=archive.paziente||{};box.append(node('p',[p.nome,p.cognome].filter(Boolean).join(' ')||'Completa il tuo profilo','care-profile-name'),node('p','Le preferenze cambiano soltanto la visualizzazione.','care-muted'));
+  const box=dialog('Profilo e preferenze'),p=archive.paziente||{};box.append(node('p',[p.nome,p.cognome].filter(Boolean).join(' ')||'Completa il tuo profilo','care-profile-name'));
+  const personal=node('section',undefined,'care-personal-summary');personal.append(node('h3','I miei dati personali'));
+  const fields=[['Nome',p.nome],['Cognome',p.cognome],['Data di nascita',format(p.nascita)],['Codice fiscale',p.cf],['Indirizzo',p.indirizzo],['Telefono',p.telefono],['Medico',p.medico],['Gruppo sanguigno',p.gruppoSanguigno],['Note',p.note]];
+  const grid=node('div');grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.75rem;margin:.75rem 0 1rem';
+  for(const [label,value] of fields){const cell=node('div');cell.style.cssText='overflow-wrap:anywhere;white-space:pre-wrap';const title=node('small',label);title.style.color='var(--muted,#667)';cell.append(title,node('div',String(value||'Non indicato')));grid.append(cell);}
+  personal.append(grid);box.append(personal,node('p','Le preferenze cambiano soltanto la visualizzazione.','care-muted'));
   box.append(button('Modifica dati personali',()=>{box.close();if(typeof apriModalPaziente==='function')apriModalPaziente();},'btn btn-primary'));
   const large=node('input');large.type='checkbox';large.checked=document.body.classList.contains('care-large');const label=node('label',undefined,'care-preference');label.append(large,node('span','Caratteri grandi e comandi più leggibili'));large.addEventListener('change',()=>{document.body.classList.toggle('care-large',large.checked);try{localStorage.setItem('lukiapp-care-ui-large-v1',large.checked?'1':'0');}catch{}});box.append(label);
   box.append(node('h3','Protezione dei dati'),node('p',el('syncStatus')?.textContent||'Controlla lo stato del salvataggio nella barra dell’app.','care-status-copy'),node('p',typeof demoFileUrl==='function'?'Questa versione conserva dati e allegati nel browser. Un altro dispositivo richiede un backup completo e il relativo ripristino.':'Questa versione usa il tuo archivio privato. Prima di chiudere, controlla che il salvataggio sia completato; un backup completo è una copia separata.','care-muted'));
