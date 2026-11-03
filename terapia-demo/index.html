@@ -1105,7 +1105,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         html += '</ul>';
       }
       if (ev.length && pat!=='Medico di famiglia') {
-        html += '<h3 style="font-size:1rem;margin:.5rem 0">Eventi</h3';
+        html += '<h3 style="font-size:1rem;margin:.5rem 0">Eventi</h3>';
         ev.forEach(e => {
           html += `<div style="margin-bottom:.8rem;padding-bottom:.6rem;border-bottom:1px solid #eee">
             <div><strong>${formatData(e.data)}</strong> · ${e.tipo} · ${esc(e.titolo)}</div>
