@@ -79,7 +79,7 @@
  if(originalProfile){
   more.append(originalProfile);
   /* The patient details are opened by one clear, central action. */
-  const anagrafica=button('Anagrafica paziente',()=>{more.open=true;originalProfile.scrollIntoView({behavior:'smooth',block:'start'});},'care-patient-open');
+  const anagrafica=button('Anagrafica paziente',()=>{more.hidden=false;more.open=true;originalProfile.scrollIntoView({behavior:'smooth',block:'start'});},'care-patient-open');
   sideToggle.after(anagrafica);
   /* Remove only obsolete duplicate presentation controls, never clinical data. */
   for(const item of document.querySelectorAll('button,a,summary')){
@@ -89,7 +89,7 @@
   more.hidden=true;
  }
 
- function syncNavigation(){const current=document.querySelector('.tab.active')?.dataset.tab;for(const b of nav.querySelectorAll('button')){const active=b.dataset.careTab===current;b.classList.toggle('is-current',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}more.open=false;}
+ function syncNavigation(){const current=document.querySelector('.tab.active')?.dataset.tab;for(const b of nav.querySelectorAll('button')){const active=b.dataset.careTab===current;b.classList.toggle('is-current',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}if(more.open){more.open=false;more.hidden=true;}}
  document.addEventListener('click',event=>{if(event.target.closest?.('.tab[data-tab]'))schedule();});
  const summaryCard=node('section',undefined,'care-today card');summaryCard.id='careToday';summaryCard.setAttribute('aria-label','La tua giornata');el('panel-oggi')?.prepend(summaryCard);
  function summaryBlock(kicker,title,detail,action){const block=node('article',undefined,'care-summary-item');block.append(node('p',kicker,'care-kicker'),node('h3',title),node('p',detail,'care-muted'));if(action)block.append(action);return block;}
