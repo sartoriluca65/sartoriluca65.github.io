@@ -173,7 +173,7 @@
 <link rel="stylesheet" href="./medical.css?v=20261020-iphone-fix">
   <link rel="stylesheet" href="./clinical-theme.css?v=20261021-green">
 <link rel="stylesheet" href="./care-experience.css?v=20261023-1">
-<link rel="stylesheet" href="./clinical-teal.css?v=20261103-patient-v10">
+<link rel="stylesheet" href="./clinical-teal.css?v=20261103-patient-v12">
 </head>
 <body>
 <div class="help-box no-print" style="margin:1rem">VERSIONE PUBBLICA · Inizia da Anagrafica per creare la tua cartella. I dati inseriti restano nel browser di questo dispositivo: nessun archivio condiviso tra utenti. Usa Backup / Ripristino per conservare una copia e trasferirla su un altro dispositivo.</div><div id="syncBar" class="no-print"><div class="top-status"><strong>Cartella personale · Lukiapp</strong><span id="syncStatus" role="status" aria-live="polite">Connessione…</span></div><div class="top-control-groups"><section class="top-control-group" aria-labelledby="archiveToolsTitle"><h2 class="top-control-title" id="archiveToolsTitle">Archivio e backup</h2><div class="top-control-buttons"><button type="button" class="btn top-button" onclick="syncNow()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5 M4 17v-5h5 M6 7a7 7 0 0 1 11-2l3 3 M4 16l3 3a7 7 0 0 0 11-2"/></svg><span>Salva sul dispositivo</span></button><button type="button" class="btn top-button top-button-primary" onclick="downloadBackup()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l4 4v14H3V3h2 M7 3v6h10V3 M7 21v-8h10v8"/></svg><span>Archivio .tlbackup</span></button><button type="button" class="btn top-button" onclick="downloadBackupJson()"><span>Backup JSON .json</span></button><button type="button" class="btn top-button" onclick="document.getElementById('topRestoreInput').click()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v6h6 M5 9a8 8 0 1 1-1 8 M12 7v6l4 2"/></svg><span>Ripristina backup</span></button></div></section><section class="top-control-group" aria-labelledby="documentToolsTitle"><h2 class="top-control-title" id="documentToolsTitle">Documenti</h2><div class="top-control-buttons"><button type="button" class="btn top-button" onclick="document.getElementById('topPdfInput').click()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H5v20h14V7z M14 2v6h5 M8 13h8 M8 17h5"/></svg><span>Carica PDF</span></button><button type="button" class="btn top-button" onclick="document.getElementById('topFolderInput').click()"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 3h9v12H3z M3 6V3h7l2 3h7v3"/></svg><span>Importa cartella</span></button></div></section></div><input id="topRestoreInput" type="file" accept=".tlenc,.tlbackup,.zip,.json,application/octet-stream,application/zip,application/json" hidden onchange="importBackup(event)"><input id="topPdfInput" type="file" accept="application/pdf,.pdf" multiple hidden onchange="importOriginalFolder(event)"><input id="topFolderInput" type="file" webkitdirectory multiple hidden onchange="importOriginalFolder(event)"><input id="originalUpload" type="file" accept="application/pdf,image/jpeg,image/png" hidden onchange="uploadOriginal(event)"></div>
@@ -198,11 +198,12 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       </div>
       <div class="actions">
         <button class="btn btn-outline btn-sm" onclick="apriModalPaziente()">✏️ Anagrafica</button>
+        <button class="btn btn-outline btn-sm" onclick="apriModalPaziente()">✏️ Modifica dati personali</button>
         
         <button class="btn btn-primary btn-sm" onclick="creaCartellaClinicaMedica()">📋 Crea cartella clinica medica</button>
       </div>
     </div>
-<div class="card no-print" id="schedaProfilo" style="margin:.7rem 0"><h2>Il mio profilo · dati personali</h2><div id="datiProfiloVisibili" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.6rem;margin:.7rem 0"></div><button class="btn btn-outline btn-sm" onclick="apriModalPaziente()">✏️ Modifica dati personali</button></div><div class="stats no-print" id="statsOggi"></div>
+<div class="card no-print" id="schedaProfilo" hidden aria-hidden="true"><div id="datiProfiloVisibili"></div></div><div class="stats no-print" id="statsOggi"></div>
     </div>
 
     <div class="tabs no-print">
@@ -1734,7 +1735,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 })();
 
 </script>
-<script defer src="./care-experience.js?v=20261103-patient-v11"></script>
+<script defer src="./care-experience.js?v=20261103-patient-v12"></script>
 <script defer src="./profiles-ui.js?v=20261103-patient-v9"></script>
 <link rel="stylesheet" href="./care-tools.css?v=20261024-compact-grouped">
 <script defer src="./pressure-diary.js?v=20261024-compact-grouped"></script>
