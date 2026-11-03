@@ -56,15 +56,15 @@
  for(const [label,tab,symbol]of [['Oggi','oggi','today'],['Terapie','farmaci','therapy'],['Documenti','cartella','document'],['Agenda','controlli','today'],['Profilo','profile','profile']]){
   const b=button('',()=>tab==='profile'?openProfile():go(tab),'care-nav-button');b.dataset.careTab=tab;b.append(icon(symbol),node('span',label));nav.append(b);
  }
- const more=node('details',undefined,'care-more no-print'),summary=node('summary','Anagrafica personale');more.append(summary);tabs.before(nav,more);more.append(tabs);
+ const more=node('details',undefined,'care-more no-print'),summary=node('summary','Anagrafica paziente');more.append(summary);tabs.before(nav,more);more.append(tabs);
  /* Clinical Edition navigation: reuse the real tab buttons and their existing handlers. */
  const side=node('aside',undefined,'clinical-side no-print');side.id='clinicalSide';side.setAttribute('aria-label','Menu clinico completo');
  const sideHead=node('div',undefined,'clinical-side-head');sideHead.append(node('strong','CLINICAL EDITION'),node('span','Tutte le sezioni'));
  const sideNav=node('nav',undefined,'clinical-side-tabs');sideNav.setAttribute('aria-label','Sezioni della cartella');
- const sideProfile=button('Profili',()=>{const chooser=document.getElementById('clinicalProfiles');if(chooser){chooser.open=!chooser.open;chooser.scrollIntoView({block:'nearest',behavior:'smooth'});}else document.getElementById('familySelect')?.focus();},'clinical-side-profile');
- side.append(sideHead,sideNav,sideProfile);sideNav.append(tabs);container.prepend(side);
+ 
+ side.append(sideHead,sideNav);sideNav.append(tabs);container.prepend(side);
  const publicNotice=document.querySelector('body>.help-box.no-print');
- if(publicNotice){const info=node('details',undefined,'clinical-safety');info.append(node('summary','Informazioni e sicurezza'),publicNotice);side.append(info);}
+ if(publicNotice){const info=node('details',undefined,'clinical-safety');info.append(node('summary','ⓘ  Informazioni e sicurezza'),publicNotice);side.append(info);}
  
  const sideToggle=button('☰ Menu completo',()=>setSide(!side.classList.contains('is-open')),'clinical-side-toggle no-print');
  sideToggle.setAttribute('aria-controls','clinicalSide');sideToggle.setAttribute('aria-expanded','false');
