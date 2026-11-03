@@ -75,7 +75,20 @@
  sideNav.addEventListener('click',event=>{if(event.target.closest?.('.tab[data-tab]'))closeSide();});
  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeSide();});
  document.addEventListener('click',event=>{if(side.classList.contains('is-open')&&!side.contains(event.target)&&!sideToggle.contains(event.target))closeSide();});
- const originalProfile=document.querySelector('.profile-shell');if(originalProfile)more.append(originalProfile);
+ const originalProfile=document.querySelector('.profile-shell');
+ if(originalProfile){
+  more.append(originalProfile);
+  /* The patient details are opened by one clear, central action. */
+  const anagrafica=button('Anagrafica paziente',()=>{more.open=true;originalProfile.scrollIntoView({behavior:'smooth',block:'start'});},'care-patient-open');
+  sideToggle.after(anagrafica);
+  /* Remove only obsolete duplicate presentation controls, never clinical data. */
+  for(const item of document.querySelectorAll('button,a,summary')){
+   if(item===anagrafica||item===summary||more.contains(item)||side.contains(item))continue;
+   if(item.textContent.trim().toLocaleLowerCase('it')==='tutte le funzioni')item.hidden=true;
+  }
+  more.hidden=true;
+ }
+
  function syncNavigation(){const current=document.querySelector('.tab.active')?.dataset.tab;for(const b of nav.querySelectorAll('button')){const active=b.dataset.careTab===current;b.classList.toggle('is-current',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}more.open=false;}
  document.addEventListener('click',event=>{if(event.target.closest?.('.tab[data-tab]'))schedule();});
  const summaryCard=node('section',undefined,'care-today card');summaryCard.id='careToday';summaryCard.setAttribute('aria-label','La tua giornata');el('panel-oggi')?.prepend(summaryCard);
