@@ -1,6 +1,6 @@
 # Portale: preparazione dei lettori Rifornio e AutoControl
 
-Solo ramo backup-preparation-2026. Nessuna modifica a main, workflow, impostazioni, segreti o pubblicazioni. Nessun backup reale eseguito o dichiarato riuscito.
+Solo ramo backup-preparation-2026. Nessuna modifica a main, workflow di produzione, impostazioni, segreti o pubblicazioni. Nessun backup reale eseguito o dichiarato riuscito.
 
 ## Rifornio
 
@@ -27,3 +27,13 @@ Prima di un futuro uso autorizzato: esportare verso un file nuovo, conservare co
 Baseline codice: `3b3047cfddbdc85d5e6126261fb843862542ad18`. Lasciare il ramo non unito; una futura correzione inversa può usare questo commit senza riscrivere la storia. Nessuna migrazione o eliminazione automatica. Tornare a un vecchio lettore mentre esiste un registro Rifornio pending è rischioso: il registro deve prima essere verificato e recuperato esplicitamente. Il codice precedente AutoControl mantiene il difetto della collisione e non deve essere usato per importare ZIP sospetti.
 
 La reversibilità del codice non ripristina dati reali. Recuperi reali, autorizzazioni database/account, accessi manuali, cache di produzione e pubblicazione richiedono attività distinte non eseguite. Il repository Rifornio archiviato rimane intatto: è disponibile solo una patch locale equivalente, da valutare prima di qualsiasi futura applicazione.
+
+## Correzioni successive alla revisione
+
+Il toolkit Rifornio ora include `rifornio-before-import-v1` quando il registro è completato o recuperato, conservandone i byte esatti. Un registro `pending` blocca l'esportazione con `RECOVERY_PENDING`: non si certifica come completo un insieme di chiavi potenzialmente parziale. Un registro non valido non viene omesso silenziosamente; cambiamenti durante la lettura invalidano la cattura. Nessuna scrittura, cancellazione o azione di recupero automatica. Le copie precedenti prive di registro restano leggibili.
+
+Il toolkit condiviso TeFinanza riconosce anche i documenti solo testo espliciti e verifica il relativo indice durante la conversione JSON; le dichiarazioni ambigue restano rifiutate. Nessuna modifica alle altre app del portale.
+
+Nuova verifica automatica separata: `.github/workflows/backup-verification.yml`, soli test sintetici con Node 22 e 24, permesso `contents: read`, nessun secret, ambiente di produzione o comando di deploy. Esegue 48 test per versione Node (30 toolkit, 10 lettori e 8 nuove regressioni d'integrazione). Il workflow esistente rimane invariato. Chromium verifica anche il blocco dell'esportazione durante il recupero e il registro preservato dopo la conferma, oltre alle precedenti prove AutoControl.
+
+Rollback di questo aggiornamento: riferimento `548d812396de55bee1647799af94d1fa575c38fb`; preferire lasciare la PR in bozza/non unita. Non usare il vecchio esportatore durante un registro pending. Il merge su main può avviare Pages: richiede autorizzazione separata ed è escluso.
