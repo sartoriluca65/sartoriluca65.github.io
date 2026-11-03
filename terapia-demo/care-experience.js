@@ -87,6 +87,18 @@
    if(item.textContent.trim().toLocaleLowerCase('it')==='tutte le funzioni')item.hidden=true;
   }
   more.hidden=true;
+  /* Legacy controls may be inserted after startup by older navigation scripts. */
+  const suppressDuplicate=()=>{
+   for(const item of document.querySelectorAll('button,a,[role="button"]')){
+    if(item===anagrafica||more.contains(item)||side.contains(item))continue;
+    if(item.textContent.trim().replace(/\\s+/g,' ').toLocaleLowerCase('it')==='tutte le funzioni'){
+     item.hidden=true;item.setAttribute('aria-hidden','true');item.style.setProperty('display','none','important');
+    }
+   }
+  };
+  suppressDuplicate();
+  const duplicateObserver=new MutationObserver(suppressDuplicate);
+  duplicateObserver.observe(document.body,{childList:true,subtree:true});
  }
 
  function syncNavigation(){const current=document.querySelector('.tab.active')?.dataset.tab;for(const b of nav.querySelectorAll('button')){const active=b.dataset.careTab===current;b.classList.toggle('is-current',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}if(more.open){more.open=false;more.hidden=true;}}
