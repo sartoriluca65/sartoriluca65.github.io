@@ -1098,9 +1098,11 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       const ev = data.eventi.filter(e=>e.tipo!=='visita_futura'&&ramoArchivio(e.ramo||e.patologia||e.tipo)===pat).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
       const farm = data.farmaci.filter(f=>ramoArchivio(f.patologia||'Terapia')===pat);
       const docs = (data.documenti||[]).filter(d=>documentArea(d)===pat).sort((a,b)=>a.nome.localeCompare(b.nome));
+      const linkedDocs=pat==='Medico di famiglia'&&globalThis.TerapiaCategories?TerapiaCategories.list(data).filter(d=>d.area===pat&&d.index<0):[];
       let html = '<button class="btn btn-primary no-print" onclick="apriNuovoPdf(true)">➕ Aggiungi PDF in questa area</button>';
       if(pat==='Integratori')html+=supplementList().map(s=>`<div class="card"><h3>${esc(s.nome)}</h3><p>${esc(s.dosaggio||'')} · ${formatData(s.inizio)}${s.fine?' – '+formatData(s.fine):''} · ${TerapiaSupplements.status(s)}</p><div class="attach-preview">${(s.allegati||[]).map((a,i)=>supplementAttachment(a,s.id,i)).join('')}</div></div>`).join('');
       if(docs.length){html+='<h3 style="font-size:1rem;margin:.5rem 0">Referti e documenti originali</h3><ul style="margin-left:1.2rem;margin-bottom:1rem">';docs.forEach(d=>{html+=`<li style="margin:.3rem 0">${documentLink(data.documenti.indexOf(d))}${documentControls(d)}${d.nota?`<div style="font-size:.8rem;color:var(--muted)">${esc(d.nota)}</div>`:''}</li>`});html+='</ul>';}
+      if(linkedDocs.length){html+='<h3 style="font-size:1rem;margin:.5rem 0">Allegati e PDF del medico di famiglia</h3><ul style="margin-left:1.2rem;margin-bottom:1rem">';for(const d of linkedDocs){const file=d.file;html+='<li style="margin:.3rem 0">'+esc(d.name)+' · '+esc(d.source||'Documento')+(file.fileKey||file.path?'<div class="muted">Apri il documento dalla scheda originale o dalla sezione Documenti</div>':'')+'</li>';}html+='</ul>';}
       if (pat!=='Medico di famiglia' && farm.length) {
         html += '<h3 style="font-size:1rem;margin:.5rem 0">Farmaci</h3><ul style="margin-left:1.2rem;margin-bottom:1rem">';
         farm.forEach(f => { html += `<li><strong>${esc(f.nome)}</strong> ${esc(f.dosaggio||'')} – ${f.stato}${f.inizio?' (dal '+formatData(f.inizio)+')':''}</li>`; });
@@ -1732,7 +1734,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 })();
 
 </script>
-<script defer src="./care-experience.js?v=20261103-patient-v9"></script>
+<script defer src="./care-experience.js?v=20261103-patient-v11"></script>
 <script defer src="./profiles-ui.js?v=20261103-patient-v9"></script>
 <link rel="stylesheet" href="./care-tools.css?v=20261024-compact-grouped">
 <script defer src="./pressure-diary.js?v=20261024-compact-grouped"></script>
