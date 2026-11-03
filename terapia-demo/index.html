@@ -1063,7 +1063,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         <div class="arch-card" onclick="apriArchivioDettaglio('${esc(k).replace(/'/g,"\\'")}')">
           <h3>${esc(k==='Medico'?'Medico di famiglia':k)}</h3>
           <div class="cnt">${map[k].integratori?map[k].integratori+' integratori · ':''}${k==='Medico di famiglia'?map[k].documenti+' PDF · '+map[k].allegati+' allegati':map[k].eventi+' eventi · '+map[k].farmaci+' farmaci · '+map[k].documenti+' PDF · '+map[k].allegati+' allegati'}</div>
-          ${k==='Medico di famiglia'?'':`<div class="actions no-print" style="margin-top:.6rem"><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();modificaAreaClinica('${esc(k).replace(/'/g,"\\'")}')">Modifica</button><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();eliminaAreaClinica('${esc(k).replace(/'/g,"\\'")}')">Elimina</button></div>`}
+          <div class="actions no-print" style="margin-top:.6rem"><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();modificaAreaClinica('${esc(k).replace(/'/g,"\\'")}')">Modifica</button><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();eliminaAreaClinica('${esc(k).replace(/'/g,"\\'")}')">Elimina</button></div>
         </div>`).join('') || '<div class="empty-state">Nessun archivio</div>';
     }
     function modificaAreaClinica(area){
