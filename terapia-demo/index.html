@@ -5,7 +5,7 @@
   <script src="./document-categories.js?v=20261102-family"></script>
   <script src="./reliability-core.js?v=20261024-compact-grouped"></script>
   <script src="./profile-context.js?v=20261023-2"></script>
-  <script src="./profiles-local.js?v=20261103-menu-v5"></script>
+  <script src="./profiles-local.js?v=20261103-delete-v8"></script>
   <link rel="stylesheet" href="./profiles-ui.css?v=20261023-2">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terapia e Cartella Clinica · Lukiapp</title>
@@ -1062,7 +1062,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       archivioGrid.innerHTML = keys.map(k => `
         <div class="arch-card" onclick="apriArchivioDettaglio('${esc(k).replace(/'/g,"\\'")}')">
           <h3>${esc(k)}</h3>
-          <div class="cnt">${map[k].integratori?map[k].integratori+' integratori · ':''}${map[k].eventi} eventi · ${map[k].farmaci} farmaci · ${map[k].documenti} PDF · ${map[k].allegati} allegati</div>
+          <div class="cnt">${map[k].integratori?map[k].integratori+' integratori · ':''}${k==='Medico di famiglia'?map[k].documenti+' PDF · '+map[k].allegati+' allegati':map[k].eventi+' eventi · '+map[k].farmaci+' farmaci · '+map[k].documenti+' PDF · '+map[k].allegati+' allegati'}</div>
           <div class="actions no-print" style="margin-top:.6rem"><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();modificaAreaClinica('${esc(k).replace(/'/g,"\\'")}')">Modifica</button><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();eliminaAreaClinica('${esc(k).replace(/'/g,"\\'")}')">Elimina</button></div>
         </div>`).join('') || '<div class="empty-state">Nessun archivio</div>';
     }
@@ -1730,8 +1730,8 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 })();
 
 </script>
-<script defer src="./care-experience.js?v=20261103-anagrafica-v7"></script>
-<script defer src="./profiles-ui.js?v=20261103-menu-v6"></script>
+<script defer src="./care-experience.js?v=20261103-anagrafica-v8"></script>
+<script defer src="./profiles-ui.js?v=20261103-delete-v8"></script>
 <link rel="stylesheet" href="./care-tools.css?v=20261024-compact-grouped">
 <script defer src="./pressure-diary.js?v=20261024-compact-grouped"></script>
 <script defer src="./document-categories-ui.js?v=20261024-compact-grouped"></script>

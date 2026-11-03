@@ -56,7 +56,7 @@
  for(const [label,tab,symbol]of [['Oggi','oggi','today'],['Terapie','farmaci','therapy'],['Documenti','cartella','document'],['Agenda','controlli','today'],['Profilo','profile','profile']]){
   const b=button('',()=>tab==='profile'?openProfile():go(tab),'care-nav-button');b.dataset.careTab=tab;b.append(icon(symbol),node('span',label));nav.append(b);
  }
- const more=node('details',undefined,'care-more no-print'),summary=node('summary','Anagrafica');more.append(summary);tabs.before(nav,more);more.append(tabs);
+ const more=node('details',undefined,'care-more no-print'),summary=node('summary','Anagrafica paziente');more.append(summary);tabs.before(nav,more);more.append(tabs);
  /* Clinical Edition navigation: reuse the real tab buttons and their existing handlers. */
  const side=node('aside',undefined,'clinical-side no-print');side.id='clinicalSide';side.setAttribute('aria-label','Menu clinico completo');
  const sideHead=node('div',undefined,'clinical-side-head');sideHead.append(node('strong','CLINICAL EDITION'),node('span','Tutte le sezioni'));
