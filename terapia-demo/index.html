@@ -198,7 +198,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       </div>
       <div class="actions">
         <button class="btn btn-outline btn-sm" onclick="apriModalPaziente()">✏️ Anagrafica</button>
-        <button class="btn btn-outline btn-sm" onclick="ricaricaDatiClinici()">🔄 Aggiorna dati clinici</button>
+        
         <button class="btn btn-primary btn-sm" onclick="creaCartellaClinicaMedica()">📋 Crea cartella clinica medica</button>
       </div>
     </div>
@@ -1099,12 +1099,12 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       let html = '<button class="btn btn-primary no-print" onclick="apriNuovoPdf(true)">➕ Aggiungi PDF in questa area</button>';
       if(pat==='Integratori')html+=supplementList().map(s=>`<div class="card"><h3>${esc(s.nome)}</h3><p>${esc(s.dosaggio||'')} · ${formatData(s.inizio)}${s.fine?' – '+formatData(s.fine):''} · ${TerapiaSupplements.status(s)}</p><div class="attach-preview">${(s.allegati||[]).map((a,i)=>supplementAttachment(a,s.id,i)).join('')}</div></div>`).join('');
       if(docs.length){html+='<h3 style="font-size:1rem;margin:.5rem 0">Referti e documenti originali</h3><ul style="margin-left:1.2rem;margin-bottom:1rem">';docs.forEach(d=>{html+=`<li style="margin:.3rem 0">${documentLink(data.documenti.indexOf(d))}${documentControls(d)}${d.nota?`<div style="font-size:.8rem;color:var(--muted)">${esc(d.nota)}</div>`:''}</li>`});html+='</ul>';}
-      if (farm.length) {
+      if (pat!=='Medico di famiglia' && farm.length) {
         html += '<h3 style="font-size:1rem;margin:.5rem 0">Farmaci</h3><ul style="margin-left:1.2rem;margin-bottom:1rem">';
         farm.forEach(f => { html += `<li><strong>${esc(f.nome)}</strong> ${esc(f.dosaggio||'')} – ${f.stato}${f.inizio?' (dal '+formatData(f.inizio)+')':''}</li>`; });
         html += '</ul>';
       }
-      if (ev.length) {
+      if (ev.length && pat!=='Medico di famiglia') {
         html += '<h3 style="font-size:1rem;margin:.5rem 0">Eventi</h3>';
         ev.forEach(e => {
           html += `<div style="margin-bottom:.8rem;padding-bottom:.6rem;border-bottom:1px solid #eee">
@@ -1730,7 +1730,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 })();
 
 </script>
-<script defer src="./care-experience.js?v=20261103-menu-v5"></script>
+<script defer src="./care-experience.js?v=20261103-anagrafica-v7"></script>
 <script defer src="./profiles-ui.js?v=20261103-menu-v6"></script>
 <link rel="stylesheet" href="./care-tools.css?v=20261024-compact-grouped">
 <script defer src="./pressure-diary.js?v=20261024-compact-grouped"></script>
