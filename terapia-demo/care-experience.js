@@ -77,13 +77,17 @@
  document.addEventListener('click',event=>{if(side.classList.contains('is-open')&&!side.contains(event.target)&&!sideToggle.contains(event.target))closeSide();});
  const originalProfile=document.querySelector('.profile-shell');
  if(originalProfile){
-  more.append(originalProfile);
-  /* The patient details are opened by one clear, central action. */
-  const anagrafica=button('Anagrafica paziente',()=>{more.hidden=false;more.open=true;originalProfile.scrollIntoView({behavior:'smooth',block:'start'});},'care-patient-open');
-  sideToggle.after(anagrafica);
+  /* One static green patient banner in the former Anagrafica paziente position. */
+  sideToggle.after(originalProfile);
+  const oldCard=originalProfile.querySelector('#schedaProfilo');
+  if(oldCard){oldCard.hidden=true;oldCard.style.setProperty('display','none','important');}
+  /* Preserve the original clinical counters, placing them immediately below the banner. */
+  const counters=originalProfile.querySelector('#statsOggi');
+  if(counters)originalProfile.after(counters);
+  const anagrafica=originalProfile;
   /* Remove only obsolete duplicate presentation controls, never clinical data. */
   for(const item of document.querySelectorAll('button,a,summary')){
-   if(item===anagrafica||item===summary||more.contains(item)||side.contains(item))continue;
+   if(item===summary||originalProfile.contains(item)||more.contains(item)||side.contains(item))continue;
    if(item.textContent.trim().toLocaleLowerCase('it')==='tutte le funzioni')item.hidden=true;
   }
   more.hidden=true;
