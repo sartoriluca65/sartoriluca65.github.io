@@ -91,7 +91,7 @@
   const suppressDuplicate=()=>{
    for(const item of document.querySelectorAll('button,a,[role="button"]')){
     if(item===anagrafica||more.contains(item)||side.contains(item))continue;
-    if(item.textContent.trim().replace(/\\s+/g,' ').toLocaleLowerCase('it')==='tutte le funzioni'){
+    if(item.textContent.trim().replace(/\s+/g,' ').toLocaleLowerCase('it')==='tutte le funzioni'){
      item.hidden=true;item.setAttribute('aria-hidden','true');item.style.setProperty('display','none','important');
     }
    }
