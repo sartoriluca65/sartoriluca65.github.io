@@ -1101,6 +1101,9 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       const docs = (data.documenti||[]).filter(d=>documentArea(d)===pat).sort((a,b)=>a.nome.localeCompare(b.nome));
       const linkedDocs=pat==='Medico di famiglia'&&globalThis.TerapiaCategories?TerapiaCategories.list(data).filter(d=>d.area===pat&&d.index<0):[];
       let html = '<button class="btn btn-primary no-print" onclick="apriNuovoPdf(true)">➕ Aggiungi PDF in questa area</button>';
+      const completedVisits=(data.controlli||[]).filter(c=>c.stato==='completato'&&ramoArchivio(c.ramo||'Medico di famiglia')===pat);
+      if(completedVisits.length){html+='<h3 style="margin:1rem 0 .5rem">Visite effettuate archiviate</h3>';for(const v of completedVisits){html+='<div class="card"><strong>'+esc(v.titolo||'Visita')+'</strong> · '+esc(v.data?formatData(v.data):'Data non indicata')+'<p>'+esc(v.note||'')+'</p>'+(v.allegati||[]).map(a=>'<div>📄 '+esc(a.nome||'Allegato PDF')+'</div>').join('')+'<button class="btn btn-outline btn-sm" onclick="navigateToSection(\'controlli\');modificaControllo(\''+esc(v.id)+'\')">Apri scheda visita</button></div>';}}
+
       if(pat==='Integratori')html+=supplementList().map(s=>`<div class="card"><h3>${esc(s.nome)}</h3><p>${esc(s.dosaggio||'')} · ${formatData(s.inizio)}${s.fine?' – '+formatData(s.fine):''} · ${TerapiaSupplements.status(s)}</p><div class="attach-preview">${(s.allegati||[]).map((a,i)=>supplementAttachment(a,s.id,i)).join('')}</div></div>`).join('');
       if(docs.length){html+='<h3 style="font-size:1rem;margin:.5rem 0">Referti e documenti originali</h3><ul style="margin-left:1.2rem;margin-bottom:1rem">';docs.forEach(d=>{html+=`<li style="margin:.3rem 0">${documentLink(data.documenti.indexOf(d))}${documentControls(d)}${d.nota?`<div style="font-size:.8rem;color:var(--muted)">${esc(d.nota)}</div>`:''}</li>`});html+='</ul>';}
       if(linkedDocs.length){html+='<h3 style="font-size:1rem;margin:.5rem 0">Allegati e PDF del medico di famiglia</h3><ul style="margin-left:1.2rem;margin-bottom:1rem">';for(const d of linkedDocs){const file=d.file;html+='<li style="margin:.3rem 0">'+esc(d.name)+' · '+esc(d.source||'Documento')+(file.fileKey||file.path?'<div class="muted">Apri il documento dalla scheda originale o dalla sezione Documenti</div>':'')+'</li>';}html+='</ul>';}
@@ -1719,7 +1722,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
   <script defer src="./backup-zip-stream.js?v=20261020-iphone-fix"></script>
 <link rel="stylesheet" href="./backup-ui.css?v=20261021-progress">
 <script defer src="./backup-ui.js?v=20261023-json"></script>
-<script defer src="./medical.js?v=20261021-backup-ui"></script>
+<script defer src="./medical.js?v=20261103-archive-v13"></script>
 <script defer src="./exit-app.js?v=20261021-exit"></script>
 <script id="lukiapp-brand-script" data-public-url="https://sartoriluca65.github.io/terapia-demo/" data-app-name="Terapia e Cartella Clinica">
 /* Lukiapp authorship and public-link sharing. No storage, tracking or personal app data. */
