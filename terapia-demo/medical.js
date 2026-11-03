@@ -92,7 +92,7 @@
  function renderMedicalViews(){
   const selected=$('filtroPatEvento')?.value||'',card=$('medicalCartella');if(card)card.innerHTML=(!selected||selected==='Medico'?medicalSummary():'')+(!selected||selected==='Vaccinazioni'?vaccinationArchiveHtml():'');
   if($('archivioDettaglio')?.style.display==='block'){
-   if($('archTitolo')?.textContent==='Medico'){const target=$('medicalArchive');if(target)target.innerHTML=medicalSummary();}
+   
    if($('archTitolo')?.textContent==='Vaccinazioni'){const target=$('vaccinationArchive');if(target)target.innerHTML=vaccinationArchiveHtml();}
   }
  }
@@ -102,10 +102,10 @@
   const oldFilters=root.popolaFiltriPat;if(oldFilters)root.popolaFiltriPat=function(){const select=$('filtroPatEvento'),selected=select.value;oldFilters();for(const label of ['Medico','Vaccinazioni'])if(![...select.options].some(o=>o.value===label))select.add(new Option(label,label));if(['Medico','Vaccinazioni'].includes(selected))select.value=selected;};
   const oldArchive=root.renderArchivio;root.renderArchivio=function(){
    oldArchive();const grid=$('archivioGrid'),headings=[...grid.querySelectorAll('h3')].map(h=>h.textContent);
-   if(!headings.includes('Medico'))grid.insertAdjacentHTML('beforeend','<button type="button" class="arch-card" onclick="apriArchivioDettaglio(\'Medico\')"><h3>Medico</h3><div class="cnt">'+(data.controlli||[]).length+' visite</div></button>');
+   /* Medico di famiglia is already rendered by the canonical archive grid; never add a duplicate. */
    if(!headings.includes('Vaccinazioni'))grid.insertAdjacentHTML('beforeend','<button type="button" class="arch-card" onclick="apriArchivioDettaglio(\'Vaccinazioni\')"><h3>Vaccinazioni</h3><div class="cnt">'+(data.vaccinazioni||[]).length+' registrazioni · '+(data.vaccinazioni||[]).reduce((n,v)=>n+(v.allegati||[]).length,0)+' certificati</div></button>');
   };
-  const oldDetail=root.apriArchivioDettaglio;root.apriArchivioDettaglio=function(pat){oldDetail(pat);if(pat==='Medico')$('archContenuto').insertAdjacentHTML('beforeend','<div id="medicalArchive">'+medicalSummary()+'</div>');if(pat==='Vaccinazioni')$('archContenuto').insertAdjacentHTML('beforeend','<div id="vaccinationArchive">'+vaccinationArchiveHtml()+'</div>');};
+  const oldDetail=root.apriArchivioDettaglio;root.apriArchivioDettaglio=function(pat){oldDetail(pat);/* No legacy Medico visit summary in the document-only family doctor archive. */if(pat==='Vaccinazioni')$('archContenuto').insertAdjacentHTML('beforeend','<div id="vaccinationArchive">'+vaccinationArchiveHtml()+'</div>');};
  }
  async function eventUpload(ev){
   const token=generation.e,files=[...(ev.target.files||[])];if(uploadsPending||backupBusy){alert('Attendi il termine delle operazioni in corso.');return;}uploadsPending++;
