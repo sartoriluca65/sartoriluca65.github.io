@@ -56,22 +56,26 @@
  for(const [label,tab,symbol]of [['Oggi','oggi','today'],['Terapie','farmaci','therapy'],['Documenti','cartella','document'],['Agenda','controlli','today'],['Profilo','profile','profile']]){
   const b=button('',()=>tab==='profile'?openProfile():go(tab),'care-nav-button');b.dataset.careTab=tab;b.append(icon(symbol),node('span',label));nav.append(b);
  }
- const more=node('details',undefined,'care-more no-print'),summary=node('summary','Tutte le funzioni');more.append(summary);tabs.before(nav,more);more.append(tabs);
+ const more=node('details',undefined,'care-more no-print'),summary=node('summary','Anagrafica personale');more.append(summary);tabs.before(nav,more);more.append(tabs);
  /* Clinical Edition navigation: reuse the real tab buttons and their existing handlers. */
  const side=node('aside',undefined,'clinical-side no-print');side.id='clinicalSide';side.setAttribute('aria-label','Menu clinico completo');
  const sideHead=node('div',undefined,'clinical-side-head');sideHead.append(node('strong','CLINICAL EDITION'),node('span','Tutte le sezioni'));
  const sideNav=node('nav',undefined,'clinical-side-tabs');sideNav.setAttribute('aria-label','Sezioni della cartella');
- const sideProfile=button('Mio profilo',()=>{closeSide();openProfile();},'clinical-side-profile');
+ const sideProfile=button('Profili',()=>{const chooser=document.getElementById('clinicalProfiles');if(chooser){chooser.open=!chooser.open;chooser.scrollIntoView({block:'nearest',behavior:'smooth'});}else document.getElementById('familySelect')?.focus();},'clinical-side-profile');
  side.append(sideHead,sideNav,sideProfile);sideNav.append(tabs);container.prepend(side);
+ const publicNotice=document.querySelector('body>.help-box.no-print');
+ if(publicNotice){const info=node('details',undefined,'clinical-safety');info.append(node('summary','Informazioni e sicurezza'),publicNotice);side.append(info);}
+ 
  const sideToggle=button('☰ Menu completo',()=>setSide(!side.classList.contains('is-open')),'clinical-side-toggle no-print');
  sideToggle.setAttribute('aria-controls','clinicalSide');sideToggle.setAttribute('aria-expanded','false');
  nav.after(sideToggle);
+ sideToggle.textContent='☰ Menu principale · Tutte le sezioni';sideToggle.setAttribute('aria-label','Apri il menu principale con tutte le sezioni');
  function setSide(open){side.classList.toggle('is-open',open);sideToggle.setAttribute('aria-expanded',String(open));}
  function closeSide(){setSide(false);}
  sideNav.addEventListener('click',event=>{if(event.target.closest?.('.tab[data-tab]'))closeSide();});
  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeSide();});
  document.addEventListener('click',event=>{if(side.classList.contains('is-open')&&!side.contains(event.target)&&!sideToggle.contains(event.target))closeSide();});
- const originalProfile=document.querySelector('.profile-shell');if(originalProfile){const profileDetails=node('details',undefined,'care-original-profile');profileDetails.append(node('summary','Anagrafica e riepilogo completo'),originalProfile);more.append(profileDetails);}
+ const originalProfile=document.querySelector('.profile-shell');if(originalProfile)more.append(originalProfile);
  function syncNavigation(){const current=document.querySelector('.tab.active')?.dataset.tab;for(const b of nav.querySelectorAll('button')){const active=b.dataset.careTab===current;b.classList.toggle('is-current',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}more.open=false;}
  document.addEventListener('click',event=>{if(event.target.closest?.('.tab[data-tab]'))schedule();});
  const summaryCard=node('section',undefined,'care-today card');summaryCard.id='careToday';summaryCard.setAttribute('aria-label','La tua giornata');el('panel-oggi')?.prepend(summaryCard);
@@ -79,7 +83,7 @@
  function renderToday(){
   const archive=read();if(!archive)return;
   const day=typeof dataCorrente!=='undefined'?dataCorrente:today(),now=new Date(),clock=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0'),view=daily(archive,day,day===today()?clock:'00:00');
-  summaryCard.replaceChildren();const head=node('div',undefined,'care-section-head'),words=node('div');words.append(node('p',day===today()?'IL TUO PUNTO DI PARTENZA':'GIORNATA SELEZIONATA','care-kicker'),node('h2',day===today()?'La tua giornata, in ordine':'Il '+format(day)),node('p',[archive.paziente?.nome,archive.paziente?.cognome].filter(Boolean).join(' ')||'Il tuo spazio personale','care-muted'));head.append(words);summaryCard.append(head);
+  summaryCard.replaceChildren();const head=node('div',undefined,'care-section-head'),words=node('div');words.append(node('p',day===today()?'IL TUO PUNTO DI PARTENZA':'GIORNATA SELEZIONATA','care-kicker'),node('h2',day===today()?'La mia giornata · Terapie di oggi':'Il '+format(day)),node('p',[archive.paziente?.nome,archive.paziente?.cognome].filter(Boolean).join(' ')||'Il tuo spazio personale','care-muted'));head.append(words);summaryCard.append(head);
   const grid=node('div',undefined,'care-summary-grid');
   if(view.next){const n=view.next;grid.append(summaryBlock(n.time<clock&&day===today()?'ASSUNZIONE NON REGISTRATA':'PROSSIMA ASSUNZIONE',n.medicine.nome+' · '+n.time,n.medicine.dosaggio||'Consulta la terapia registrata.',button('Registra assunzione',()=>{if(typeof apriNotaAssunzione==='function')apriNotaAssunzione(n.medicine.id,n.time);},'btn btn-primary')));}
   else grid.append(summaryBlock('TERAPIE',view.planned.length?'Assunzioni registrate':'Nessuna assunzione programmata',view.planned.length?view.done+' di '+view.planned.length+' registrazioni per questa giornata.':'Aggiungi una terapia o consulta quelle già presenti.',actionLink('Apri terapie','farmaci')));

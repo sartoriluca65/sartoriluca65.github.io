@@ -112,3 +112,27 @@ body.care-experience .care-today.card,body.care-experience .care-documents.card{
  body.care-experience .container>.panel{margin-left:0!important}
 }
 }
+
+
+/* Clinical Edition profile navigation and mobile discoverability */
+@media screen{
+body.care-experience .clinical-active-profile{display:inline-flex;align-items:center;max-width:100%;margin-left:auto;padding:7px 12px;border:1px solid #b8d9d5;background:#e4f5f2;color:#075e58;border-radius:999px;font-size:.8rem;font-weight:700;overflow-wrap:anywhere}
+body.care-experience .clinical-profiles,body.care-experience .clinical-safety{margin-top:10px;border-top:1px solid #ffffff30;padding:10px 7px;color:#e8f5f4}
+body.care-experience .clinical-profiles>summary,body.care-experience .clinical-safety>summary{cursor:pointer;color:#e8f5f4;font-size:.85rem;font-weight:600;padding:9px 4px;list-style:revert}
+body.care-experience .clinical-profiles .family-bar{background:#fff;color:#18343b;border-radius:10px;padding:12px;margin:8px 0 0;width:100%;box-sizing:border-box}
+body.care-experience .clinical-profiles .family-heading,body.care-experience .clinical-profiles .family-actions{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+body.care-experience .clinical-profiles .family-actions>*{max-width:100%;width:100%;box-sizing:border-box}
+body.care-experience .clinical-profiles #familySelect{max-width:100%;width:100%}
+body.care-experience .clinical-profiles #familyNew,body.care-experience .clinical-profiles #familySave{min-height:44px;white-space:normal}
+body.care-experience .clinical-safety>.help-box{margin:8px 0!important;background:#fff;color:#18343b;border-radius:9px;padding:12px;font-size:.8rem;line-height:1.5}
+body.care-experience .care-more{margin:0 0 15px}
+body.care-experience .care-more>summary{display:block;border:1px solid #b9d8d4;background:#f0f9f7;border-radius:10px;padding:12px 15px;font-size:.94rem;font-weight:700;color:#075e58}
+body.care-experience .care-more[open]>.profile-shell{margin-top:12px}
+body.care-experience .care-summary-item h3{color:#18343b}
+body.care-experience .care-summary-item .btn-primary{background:#0d9488}
+@media(max-width:1049px){
+ body.care-experience .clinical-side-toggle{position:sticky;top:6px;z-index:90;display:flex!important;width:100%;justify-content:center;background:#0d9488!important;color:#fff!important;border:2px solid #0b8177!important;box-shadow:0 4px 15px #0d948833!important;font-size:1rem!important;min-height:54px!important;margin:8px 0 12px!important}
+ body.care-experience .clinical-side-toggle::after{content:'›';font-size:1.3rem;margin-left:10px}
+ body.care-experience .clinical-active-profile{font-size:.72rem;margin:6px 0 0}
+}
+}
