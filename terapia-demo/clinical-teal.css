@@ -169,3 +169,5 @@ body.care-experience .clinical-side .clinical-profiles .family-actions select{mi
 body.care-experience .clinical-side .clinical-profiles .family-actions label{font-size:.88rem!important}
 body.care-experience .care-more>summary{font-size:1rem!important;padding:14px 16px!important;min-height:48px!important;display:flex!important;align-items:center!important}
 }
+
+@media screen{body.care-experience .care-patient-open{display:block;width:100%;min-height:64px;margin:14px 0 20px;padding:16px 20px;border:1px solid #b4d6d0;border-radius:12px;background:#eaf6f3;color:#235c59;font-size:1.12rem;font-weight:700;text-align:left;cursor:pointer}body.care-experience .care-patient-open:hover{background:#d9eee9}body.care-experience .care-more[hidden]{display:none!important}body.care-experience .care-more:not([hidden])>summary{display:none!important}}
