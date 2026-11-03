@@ -105,3 +105,7 @@ automaticamente. Non ripristinare il codice come sostituto del recupero dei dati
 ## Copertura di questo repository
 
 Portale: profili separati per Diviso, Rifornio (anche viaggi), Stickers, Cassa pubblica, AutoControl locale, cartella clinica e registro dimostrativo cifrato. Per OGNI profilo clinico usare clinical(id); per account AutoControl usare autocontrol(id). Gli identificativi servono soltanto a selezionare namespace già presenti: nessun accesso al backend. La cartella principale non include le cartelle familiari. Le copie cliniche comprendono registro/etichette, fallback, allegati e stato di recupero; i temporanei OPFS sono esclusi perché non costituiscono originali. Gli originali cloud-only di AutoControl richiedono una successiva esportazione autorizzata con lo strumento esistente. Nessun backup di Auth, statistiche o dati remoti è preparato automaticamente. Le vulnerabilità delle app attive restano fuori fase 0B.
+
+## Prove sulle copie applicative
+
+Vedi [E2E-RESULTS.md](E2E-RESULTS.md) per i casi effettivamente provati, le incompatibilità native ancora aperte e i limiti del recupero operativo. Gli strumenti rimangono separati dall’app pubblicata.
