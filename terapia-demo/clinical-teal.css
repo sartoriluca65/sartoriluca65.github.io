@@ -136,3 +136,20 @@ body.care-experience .care-summary-item .btn-primary{background:#0d9488}
  body.care-experience .clinical-active-profile{font-size:.72rem;margin:6px 0 0}
 }
 }
+
+
+/* Consistent compact sidebar entries for profile selection and security. */
+@media screen{
+body.care-experience .clinical-side .clinical-profiles{order:0;margin:3px 0 7px;padding:0 3px;border:0}
+body.care-experience .clinical-side .clinical-side-tabs{order:1}
+body.care-experience .clinical-side .clinical-safety{order:2;margin:6px 0 0;padding:0 3px;border:0}
+body.care-experience .clinical-side .clinical-profiles>summary,body.care-experience .clinical-side .clinical-safety>summary{display:flex;align-items:center;gap:9px;min-height:42px;padding:9px 11px;border-radius:9px;font-size:.83rem;font-weight:600;color:#e8f5f4;cursor:pointer;list-style:none}
+body.care-experience .clinical-side .clinical-profiles>summary::-webkit-details-marker,body.care-experience .clinical-side .clinical-safety>summary::-webkit-details-marker{display:none}
+body.care-experience .clinical-side .clinical-profiles>summary:hover,body.care-experience .clinical-side .clinical-safety>summary:hover{background:#225660}
+body.care-experience .clinical-side .clinical-profiles[open]>summary,body.care-experience .clinical-side .clinical-safety[open]>summary{background:#0d9488;color:#fff}
+body.care-experience .clinical-side .clinical-profiles .family-bar{margin-top:6px}
+body.care-experience .clinical-side{display:flex;flex-direction:column}
+body.care-experience .clinical-side-head{order:-1}
+body.care-experience .clinical-side .clinical-side-tabs .tabs{display:flex!important}
+body.care-experience .clinical-side .clinical-side-tabs .tab{cursor:pointer}
+}
