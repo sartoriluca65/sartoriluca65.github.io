@@ -29,9 +29,27 @@ globalThis.RicordaDemoVault=class{
   async dataKey(raw){return crypto.subtle.importKey('raw',raw,'AES-GCM',false,['encrypt','decrypt'])}
   async encryptRows(key,rows){const iv=this.hex(this.random(12));return {iv,box:this.hex(await crypto.subtle.encrypt({name:'AES-GCM',iv:this.bytes(iv),additionalData:new TextEncoder().encode('ricorda-demo-payload-v2')},key,new TextEncoder().encode(JSON.stringify(rows))))}}
   async decryptRows(key,payload){const bytes=await crypto.subtle.decrypt({name:'AES-GCM',iv:this.bytes(payload.iv),additionalData:new TextEncoder().encode('ricorda-demo-payload-v2')},key,this.bytes(payload.box));const rows=JSON.parse(new TextDecoder().decode(bytes));if(!Array.isArray(rows))throw Error('Dati non validi');return rows}
+  clearTabSession(){try{sessionStorage.removeItem('ricorda-tab-session-v1')}catch{}}
+  saveTabSession(bytes){try{sessionStorage.setItem('ricorda-tab-session-v1',JSON.stringify({key:this.hex(bytes),expires:this.expires}))}catch{}}
+  async restoreTabSession(){
+    try{
+      const saved=JSON.parse(sessionStorage.getItem('ricorda-tab-session-v1')||'null');
+      if(!saved||Date.now()>=saved.expires){this.clearTabSession();return false}
+      const {raw,state}=this.read();
+      if(!state)return false;
+      const bytes=this.bytes(saved.key);
+      if(bytes.length!==32)throw Error('Sessione non valida');
+      try{
+        const key=await this.dataKey(bytes);
+        await this.decryptRows(key,state.payload);
+        this.key=key;this.expected=raw;this.expires=saved.expires;
+        return true;
+      }finally{bytes.fill(0)}
+    }catch{this.clearTabSession();return false}
+  }
   session(){const {raw,state}=this.read();if(!this.key||Date.now()>=this.expires||raw!==this.expected){this.key=null;this.expires=0;const e=this.error('Inserisci il PIN per aprire la demo.',423);e.code='PIN_REQUIRED';throw e}return {raw,state}}
   async action(path,body={}){
-    if(path==='lock'){this.key=null;this.expires=0;this.expected=null;return {ok:true}}
+    if(path==='lock'){this.clearTabSession();this.key=null;this.expires=0;this.expected=null;return {ok:true}}
     let {raw,state}=this.read();
     if(path==='status')return {configured:!!state,recoveryConfigured:!!state?.recovery,recoveryQuestion:state?.recovery?.question||'',unlocked:!!this.key&&Date.now()<this.expires&&raw===this.expected,emailRecoveryEnabled:false};
     if(path==='setup'){
@@ -40,7 +58,7 @@ globalThis.RicordaDemoVault=class{
       if(!this.validSecret(body.secret)||this.secret(body.secret)!==this.secret(body.confirmSecret))throw this.error('Scegli e conferma una parola o frase segreta di almeno 8 caratteri.');
       if(!this.validQuestion(body.question))throw this.error('Scegli una domanda di recupero (da 8 a 160 caratteri).');
       const legacy=this.storage.getItem(this.legacyKey);let rows=structuredClone(this.seeds);if(legacy!==null){try{rows=JSON.parse(legacy)}catch{throw this.error('Le prove precedenti non sono leggibili. Non sono state cancellate.')}if(!Array.isArray(rows))throw this.error('Formato delle prove precedenti non valido.')}
-      const bytes=this.random(32),key=await this.dataKey(bytes);try{state={version:2,pin:await this.wrap(bytes,body.pin),recovery:{...await this.wrap(bytes,this.secret(body.secret)),question:this.question(body.question)},payload:await this.encryptRows(key,rows)};this.persist(state,null);this.storage.removeItem(this.legacyKey);this.key=key;this.expires=Date.now()+900000;return {ok:true,expiresAt:this.expires,recoveryConfigured:true,recoveryQuestion:state.recovery.question}}finally{bytes.fill(0)}
+      const bytes=this.random(32),key=await this.dataKey(bytes);try{state={version:2,pin:await this.wrap(bytes,body.pin),recovery:{...await this.wrap(bytes,this.secret(body.secret)),question:this.question(body.question)},payload:await this.encryptRows(key,rows)};this.persist(state,null);this.storage.removeItem(this.legacyKey);this.key=key;this.expires=Date.now()+900000;this.saveTabSession(bytes);return {ok:true,expiresAt:this.expires,recoveryConfigured:true,recoveryQuestion:state.recovery.question}}finally{bytes.fill(0)}
     }
     if(!state)throw this.error('Configura prima il PIN e la parola segreta.',409);
     if(!['unlock','change','recovery/set','recover'].includes(path))throw this.error('Operazione non supportata',404);
@@ -53,7 +71,7 @@ globalThis.RicordaDemoVault=class{
     const wrap=state[slot],now=Date.now();if(wrap.lockedUntil>now)throw this.error('Troppi tentativi. Riprova tra '+Math.ceil((wrap.lockedUntil-now)/60000)+' minuti.',429);
     const failures=(wrap.lockedUntil?0:wrap.failures)+1;state[slot]={...wrap,failures,lockedUntil:failures>=5?now+900000:0};raw=this.persist(state,raw);
     let bytes;try{bytes=await this.unwrap(wrap,value)}catch{throw this.error(failures>=5?'Verifica sospesa per 15 minuti.':(recovering?'Parola segreta':'PIN')+' non corretto. Tentativi rimasti: '+(5-failures),failures>=5?429:401)}
-    try{const key=await this.dataKey(bytes);await this.decryptRows(key,state.payload);state[slot]={...wrap,failures:0,lockedUntil:0};if(recovering||path==='change')state.pin=await this.wrap(bytes,body.newPin);if(path==='recovery/set')state.recovery={...await this.wrap(bytes,this.secret(body.secret)),question:this.question(body.question)};this.persist(state,raw);this.key=key;this.expires=Date.now()+900000;return {ok:true,expiresAt:this.expires,recoveryConfigured:true,recoveryQuestion:state.recovery.question||''}}finally{bytes.fill(0)}
+    try{const key=await this.dataKey(bytes);await this.decryptRows(key,state.payload);state[slot]={...wrap,failures:0,lockedUntil:0};if(recovering||path==='change')state.pin=await this.wrap(bytes,body.newPin);if(path==='recovery/set')state.recovery={...await this.wrap(bytes,this.secret(body.secret)),question:this.question(body.question)};this.persist(state,raw);this.key=key;this.expires=Date.now()+900000;this.saveTabSession(bytes);return {ok:true,expiresAt:this.expires,recoveryConfigured:true,recoveryQuestion:state.recovery.question||''}}finally{bytes.fill(0)}
   }
   async records(method,body){const {raw,state}=this.session(),key=this.key;const rows=await this.decryptRows(key,state.payload);if(method==='GET')return rows;let result,next;
     if(method==='DELETE'){next=rows.filter(x=>x.id!==body.id);result={ok:true}}
@@ -183,7 +201,7 @@ function showPinGate(message=''){document.body.classList.remove('pin-unlocked');
 function configureGate(){
   $('pinHeading').textContent=pinConfigured?'Ricorda · inserisci il PIN':'Ricorda · scegli PIN e domanda di recupero';$('pinIntro').textContent=pinConfigured?'Il registro è protetto. Inserisci il PIN per consultarlo.':'Scegli un PIN di 6 cifre per entrare. Per recuperarlo, scegli una domanda e memorizza la tua risposta di almeno 8 caratteri.';$('pinConfirmWrap').hidden=pinConfigured;for(const id of ['pinConfirm','setupSecret','setupSecretConfirm','pinAcknowledged'])$(id).required=!pinConfigured;$('pinForgot').hidden=!pinConfigured;$('pinInput').autocomplete=pinConfigured?'current-password':'new-password';$('pinSubmit').textContent=pinConfigured?'Apri registro':'Imposta protezione e apri';recoveryButton.textContent=pinRecoveryConfigured&&pinRecoveryQuestion?'Cambia domanda e risposta':'Configura recupero';
 }
-async function initPin(){showPinGate();$('pinRetry').hidden=true;try{await pinApi('lock',{});const d=await pinApi('status');pinConfigured=d.configured;pinRecoveryConfigured=d.recoveryConfigured;pinRecoveryQuestion=d.recoveryQuestion||'';configureGate();$('pinInput').disabled=false;$('pinSubmit').disabled=false;if(window.RicordaPinTransport)$('pinSecurityNote').textContent='Demo locale: PIN, risposta segreta e dati cifrati restano solo in questo browser. Non è un account online e non si sincronizza tra dispositivi. Usa solo dati inventati. Il blocco dei tentativi è locale, non equivale alla protezione di un server.';$('pinInput').focus()}catch(e){$('pinMessage').textContent='Impossibile verificare l’accesso: '+e.message;$('pinRetry').hidden=false}}
+async function initPin(){showPinGate();$('pinRetry').hidden=true;try{if(window.RicordaPinTransport&&await demoVault.restoreTabSession()){const d=await pinApi('status');pinConfigured=d.configured;pinRecoveryConfigured=d.recoveryConfigured;pinRecoveryQuestion=d.recoveryQuestion||'';await finishPinLogin({expiresAt:demoVault.expires,recoveryConfigured:d.recoveryConfigured,recoveryQuestion:d.recoveryQuestion});return}const d=await pinApi('status');pinConfigured=d.configured;pinRecoveryConfigured=d.recoveryConfigured;pinRecoveryQuestion=d.recoveryQuestion||'';configureGate();$('pinInput').disabled=false;$('pinSubmit').disabled=false;if(window.RicordaPinTransport)$('pinSecurityNote').textContent='Demo locale: PIN, risposta segreta e dati cifrati restano solo in questo browser. Non è un account online e non si sincronizza tra dispositivi. Usa solo dati inventati. Il blocco dei tentativi è locale, non equivale alla protezione di un server.';$('pinInput').focus()}catch(e){$('pinMessage').textContent='Impossibile verificare l’accesso: '+e.message;$('pinRetry').hidden=false}}
 function armPinExpiry(expires){clearTimeout(pinTimeout);pinExpires=expires;pinTimeout=setTimeout(()=>lockPin(true),Math.max(0,expires-Date.now()))}
 async function lockPin(automatic=false){if(!automatic&&(dirty||busy)&&!confirm('Ci sono modifiche ancora in salvataggio. Vuoi bloccare comunque? Le modifiche non salvate andranno perse.'))return;showPinGate(automatic?'Sessione scaduta. Inserisci nuovamente il PIN.':'Registro bloccato.');$('pinSubmit').disabled=true;try{await pinApi('lock',{})}catch{$('pinMessage').textContent='Schermata bloccata. Collegamento assente: la sessione server scadrà entro 15 minuti.'}finally{$('pinSubmit').disabled=false}}
 async function finishPinLogin(d){pinConfigured=true;pinRecoveryConfigured=d.recoveryConfigured;pinRecoveryQuestion=d.recoveryQuestion||'';configureGate();secretFieldIds.forEach(id=>$(id).value='');pinGate.hidden=true;document.body.classList.add('pin-unlocked');armPinExpiry(d.expiresAt);await load();if(!pinRecoveryConfigured||!pinRecoveryQuestion){notice('Configura la risposta segreta per poter recuperare il PIN.');openRecoverySettings()}}
