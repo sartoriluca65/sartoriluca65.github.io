@@ -152,7 +152,46 @@ window.addEventListener('beforeunload' ,e=>{if(dirty||busy){e.preventDefault();e
     try{
       const blob=makePdf(selected,{passwords:get('printPasswords').checked,filter:get('printScope').value==='all'?'':get('search').value,demo:!!document.querySelector('.demo-banner')});releaseReport();reportUrl=URL.createObjectURL(blob);get('reportDownload').href=reportUrl;get('reportDownload').download='Ricorda_Registro_'+new Date().toISOString().slice(0,10)+'.pdf';get('reportOpen').href=reportUrl;
       let printRequested=false;
-      if(printWindow){try{const table=get('printArea').innerHTML;printWindow.document.open();printWindow.document.write('<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Ricorda - Stampa registro</title><style>@page{size:A4 landscape;margin:14mm}body{font:11pt Arial;color:#183e34;margin:22px}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid #bccdc0;padding:8px;text-align:left;vertical-align:top;overflow-wrap:anywhere;white-space:pre-wrap}th:nth-child(1){background:#d7eddf}th:nth-child(2){background:#dceafb}th:nth-child(3){background:#ffebc1}th:nth-child(4){background:#eee2f7}tr{break-inside:avoid}thead{display:table-header-group}button{padding:12px;margin-bottom:18px}@media print{button,.tip{display:none}}*{print-color-adjust:exact;-webkit-print-color-adjust:exact}</style></head><body><button onclick="window.print()">Stampa questo registro</button><p class="tip">Se la stampa non si apre automaticamente, premi il pulsante qui sopra o usa il PDF scaricabile nella pagina precedente.</p>'+table+'<p>©2026 Luca Sartori. Tutti i diritti riservati.</p></body></html>');printWindow.document.close();printWindow.focus();printWindow.setTimeout(()=>{try{printWindow.print()}catch{}},150);printRequested=true}catch{try{printWindow.close()}catch{}}}
+      if(printWindow){try{const table=get('printArea').innerHTML;printWindow.document.open();printWindow.document.write('<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Ricorda - Stampa registro</title><style>@page{size:A4 landscape;margin:14mm}body{font:11pt Arial;color:#183e34;margin:22px}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid #bccdc0;padding:8px;text-align:left;vertical-align:top;overflow-wrap:anywhere;white-space:pre-wrap}th:nth-child(1){background:#d7eddf}th:nth-child(2){background:#dceafb}th:nth-child(3){background:#ffebc1}th:nth-child(4){background:#eee2f7}tr{break-inside:avoid}thead{display:table-header-group}button{padding:12px;margin-bottom:18px}@media print{button,.tip{display:none}}*{print-color-adjust:exact;-webkit-print-color-adjust:exact}</style></head><body><button onclick="window.print()">Stampa questo registro</button><p class="tip">Se la stampa non si apre automaticamente, premi il pulsante qui sopra o usa il PDF scaricabile nella pagina precedente.</p>'+table+'<p>©2026 Luca Sartori. Tutti i diritti riservati.</p><style id="ricorda-toolbar-style">
+.tools{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
+.tools>input#search,.tools>.search-picker{flex-basis:100%;min-width:0}
+.tools #help,.tools #refresh{display:none!important}
+.ricorda-menu{position:relative;display:inline-block}
+.ricorda-menu>summary{list-style:none;cursor:pointer;border:1px solid #ccd9d2;border-radius:10px;padding:11px 15px;background:#fff;color:#214a43;user-select:none}
+.ricorda-menu>summary::-webkit-details-marker{display:none}
+.ricorda-menu[open]>summary,.ricorda-menu>summary:hover{background:#e9f2ee}
+.ricorda-menu-items{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);z-index:50;min-width:230px;background:#fff;border:1px solid #ccd9d2;border-radius:12px;padding:8px;box-shadow:0 10px 28px #173e3426;display:flex;flex-direction:column;gap:6px}
+.ricorda-menu-items button{width:100%;text-align:left;white-space:normal}
+@media(max-width:650px){.ricorda-menu-items{left:auto;right:0;transform:none;min-width:200px}}
+@media print{.ricorda-menu{display:none!important}}
+</style>
+<script id="ricorda-toolbar-layout">
+(function(){
+  const bar=document.querySelector('.tools');
+  if(!bar)return;
+  const backup=document.createElement('details');backup.className='ricorda-menu';
+  backup.innerHTML='<summary>Backup ▾</summary><div class="ricorda-menu-items"></div>';
+  const credentials=document.createElement('details');credentials.className='ricorda-menu';
+  credentials.innerHTML='<summary>Credenziali ▾</summary><div class="ricorda-menu-items"></div>';
+  const all=[...bar.querySelectorAll('button')];
+  const pick=(id,text)=>document.getElementById(id)||all.find(b=>b.textContent.trim()===text);
+  const backupItems=backup.querySelector('.ricorda-menu-items');
+  const credentialItems=credentials.querySelector('.ricorda-menu-items');
+  const exportButton=pick('export','Salva copia JSON');
+  const restoreButton=pick('restoreBackup','↥ Carica backup JSON');
+  if(exportButton)backupItems.append(exportButton);
+  if(restoreButton)backupItems.append(restoreButton);
+  const changeButton=all.find(b=>b.textContent.trim()==='Cambia PIN');
+  const recoveryButton=all.find(b=>/^(Cambia domanda e risposta|Configura recupero)$/.test(b.textContent.trim()));
+  if(changeButton)credentialItems.append(changeButton);
+  if(recoveryButton)credentialItems.append(recoveryButton);
+  const lockButton=all.find(b=>b.textContent.trim()==='Blocca registro');
+  const print=pick('print','Stampa'),pdf=pick('pdf','Salva PDF'),ocr=pick('importOCR','📷 Importa da foto / OCR');
+  [print,pdf,ocr,backup,credentials,lockButton].forEach(el=>{if(el)bar.append(el)});
+  document.addEventListener('click',event=>{[backup,credentials].forEach(menu=>{if(!menu.contains(event.target))menu.open=false})});
+  [backup,credentials].forEach(menu=>menu.addEventListener('click',event=>{if(event.target.closest('button'))menu.open=false}));
+})();
+</script></body></html>');printWindow.document.close();printWindow.focus();printWindow.setTimeout(()=>{try{printWindow.print()}catch{}},150);printRequested=true}catch{try{printWindow.close()}catch{}}}
       get('printDialog').close();get('reportReadyTitle').textContent=mode==='pdf'?'PDF pronto da salvare':'Registro pronto per la stampa';get('reportReadyMessage').textContent=mode==='pdf'?'Premi Scarica PDF per salvare il file sul dispositivo.':printRequested?'È stata aperta la pagina di stampa. Puoi anche scaricare o aprire il PDF qui sotto.':'Il browser ha bloccato la finestra di stampa. Scarica o apri il PDF qui sotto e usa il comando Stampa del visualizzatore.';ready.showModal();
     }catch(e){if(printWindow)try{printWindow.close()}catch{}get('printHelp').textContent='Creazione non riuscita: '+e.message+'. Riprova in Safari o Chrome.'}
   };
