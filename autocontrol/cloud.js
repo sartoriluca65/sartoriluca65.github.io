@@ -140,12 +140,30 @@
  $('archiveImport').onclick=()=>{if(busy||loading)return;$('archiveBackupFile').click()};
  $('archiveBackupFile').onchange=async e=>{
   const file=e.target.files[0];e.target.value='';if(!file||loading||busy)return;loading=true;
-  try{const Zip=await zipLibrary(),zip=await Zip.loadAsync(await file.arrayBuffer());const manifest=JSON.parse(await zip.file('archive.json')?.async('string'));if(manifest.format!=='autocontrol-backup'||manifest.version!==1)throw Error('Copia non riconosciuta.');const imported=validate(manifest.payload),combined=addRecords(imported,window.acArchive.get());
-   if(!confirm('Importare questa copia aggiungendo le registrazioni mancanti? I dati esistenti saranno mantenuti.'))return;
-   for(const doc of imported.documents)for(const entry of doc.files||[]){if(!/^[A-Za-z0-9_-]{1,160}$/.test(entry.id))throw Error('Identificativo allegato non valido.');const data=zip.file('files/'+entry.id);if(!data)throw Error('Manca un documento nella copia.');if(await localFile(entry.id))continue;const blob=new Blob([await data.async('uint8array')],{type:entry.type||'application/octet-stream'});await window.acArchive.putLocalFile({id:entry.id,name:entry.name,type:blob.type,blob,ocrText:doc.ocrText||''})}
-   const previous=clone(window.acArchive.get());window.acArchive.replace(combined);if(!window.acArchive.persist()){window.acArchive.replace(previous);throw Error('Copia non importata: salvataggio locale non riuscito.')}status(user?'Copia importata: sincronizzazione in corso.':'Copia importata nel browser. Accedi per salvarla online.');
-  }catch(e){status(message(e))}finally{loading=false;if(dirty)setTimeout(flush,0)}
+  let previous,previousRaw,archiveKey,serialized,stored=false,combined;
+  try{
+   if(file.size>64*1024*1024)throw Error('Copia troppo grande.');
+   previous=clone(window.acArchive.get());archiveKey=key();previousRaw=localStorage.getItem(archiveKey);
+   const Zip=await zipLibrary(),buffer=await file.arrayBuffer();let zip=await Zip.loadAsync(buffer);ACImportIntegrity.checkZipSize(zip);zip=await Zip.loadAsync(buffer,{checkCRC32:true});
+   const rawManifest=zip.file('archive.json');if(!rawManifest)throw Error('Indice della copia mancante.');
+   const manifest=JSON.parse(await rawManifest.async('string'));if(manifest.format!=='autocontrol-backup'||manifest.version!==1)throw Error('Copia non riconosciuta.');
+   const imported=validate(manifest.payload);combined=addRecords(imported,previous);
+   const rows=await ACImportIntegrity.prepare(imported,async entry=>{const item=zip.file('files/'+entry.id);if(!item||item.dir)throw Error('Manca un documento nella copia.');if(item._data?.uncompressedSize>64*1024*1024)throw Error('Documento troppo grande.');const bytes=await item.async('uint8array');if(bytes.length>64*1024*1024)throw Error('Documento troppo grande.');return new Blob([bytes],{type:entry.type||'application/octet-stream'});},localFile);
+   const unchanged=()=>key()===archiveKey&&canonical(window.acArchive.get())===canonical(previous)&&localStorage.getItem(archiveKey)===previousRaw;
+   if(!unchanged())throw Error('Archivio aggiornato: ripeti l’importazione.');
+   if(!confirm('Importare questa copia aggiungendo le registrazioni mancanti? Gli originali sono stati confrontati e i dati esistenti saranno mantenuti.'))return;
+   await window.acArchive.putNewLocalFiles(rows);
+   if(!unchanged())throw Error('Archivio aggiornato: ripeti l’importazione. I dati esistenti sono conservati.');
+   serialized=JSON.stringify(combined);localStorage.setItem(archiveKey,serialized);stored=true;
+   if(localStorage.getItem(archiveKey)!==serialized)throw Error('Verifica del salvataggio non riuscita.');
+   window.acArchive.replace(combined);changed();status(user?'Copia importata: sincronizzazione in corso.':'Copia verificata e importata nel browser. Accedi per salvarla online.');
+  }catch(error){
+   if(stored&&localStorage.getItem(archiveKey)===serialized){try{if(previousRaw===null)localStorage.removeItem(archiveKey);else localStorage.setItem(archiveKey,previousRaw)}catch{}}
+   if(combined&&window.acArchive.get()===combined)window.acArchive.replace(previous);
+   status(message(error));
+  }finally{loading=false;if(dirty)setTimeout(flush,0)}
  };
+
  window.autoCloud={changed,key,cloudFile,locked:()=>loading,flush,get dirty(){return dirty},get online(){return connected}};
  window.addEventListener('online',()=>{if(dirty)flush()});
  window.addEventListener('beforeunload',e=>{if(dirty||busy){e.preventDefault();e.returnValue=''}});
