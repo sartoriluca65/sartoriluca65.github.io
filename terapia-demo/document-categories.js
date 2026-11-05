@@ -9,7 +9,7 @@
   for(const row of archive?.farmaci||[])if(row.bugiardino)add(row.bugiardino,{group:'farmaci',id:row.id,index:0,area:'Terapia',source:'Bugiardino',note:row.nome||''});
   return out;
  }
- function options(archive){return [...new Set([...areas,...list(archive).map(d=>canonical(d.area))])];}
+ function options(archive){return [...new Set([...areas,...(archive?.areePersonalizzate||[]).map(canonical),...list(archive).map(d=>canonical(d.area))])];}
  function move(archive,key,area){area=canonical(area);if(!options(archive).includes(area))throw Error('Categoria non disponibile');const record=list(archive).find(d=>d.key===key);if(!record)throw Error('Documento aggiornato: riapri l’elenco e riprova.');let changes=0;for(const loc of record.locations){let file;if(loc.group==='documenti')file=(archive.documenti||[]).find(d=>d.id===loc.id);else{const parent=(archive[loc.group]||[]).find(r=>r.id===loc.id);file=loc.group==='farmaci'?parent?.bugiardino:parent?.allegati?.[loc.index];}if(!file)throw Error('Collegamento al documento non disponibile');if(file.ramo!==area){file.ramo=area;changes++;}}return {area,changes};}
  function normalizeMetadata(archive){let changes=0;function fix(item){if(item&&typeof item.ramo==='string'&&item.ramo.trim()){const next=canonical(item.ramo);if(next!==item.ramo){item.ramo=next;changes++;}}}for(const row of archive?.documenti||[])fix(row);for(const group of ['eventi','controlli','vaccinazioni','integratori'])for(const row of archive?.[group]||[]){fix(row);for(const file of row.allegati||[])fix(file);}for(const row of archive?.farmaci||[])fix(row.bugiardino);return changes;}
  root.TerapiaCategories=Object.freeze({areas:Object.freeze(areas),canonical,list,options,move,normalizeMetadata});
