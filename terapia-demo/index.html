@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <script src="./document-categories.js?v=20261102-family"></script>
+  <script src="./document-categories.js?v=20261105-patologie"></script>
   <script src="./reliability-core.js?v=20261024-compact-grouped"></script>
   <script src="./profile-context.js?v=20261023-2"></script>
   <script src="./profiles-local.js?v=20261103-delete-v8"></script>
@@ -209,7 +209,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     <div class="tabs no-print">
       <div class="clinical-category-grid">
 <button class="tab" data-tab="controlli"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v16H4z M8 2v6 M16 2v6 M4 10h16 M8 14h2 M14 14h2 M8 18h2"/></svg><span>Prossime visite</span></button>
-<button class="tab" data-tab="archivio"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 3h9v12H3z M3 6V3h7l2 3h7v3"/></svg><span>Archivio</span></button>
+<button class="tab" data-tab="archivio"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 3h9v12H3z M3 6V3h7l2 3h7v3"/></svg><span>Patologie</span></button>
 <button class="tab" data-tab="farmaci"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 16l8-8 M5 19a5 5 0 0 1 0-7l7-7a5 5 0 0 1 7 7l-7 7a5 5 0 0 1-7 0"/></svg><span>Farmaci</span></button>
 <button class="tab" data-tab="cartella"><svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6v4H9z M9 6H5v16h14V6h-4 M8 12h8 M8 16h8"/></svg><span>Cartella</span></button>
       </div>
@@ -372,9 +372,9 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     <!-- ARCHIVIO PER PATOLOGIA -->
     <div class="panel" id="panel-archivio">
       <div class="card">
-        <h2>Archivio per patologia / area clinica</h2>
+        <h2>Patologie</h2>
         <p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem">Clicca su un’area per vedere tutti gli eventi e i farmaci collegati.</p>
-        <div class="archivio-grid" id="archivioGrid"></div><p style="color:var(--muted);font-size:.85rem;margin-top:.8rem">Le modifiche ai nomi aggiornano le categorie associate; l’eliminazione è consentita solo per aree senza dati collegati.</p>
+        <div class="actions no-print" style="margin-bottom:1rem"><button type="button" class="btn btn-primary" onclick="aggiungiAreaClinica()">➕ Aggiungi patologia</button></div><div class="archivio-grid" id="archivioGrid"></div><p style="color:var(--muted);font-size:.85rem;margin-top:.8rem">Le modifiche ai nomi aggiornano le categorie associate; l’eliminazione è consentita solo per aree senza dati collegati.</p>
       </div>
       <div class="card" id="archivioDettaglio" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
@@ -1021,6 +1021,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     // ===== ARCHIVIO =====
     function ramoArchivio(testo) {
       testo=TerapiaCategories.canonical(testo);
+      if(typeof data!=='undefined'&&(data?.areePersonalizzate||[]).includes(testo))return testo;
       if(testo==='Vaccinazioni')return testo;
       if(testo==='Medico di famiglia')return testo;
       const s=(testo||'').toLocaleLowerCase('it');
@@ -1079,10 +1080,14 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       for(const e of data.eventi){if(ramoArchivio(e.ramo||e.patologia||e.tipo)===area){if(e.ramo){e.ramo=nome;}else{e.patologia=nome;}changes++;}}
       for(const f of data.farmaci){if(ramoArchivio(f.patologia||'Terapia')===area){f.patologia=nome;changes++;}}
       for(const d of data.documenti||[]){if(documentArea(d)===area){d.ramo=nome;changes++;}}
-      if(!changes){alert('Nessun elemento collegato da rinominare.');return;}
+      for(const group of ['controlli','vaccinazioni','integratori'])for(const row of data[group]||[]){if(TerapiaCategories.canonical(row.ramo||row.patologia)===area){row.ramo=nome;changes++;}}
+      for(const group of ['eventi','controlli','vaccinazioni','integratori'])for(const row of data[group]||[])for(const file of row.allegati||[]){if(TerapiaCategories.canonical(file.ramo)===area){file.ramo=nome;changes++;}}
+      if((data.areePersonalizzate||[]).includes(area)){data.areePersonalizzate=data.areePersonalizzate.map(a=>a===area?nome:a);changes++;}
       salvaDati();renderArchivio();chiudiArchivioDettaglio();mostraToast('Area aggiornata · '+changes+' elementi');
     }
     function eliminaAreaClinica(area){
+      if(TerapiaCategories.list(data).some(d=>d.area===area)||data.eventi.some(e=>ramoArchivio(e.ramo||e.patologia||e.tipo)===area)||data.farmaci.some(f=>ramoArchivio(f.patologia||'Terapia')===area)||(data.controlli||[]).some(c=>ramoArchivio(c.ramo||c.patologia)===area)){alert('La patologia contiene dati collegati e non può essere eliminata.');return;}
+      if((data.areePersonalizzate||[]).includes(area)){if(!confirm('Eliminare la patologia '+area+'?'))return;data.areePersonalizzate=data.areePersonalizzate.filter(a=>a!==area);syncChanged();repaint();renderArchivio();chiudiArchivioDettaglio();return;}
       const events=data.eventi.filter(e=>ramoArchivio(e.ramo||e.patologia||e.tipo)===area);
       const drugs=data.farmaci.filter(f=>ramoArchivio(f.patologia||'Terapia')===area);
       const docs=(data.documenti||[]).filter(d=>documentArea(d)===area);
@@ -1506,7 +1511,17 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         salvaDati();repaint();refreshArchiveDetail();mostraToast('Nome aggiornato');
       }catch(error){alert(error.message);}
     }
-    function aggiungiAreaClinica(){const raw=prompt('Nome della nuova area clinica:');if(raw===null)return;const area=raw.trim().replace(/[<>]/g,'');if(!area||area.length>80){alert('Inserisci un nome valido, massimo 80 caratteri.');return;}data.areePersonalizzate||=[];if(!data.areePersonalizzate.includes(area))data.areePersonalizzate.push(area);syncChanged();const select=el('nuovoPdfArea');if(select){select.add(new Option(area,area));select.value=area;}mostraToast('Area clinica aggiunta');}
+    function aggiungiAreaClinica(){
+      if(!data||!syncReady){mostraToast('Attendi il caricamento della cartella');return;}
+      if(uploadsPending||backupBusy){mostraToast('Attendi il termine dei trasferimenti');return;}
+      const raw=prompt('Nome della nuova patologia:');if(raw===null)return;
+      const area=TerapiaCategories.canonical(raw.trim());
+      if(!raw.trim()||area.length>80||/[<>]/.test(area)){alert('Inserisci un nome valido, massimo 80 caratteri.');return;}
+      if(TerapiaCategories.options(data).some(a=>a.toLocaleLowerCase('it')===area.toLocaleLowerCase('it'))){mostraToast('Patologia già presente');return;}
+      data.areePersonalizzate||=[];data.areePersonalizzate.push(area);syncChanged();repaint();renderArchivio();
+      for(const id of ['nuovoPdfArea','importDocumentArea','eRamo','cRamo']){const select=el(id);if(select&&!Array.from(select.options).some(o=>o.value===area))select.add(new Option(area,area));}
+      mostraToast('Patologia aggiunta');
+    }
     function apriNuovoPdf(inArea=false){
       if(uploadsPending||backupBusy){alert('Attendi il termine delle operazioni in corso.');return;}
       el('nuovoPdfFile').value='';el('nuovoPdfNome').value='';el('nuovoPdfNota').value='';el('pdfVisitaRichiesta').checked=false;el('pdfVisitaCampi').hidden=true;el('pdfVisitaTitolo').value='';
@@ -1738,7 +1753,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
 })();
 
 </script>
-<script defer src="./care-experience.js?v=20261103-patient-v12"></script>
+<script defer src="./care-experience.js?v=20261105-patologie"></script>
 <script defer src="./profiles-ui.js?v=20261103-patient-v9"></script>
 <link rel="stylesheet" href="./care-tools.css?v=20261024-compact-grouped">
 <script defer src="./pressure-diary.js?v=20261024-compact-grouped"></script>
