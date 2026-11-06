@@ -1,0 +1,15 @@
+{
+  "accountId": "aeb24d5686ed9104117c8ba6c1ef0dd2",
+  "app": "cartella-clinica",
+  "worker": "luki-cartella-clinica-staging",
+  "databaseId": "932126df-47f0-4b82-adb9-c180183b082e",
+  "databaseName": "luki-cartella-clinica-staging-db",
+  "bucket": "luki-cartella-clinica-staging-files",
+  "accessAppId": "6ff23c0c-d0e0-4fa0-9472-e75386724a49",
+  "audience": "cfc9c34c6fb7f41e5b136e63bdeac0bf291dba874ec1321b19e30b8aadab0f2e",
+  "origin": "https://luki-cartella-clinica-staging.sartori-luca65.workers.dev",
+  "issuer": "https://proud-rain-876d.cloudflareaccess.com",
+  "repository": "sartoriluca65/sartoriluca65.github.io",
+  "sourceSha": "e728a5fc6ef60aa53c38f95caaf5bae019fba5a4",
+  "sourceBase": "terapia-demo/"
+}
