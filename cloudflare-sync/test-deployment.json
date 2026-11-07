@@ -1,0 +1,15 @@
+{
+  "name": "luki-cartella-clinica-keyfix-test",
+  "db": "be84e688-1cd9-493b-b538-11210c99755e",
+  "bucket": "luki-cartella-clinica-keyfix-test-files",
+  "accessId": "995ef44e-c478-4ce0-ac7b-351183312c0a",
+  "aud": "0dbe00c82f78d8499b52ce587b8f6f8a96fa417feee26b94abe9163c487fae77",
+  "origin": "https://luki-cartella-clinica-keyfix-test.sartori-luca65.workers.dev",
+  "app": "cartella-clinica",
+  "repo": "sartoriluca65/sartoriluca65.github.io",
+  "source_base": "terapia-demo/",
+  "source_sha": "e728a5fc6ef60aa53c38f95caaf5bae019fba5a4",
+  "release_mode": "staging",
+  "compatibility_date": "2026-11-07",
+  "source_directory": "../terapia-demo/"
+}
