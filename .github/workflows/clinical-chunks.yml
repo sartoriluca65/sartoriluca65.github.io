@@ -1,0 +1,30 @@
+name: Clinical encrypted chunks
+on:
+  push:
+    branches: [fix/clinical-chunk-durability-20261107]
+  pull_request:
+    paths: ['cloudflare-staging/**', '.github/workflows/clinical-chunks.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: node cloudflare-staging/build.mjs
+      - run: node cloudflare-staging/crypto.test.mjs
+      - run: node cloudflare-staging/worker.test.mjs
+      - run: python -m pip install playwright==1.62.0
+      - run: python -m playwright install --with-deps chromium
+      - name: Synthetic browser regressions
+        env:
+          CHROMIUM_EXECUTABLE: ''
+        run: |
+          node cloudflare-staging/browser-server.mjs > /tmp/clinical-chunks-server.log 2>&1 &
+          python cloudflare-staging/chunk-regression.py
