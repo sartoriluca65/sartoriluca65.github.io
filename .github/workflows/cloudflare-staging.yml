@@ -21,6 +21,7 @@ jobs:
           node-version: '24'
       - run: node cloudflare-staging/build.mjs
       - run: node cloudflare-staging/worker.test.mjs
+      - run: node cloudflare-staging/crypto.test.mjs
   deploy:
     if: vars.CLOUDFLARE_STAGING_DEPLOY == 'true'
     needs: verify
