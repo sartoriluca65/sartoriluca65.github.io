@@ -29,3 +29,4 @@ jobs:
           node cloudflare-staging/browser-server.mjs > /tmp/clinical-chunks-server.log 2>&1 &
           python cloudflare-staging/chunk-regression.py
           python cloudflare-staging/clinical-diagnostic-regression.py
+          python cloudflare-staging/clinical-ui-browser.py
