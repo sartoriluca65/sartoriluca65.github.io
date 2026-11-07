@@ -11,5 +11,7 @@
   "issuer": "https://proud-rain-876d.cloudflareaccess.com",
   "repository": "sartoriluca65/sartoriluca65.github.io",
   "sourceSha": "e728a5fc6ef60aa53c38f95caaf5bae019fba5a4",
-  "sourceBase": "terapia-demo/"
+  "sourceBase": "terapia-demo/",
+  "mode": "private-live",
+  "release": "2026-11-07.1"
 }

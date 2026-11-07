@@ -11,7 +11,7 @@ def install_codec(page):
   window.legacy=load(oldSource);window.fixed=load(newSource);
  }''',{'oldSource':legacy_source,'newSource':fixed_source})
 def open_app(context):
- page=context.new_page();page.route('https://**/*',lambda r:r.abort());page.goto('http://127.0.0.1:8765/');page.wait_for_function("window.LukiSyncTest&&typeof syncReady!=='undefined'&&syncReady");install_codec(page);return page
+ page=context.new_page();page.route('https://**/*',lambda r:r.abort());page.goto('http://127.0.0.1:8766/');page.wait_for_function("window.LukiSyncTest&&typeof syncReady!=='undefined'&&syncReady");install_codec(page);return page
 
 results=[]
 with sync_playwright() as p:
