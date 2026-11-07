@@ -22,6 +22,9 @@ with sync_playwright() as p:
     page.route('**/_sync/blob/**',interrupt);page.evaluate('LukiSyncTest.tick()');page.unroute('**/_sync/blob/**')
     assert page.evaluate(PENDING)
     page.evaluate(DAMAGE);page.evaluate('LukiSyncTest.tick()');expect(page.locator('#luki-status')).to_contain_text('Frammento locale non disponibile')
+    if page.locator('#luki-sync-settings').count():
+     expect(page.locator('#luki-sync-brief')).to_have_text('Da controllare')
+     page.locator('#luki-sync-summary').click()
     expect(page.locator('#luki-repair-chunks')).to_be_visible()
     if scenario=='missing-original':page.evaluate("fixturePut({label:'synthetic original removed'})")
     if scenario=='wrong-key':page.evaluate('LukiSyncTest.unlock(LukiSyncTest.createRecovery())')

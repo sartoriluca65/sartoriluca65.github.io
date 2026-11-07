@@ -18,7 +18,37 @@ CRYPTO_IMPLEMENTATION
   const r=await fetch('/_sync/'+path,{method,credentials:'same-origin',redirect:'error',headers:body===undefined?{'X-Luki-User':cfg.user}:{'Content-Type':'application/json','X-Luki-Request':'1','X-Luki-User':cfg.user},body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'});
   const result=await r.json().catch(()=>({error:'Risposta non valida'}));if(!r.ok&&r.status!==409)throw Object.assign(Error(result.error||'Servizio non disponibile'),{status:r.status});return {...result,status:r.status};
  }
- function say(text){status.textContent=text;if(dialog.open)dialogStatus.textContent=text;}
+ function say(text){status.textContent=text;if(dialog.open)dialogStatus.textContent=text;updateCompactStatus(text);}
+ function updateCompactStatus(text){const brief=document.getElementById('luki-sync-brief');if(!brief)return;const value=String(text||'');let label='Da attivare',state='idle';if(/^Sincronizzato/.test(value)){label='Sincronizzato';state='ok';}else if(/sospesa|Conflitto|non completat|non disponibile|non corrisponde|non apre|non valida|mancante|non è leggibile/i.test(value)){label='Da controllare';state='attention';}else if(/sbloccata/i.test(value)){label='Pronta';state='ok';}else if(/bloccat/i.test(value)){label='Bloccata';}else if(/Carico|verifico|Ripristino|in corso/i.test(value)){label='In corso';state='busy';}brief.textContent=label;const summary=document.getElementById('luki-sync-summary');summary.dataset.state=state;summary.setAttribute('aria-label','Sincronizzazione: '+value);summary.title=value;}
+ function compactClinicalSync(){
+  if(cfg.app!=='cartella-clinica')return;
+  panel.classList.add('luki-compact-cloud');panel.style.cssText='position:relative;z-index:110;display:inline-block;margin-left:auto;font:13px/1.4 system-ui;';
+  const settings=document.createElement('details');settings.id='luki-sync-settings';const summary=document.createElement('summary');summary.id='luki-sync-summary';summary.innerHTML='<span aria-hidden="true" class="luki-sync-dot"></span><span>Cloud</span><span aria-hidden="true">·</span><span id="luki-sync-brief">Da attivare</span>';settings.append(summary);
+  const controls=document.createElement('div');controls.className='luki-sync-controls';const modal=panel.querySelector('#luki-dialog');modal.remove();while(panel.firstChild)controls.append(panel.firstChild);const title=controls.querySelector('strong');if(title)title.textContent='Sincronizzazione cifrata';settings.append(controls);panel.append(settings,modal);
+  const style=document.createElement('style');style.textContent=`
+#luki-cloud.luki-compact-cloud{color:#18343b;vertical-align:middle}
+#luki-sync-settings>summary{display:inline-flex;align-items:center;gap:7px;min-height:32px;padding:3px 10px;box-sizing:border-box;list-style:none;cursor:pointer;border:1px solid #c6dbd8;border-radius:999px;background:#fff;color:#245752;font-size:12px;white-space:nowrap}
+#luki-sync-settings>summary::-webkit-details-marker{display:none}
+#luki-sync-summary .luki-sync-dot{width:7px;height:7px;border-radius:50%;background:#7a8f91}
+#luki-sync-summary[data-state=ok] .luki-sync-dot{background:#168876}
+#luki-sync-summary[data-state=attention]{border-color:#c18525;background:#fff8e8;color:#805713}
+#luki-sync-summary[data-state=attention] .luki-sync-dot{background:#ba7c17}
+#luki-sync-settings[open]>.luki-sync-controls{position:absolute;right:0;top:calc(100% + 6px);z-index:10000;width:min(440px,calc(100vw - 28px));max-height:65dvh;overflow:auto;box-sizing:border-box;padding:16px;border:1px solid #bed3d0;border-radius:12px;background:white;color:#18343b;box-shadow:0 10px 35px #173f3b25;font:14px/1.5 system-ui;text-align:left}
+#luki-cloud .luki-sync-controls>strong{display:block;font-size:15px;margin-bottom:6px}
+#luki-cloud .luki-sync-controls button,#luki-cloud .luki-sync-controls a{font:inherit;font-size:13px;padding:9px 11px;margin:4px 4px 4px 0;border:1px solid #c7d7d5;border-radius:8px;background:#f7faf9;color:#245752;cursor:pointer;display:inline-block;text-decoration:none}
+#luki-cloud .luki-sync-controls button[hidden]{display:none}
+#luki-cloud #luki-dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(680px,calc(100vw - 24px))!important;max-height:85dvh;overflow:auto;border:1px solid #bed3d0;border-radius:16px;background:#fff;color:#18343b;padding:20px!important;font:15px/1.5 system-ui;box-shadow:0 20px 70px #123f4933}
+#luki-cloud #luki-dialog::backdrop{background:#123f4966}
+#luki-cloud #luki-dialog input{box-sizing:border-box;max-width:100%;font-size:16px;border:1px solid #bdd1cf;border-radius:8px;padding:10px;min-height:44px}
+#luki-cloud #luki-dialog button{font:inherit;padding:10px 12px;border:1px solid #bdd1cf;border-radius:8px;margin:5px 5px 5px 0;background:#f3f8f7;color:#245752;cursor:pointer}
+#luki-cloud #luki-dialog pre{font-size:12px}
+#luki-cloud summary:focus-visible,#luki-cloud button:focus-visible{outline:3px solid #168876;outline-offset:3px}
+@media(max-width:700px){#luki-sync-settings>summary{font-size:11px;min-height:30px;padding:3px 9px}#luki-sync-settings[open]>.luki-sync-controls{position:fixed;top:auto;bottom:12px;right:12px;max-height:65dvh}}
+@media print{#luki-cloud{display:none!important}}
+`;panel.append(style);
+  document.addEventListener('click',event=>{if(!panel.contains(event.target))settings.open=false;});document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!modal.open)settings.open=false;});
+ }
+
  async function localBlob(blob){
   const chunks=[];
   for(let offset=0;offset<blob.size;offset+=1024*1024){const bytes=new Uint8Array(await blob.slice(offset,offset+1024*1024).arrayBuffer()),plainHash=await hash(bytes),cacheName='blob:'+S.readControl().keyFingerprint+':'+plainHash;let record=await item(cacheName);
@@ -140,8 +170,8 @@ CRYPTO_IMPLEMENTATION
  const live=cfg.stage===false;
  panel.innerHTML='<strong>PROVA PRIVATA · solo dati di fantasia</strong><div id="luki-status" role="status">Sincronizzazione cifrata da configurare. Non importare ancora backup personali.</div><button id="luki-unlock">Sblocca sincronizzazione</button> <button id="luki-lock">Blocca sincronizzazione</button> <button id="luki-history">Copie e ripristino</button> <button id="luki-now">Sincronizza ora</button> <button id="luki-clinical-diagnostic" hidden>Controlla copia clinica</button> <button id="luki-repair-chunks" hidden>Ricostruisci invio dagli originali</button> <a href="/cdn-cgi/access/logout">Esci dall’account</a><dialog id="luki-dialog" style="max-width:680px;width:90%;padding:20px"><div id="luki-dialog-content"></div><form method="dialog"><button>Chiudi</button></form></dialog>';
  if(live){panel.querySelector('strong').textContent='ARCHIVIO PERSONALE · sincronizzazione cifrata';panel.querySelector('#luki-status').textContent='Sblocca la sincronizzazione con la chiave di questa app.';}
- document.body.prepend(panel);const status=document.getElementById('luki-status'),dialog=document.getElementById('luki-dialog'),content=document.getElementById('luki-dialog-content');
- const dialogStatus=document.createElement('p');dialogStatus.id='luki-dialog-status';dialogStatus.setAttribute('role','status');dialogStatus.setAttribute('aria-live','polite');dialogStatus.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;padding:10px 0;font-weight:600';dialog.insertBefore(dialogStatus,dialog.querySelector('form'));
+ compactClinicalSync();if(cfg.app==='cartella-clinica'&&document.getElementById('syncBar'))document.getElementById('syncBar').append(panel);else document.body.prepend(panel);const status=document.getElementById('luki-status'),dialog=document.getElementById('luki-dialog'),content=document.getElementById('luki-dialog-content');
+ updateCompactStatus(status.textContent);const dialogStatus=document.createElement('p');dialogStatus.id='luki-dialog-status';dialogStatus.setAttribute('role','status');dialogStatus.setAttribute('aria-live','polite');dialogStatus.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;padding:10px 0;font-weight:600';dialog.insertBefore(dialogStatus,dialog.querySelector('form'));
  function button(text,action){const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=async()=>{if(b.disabled)return;b.disabled=true;b.setAttribute('aria-busy','true');b.textContent='Attendi…';if(dialog.open)dialogStatus.textContent='Operazione in corso…';try{await action();}catch(e){say(e.message||'Operazione non completata. Riprova.');}finally{if(b.isConnected){b.disabled=false;b.removeAttribute('aria-busy');b.textContent=text;}}};return b;}
  function show(){content.replaceChildren();dialogStatus.textContent='';if(!dialog.open)dialog.showModal();}
  document.getElementById('luki-unlock').onclick=async()=>{show();const p=document.createElement('p');p.textContent='La chiave di sincronizzazione protegge la copia cloud. Conservala fuori da questa app: email e passkey non possono recuperarla. Usa la stessa chiave sui tuoi dispositivi. '+(live?'Conserva una copia della chiave fuori dall’app.':'In questa fase usa soltanto dati sintetici.');const input=document.createElement('input');input.type='password';input.autocomplete='off';input.autocapitalize='none';input.spellcheck=false;input.setAttribute('autocorrect','off');input.setAttribute('aria-label','Chiave di sincronizzazione di questa app');input.placeholder='Chiave di sincronizzazione';input.style.width='95%';content.append(p,input);
