@@ -28,7 +28,10 @@ with sync_playwright() as p:
    assert report['copiaOnline']['compatibilita'][0]['conteggi']['farmaci']==1
    assert report['copiaOnline']['database'][0]['conteggi']['farmaci']==0
   else:assert report['interfaccia']['conteggi']['farmaci']==1 and report['copiaOnline']['database'][0]['conteggi']['farmaci']==1
-  second.locator('#luki-dialog form button').click();second.locator('#luki-lock').click()
+  second.locator('#luki-dialog form button').click()
+  if not second.locator('#luki-sync-settings').get_attribute('open'):second.locator('#luki-sync-summary').click()
+  second.locator('#luki-lock').click()
+  if not second.locator('#luki-sync-settings').get_attribute('open'):second.locator('#luki-sync-summary').click()
   second.locator('#luki-clinical-diagnostic').click();second.get_by_label('Chiave per verifica di sola lettura').fill(code);second.get_by_role('button',name='Verifica senza sincronizzare',exact=True).click();expect(second.locator('#luki-dialog pre')).to_be_visible()
   assert second.evaluate("LukiStorage.native.get.call(LukiStorage.nativeSession,'luki-tab-key:'+LUKI_CONFIG.app+':'+LUKI_CONFIG.user)") is None
   assert not any(m in ['POST','PUT','DELETE','PATCH'] for m in requests)
