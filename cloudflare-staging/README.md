@@ -7,7 +7,7 @@ Aprire l'URL in deployment.json e ricaricare una volta. La barra deve indicare A
 Usare la chiave di sincronizzazione ESISTENTE dell'app. Le tre chiavi sono distinte. Non generarne una nuova per un archivio già cifrato. Email, PIN e passkey non ricostruiscono la chiave persa. Conservarla fuori dall'app in un gestore password o in una copia offline protetta.
 
 ## Sincronizzazione e conflitti
-Controllo ogni 10 secondi, quando la pagina torna visibile e al ritorno della rete, finché la scheda è aperta e la sincronizzazione è sbloccata. Sblocco della scheda massimo 15 minuti; poi occorre reinserire la chiave. Sul secondo dispositivo inserire la stessa chiave; se il confronto segnala un conflitto aprire Copie e ripristino, verificare la revisione più recente e usarla sul dispositivo.
+Controllo ogni 10 secondi, quando la pagina torna visibile e al ritorno della rete, finché la scheda è aperta e la sincronizzazione è sbloccata. La chiave AES-GCM non esportabile viene ricordata in IndexedDB nativo di questo browser, separatamente per app/account; non scade dopo 15 minuti. Alla riapertura viene verificata la sessione Access e ripresa la sincronizzazione. “Scollega questo dispositivo” rimuove soltanto la credenziale locale. Sul secondo dispositivo inserire la stessa chiave; se il confronto segnala un conflitto aprire Copie e ripristino, verificare la revisione più recente e usarla sul dispositivo.
 Snapshot e documenti sono cifrati AES-GCM nel browser e separati per utente. Le revisioni sono immutabili. Un conflitto conserva entrambe le copie; non avviene una fusione automatica dei campi. Terminare una modifica e attendere “Sincronizzato” prima di modificare lo stesso dato sull'altro dispositivo.
 Senza rete la copia locale rimane disponibile e l'outbox cifrata ritenta. Non cancellare i dati del browser. Non c'è sincronizzazione a browser chiuso né avvio offline garantito: l'accesso iniziale richiede rete e Cloudflare Access.
 
@@ -29,3 +29,7 @@ Per aggiornamenti futuri usare risorse di collaudo distinte, poi un rilascio ver
 WebKit Linux non equivale a Safari su macOS/iOS; non è stato eseguito un audit di sicurezza indipendente. Le verifiche sui dispositivi personali effettuate dall'utente restano parte del collaudo effettivo. OCR e ogni variante di stampa non sono stati collaudati integralmente.
 TeFinanza ha due test preesistenti falliti: riconoscimento della voce “Carta igienica” fra i prodotti dello scontrino, e confronto testuale di una copia del validatore backup negli strumenti di laboratorio. Il percorso nativo backup completo/ripristino è passato nei browser, e 7 test del ripristino nativo passano; i due difetti non vengono dichiarati risolti.
 Metadati dello snapshot massimo 8 MB; documenti in blocchi da 1 MB. Provare archivi grandi per gradi e controllare quota Cloudflare e spazio browser. Nessun dato reale è importato dall'assistente.
+
+## Associazione persistente del dispositivo
+
+Dettagli, migrazione delle sessioni esistenti e test in [DEVICE-MEMORY.md](DEVICE-MEMORY.md).
