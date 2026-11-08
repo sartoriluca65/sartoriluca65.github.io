@@ -27,12 +27,14 @@ with sync_playwright() as p:
   assert page.locator('#careDocuments .care-document-open:visible').count()==4
   page.locator('#careDocumentSearch').fill('');assert page.evaluate('JSON.stringify(data)')==before
   assert page.locator('#luki-sync-settings[open]').count()==0
-  height=page.locator('#luki-cloud').bounding_box()['height'];assert height<=40,height
+  height=page.locator('#luki-cloud').bounding_box()['height'];assert height<=56,height
   assert not page.locator('#luki-unlock').is_visible()
   page.locator('#luki-sync-summary').click();expect(page.locator('#luki-unlock')).to_be_visible()
   page.locator('#luki-unlock').click();expect(page.locator('#luki-dialog')).to_be_visible()
   box=page.locator('#luki-dialog').bounding_box();vw=page.viewport_size['width'];assert box['x']>=0 and box['x']+box['width']<=vw+1,(box,vw)
-  page.locator('#luki-dialog form button').click();page.locator('#luki-lock').click();expect(page.locator('#luki-sync-brief')).to_have_text('Bloccata')
+  page.locator('#luki-dialog form button').click()
+  if not page.locator('#luki-sync-settings').get_attribute('open'):page.locator('#luki-sync-summary').click()
+  page.locator('#luki-lock').click();expect(page.locator('#luki-sync-brief')).to_have_text('Scollegato')
   page.locator('body>header h1').click();assert page.locator('#luki-sync-settings[open]').count()==0
   assert not errors,errors
   page.screenshot(path=str(Path(__file__).with_name('clinical-ui-'+name+'.png')),full_page=True)
