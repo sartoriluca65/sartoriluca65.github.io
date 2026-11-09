@@ -10,7 +10,7 @@ export function transformNative(app,path,text){
   text=text.replace(marker,marker+`\n  if(window.LUKI_CONFIG){$('accountToggle').hidden=true;$('accountFormBox').hidden=true;status('Archivio Cloudflare: usa la barra di sincronizzazione in alto. Le copie complete restano disponibili qui.');return;}\n`);
   text=text.replace("status('Salvato solo in questo browser. Accedi e trasferisci i dati per proteggerli online.')","status(window.LUKI_CONFIG?'Salvato sul dispositivo. Controlla la sincronizzazione nella barra in alto.':'Salvato solo in questo browser. Accedi e trasferisci i dati per proteggerli online.')");
  }
- if(app==='stickers'&&(path.endsWith('.html')||path==='/app.js'))text=text.replaceAll('Gemini','FLUX').replaceAll('Google','Cloudflare');
+ if(app==='stickers'&&(path.endsWith('.html')||path==='/app.js'))text=text.replaceAll('Gemini','FLUX').replaceAll('Google','Cloudflare').replaceAll('Controlla chiave e quota FLUX.','Attendi e riprova: controlla il messaggio del servizio.').replaceAll('Controlla la chiave e riprova.','Attendi e riprova.');
  if(app==='stickers'&&path==='/app.js'){
   const endpoint="https://luki-stickers-gemini.sartori-luca65.workers.dev/api/ai/sticker";
   if(!text.includes(endpoint))throw Error('Sticker: endpoint non riconosciuto');text=text.replaceAll(endpoint,'/_services/stickers');

@@ -7,7 +7,9 @@ if(cfg.worker!=='luki-'+app+'-preview'||cfg.bucket!=='luki-'+app+'-preview-files
 const token=process.env.CLOUDFLARE_API_TOKEN;if(!token)throw Error('Credenziale di distribuzione non disponibile nell’ambiente di build');
 const sha=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
 async function call(suffix,method='GET',body){const r=await fetch('https://api.cloudflare.com/client/v4/accounts/'+cfg.accountId+'/'+suffix,{method,headers:{Authorization:'Bearer '+token,...(body instanceof FormData?{}:{'Content-Type':'application/json'})},body:body===undefined?undefined:body instanceof FormData?body:JSON.stringify(body)});const out=await r.json();if(!r.ok||!out.success)throw Error('Cloudflare '+method+' '+suffix+': '+r.status);return out.result;}
-const deployed=await call('workers/scripts/'+cfg.worker+'/settings');if(deployed.bindings.find(x=>x.name==='DB')?.database_id!==cfg.databaseId||deployed.bindings.find(x=>x.name==='FILES')?.bucket_name!==cfg.bucket)throw Error('Le risorse pubblicate non corrispondono: distribuzione bloccata');
+const active=(await call('workers/scripts/'+cfg.worker+'/deployments')).deployments?.[0]?.versions;
+if(active?.length!==1||active[0].percentage!==100)throw Error('Versione attiva non univoca: distribuzione bloccata');
+const deployed=(await call('workers/scripts/'+cfg.worker+'/versions/'+active[0].version_id)).resources;if(deployed.bindings.find(x=>x.name==='DB')?.database_id!==cfg.databaseId||deployed.bindings.find(x=>x.name==='FILES')?.bucket_name!==cfg.bucket)throw Error('Le risorse pubblicate non corrispondono: distribuzione bloccata');
 // Pubblicazione esplicita via API: Wrangler in Builds forza il nome del frontend.
 if(app==='stickers'){
  const provider='luki-stickers-cloudflare-ai',providerDir=path.join(dir,'../stickers-ai');
