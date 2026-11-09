@@ -31,10 +31,10 @@ with sync_playwright() as p:
   for app in os.environ.get('TEST_APPS',','.join(APPS)).split(','):
    user=uuid.uuid4().hex*2;contexts=[context(app,user) for _ in range(2)];a,b=[open_app(c) for c in contexts]
    a.evaluate(SEEDS[app]);a.reload();ready(a);assert a.evaluate(READS[app]),app
-   a.locator('#luki-unlock').click();a.get_by_role('button',name='Crea chiave per il primo dispositivo',exact=True).click();expect(a.locator('#luki-dialog input')).to_have_value(__import__('re').compile(r'^[A-Za-z0-9_-]{43}$'));code=a.locator('#luki-dialog input').input_value();a.get_by_role('button',name='Sblocca con questa chiave',exact=True).click();expect(a.locator('#luki-status')).to_contain_text('Sincronizzato',timeout=15000)
+   a.evaluate("()=>{const d=document.getElementById('luki-sync-settings');if(d)d.open=true}");a.locator('#luki-unlock').click();a.get_by_role('button',name='Crea chiave per il primo dispositivo',exact=True).click();expect(a.locator('#luki-dialog input')).to_have_value(__import__('re').compile(r'^[A-Za-z0-9_-]{43}$'));code=a.locator('#luki-dialog input').input_value();a.get_by_role('button',name='Sblocca con questa chiave',exact=True).click();expect(a.locator('#luki-status')).to_contain_text('Sincronizzato',timeout=15000)
    # Un vecchio abbinamento locale non deve respingere una chiave verificata sul cloud.
    previous=b.evaluate("()=>{localStorage.setItem('before-pairing','synthetic-preserved');LukiStorage.update({keyFingerprint:'f'.repeat(64)});return LukiStorage.generation}")
-   b.on('dialog',lambda d:d.accept());b.locator('#luki-unlock').click();b.locator('#luki-dialog input').fill(code)
+   b.on('dialog',lambda d:d.accept());b.evaluate("()=>{const d=document.getElementById('luki-sync-settings');if(d)d.open=true}");b.locator('#luki-unlock').click();b.locator('#luki-dialog input').fill(code)
    with b.expect_navigation(wait_until='load'):b.get_by_role('button',name='Sblocca con questa chiave',exact=True).click()
    ready(b);expect(b.locator('#luki-status')).to_contain_text('sbloccata in questa scheda',timeout=10000);assert b.evaluate(READS[app]),app
    assert b.evaluate("old=>LukiStorage.native.get.call(LukiStorage.nativeLocal,'luki:'+LUKI_CONFIG.app+':'+LUKI_CONFIG.user+':'+old+':before-pairing')",previous)=='synthetic-preserved'
