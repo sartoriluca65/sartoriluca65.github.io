@@ -1,9 +1,9 @@
 name: Verifica generatore sticker Cloudflare
 on:
   push:
-    paths: ['cloudflare-apps/stickers-ai/**', '.github/workflows/stickers-cloudflare-ai.yml']
+    paths: ['cloudflare-apps/stickers-ai/**', 'stickers/app.js', 'stickers/tests/**', '.github/workflows/stickers-cloudflare-ai.yml']
   pull_request:
-    paths: ['cloudflare-apps/stickers-ai/**', '.github/workflows/stickers-cloudflare-ai.yml']
+    paths: ['cloudflare-apps/stickers-ai/**', 'stickers/app.js', 'stickers/tests/**', '.github/workflows/stickers-cloudflare-ai.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -17,3 +17,4 @@ jobs:
           node-version: '24'
       - run: node --check cloudflare-apps/stickers-ai/worker.mjs
       - run: node --test cloudflare-apps/stickers-ai/worker.test.mjs
+      - run: node --test stickers/tests/camera.test.mjs
