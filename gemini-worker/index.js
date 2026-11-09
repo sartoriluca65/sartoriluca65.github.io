@@ -53,7 +53,7 @@ export default {
           headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: image.mimeType, data: image.data } }] }],
-            generationConfig: { responseModalities: ["TEXT", "IMAGE"], responseFormat: { image: { aspectRatio: "1:1" } } },
+            generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
           }),
         });
       } catch {
@@ -75,3 +75,4 @@ export default {
     return json({ error: "Endpoint non disponibile." }, 404, origin);
   },
 };
+

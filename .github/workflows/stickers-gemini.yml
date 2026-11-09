@@ -1,0 +1,19 @@
+name: Verifica servizio Gemini Stickers
+on:
+  push:
+    paths: ['gemini-worker/**', 'stickers/worker/**', '.github/workflows/stickers-gemini.yml']
+  pull_request:
+    paths: ['gemini-worker/**', 'stickers/worker/**', '.github/workflows/stickers-gemini.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check gemini-worker/index.js
+      - run: node --test gemini-worker/image-config.test.mjs

@@ -46,7 +46,7 @@ export default {
           headers: { "content-type": "application/json", "x-goog-api-key": apiKey.trim() },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: image.mimeType, data: image.data } }] }],
-            generationConfig: { responseModalities: ["TEXT", "IMAGE"], responseFormat: { image: { aspectRatio: "1:1" } } },
+            generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
           }),
         });
       } catch {
@@ -73,3 +73,4 @@ export default {
     return new Response(body, { headers: { "content-type": asset.type, "cache-control": "no-cache" } });
   },
 };
+
