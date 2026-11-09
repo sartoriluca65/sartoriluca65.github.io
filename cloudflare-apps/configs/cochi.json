@@ -1,0 +1,20 @@
+{
+  "app": "cochi",
+  "title": "Cassa Agricola Cochi",
+  "sourceBase": "cochi",
+  "accountId": "aeb24d5686ed9104117c8ba6c1ef0dd2",
+  "worker": "luki-cochi-preview",
+  "origin": "https://luki-cochi-preview.sartori-luca65.workers.dev",
+  "databaseName": "luki-cochi-preview-db",
+  "bucket": "luki-cochi-preview-files",
+  "repository": "sartoriluca65/sartoriluca65.github.io",
+  "sourceSha": "c768292f1a8ff6bf527a83e4f66b3cd5685d1697",
+  "branch": "feat/cloudflare-five-apps-2026-11-09",
+  "mode": "private-live",
+  "release": "2026-11-09.1",
+  "issuer": "https://proud-rain-876d.cloudflareaccess.com",
+  "services": [],
+  "databaseId": "17620db9-0c8d-4149-88d2-bd77569a4692",
+  "accessAppId": "767e6ef1-c692-4d8e-aa7f-8cbeed1d99c2",
+  "audience": "4d3f66fdd67650a2d1c0def241a70c4cd1141edaecfd00650136de95a8c9dedb"
+}

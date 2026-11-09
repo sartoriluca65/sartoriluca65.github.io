@@ -1,0 +1,20 @@
+{
+  "app": "autocontrol",
+  "title": "AutoControl",
+  "sourceBase": "autocontrol",
+  "accountId": "aeb24d5686ed9104117c8ba6c1ef0dd2",
+  "worker": "luki-autocontrol-preview",
+  "origin": "https://luki-autocontrol-preview.sartori-luca65.workers.dev",
+  "databaseName": "luki-autocontrol-preview-db",
+  "bucket": "luki-autocontrol-preview-files",
+  "repository": "sartoriluca65/sartoriluca65.github.io",
+  "sourceSha": "c768292f1a8ff6bf527a83e4f66b3cd5685d1697",
+  "branch": "feat/cloudflare-five-apps-2026-11-09",
+  "mode": "private-live",
+  "release": "2026-11-09.1",
+  "issuer": "https://proud-rain-876d.cloudflareaccess.com",
+  "services": [],
+  "databaseId": "79658588-3911-4f5c-9e9c-23e8bc210db8",
+  "accessAppId": "e2fa493f-d811-45a1-a17d-fbf69ddaa286",
+  "audience": "eea4263a49984fff809fc5259167cbf00775d34371351dff8d93f3fa37b55b78"
+}

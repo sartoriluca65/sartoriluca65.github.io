@@ -1,0 +1,33 @@
+{
+  "app": "pienosmart",
+  "title": "PienoSmart",
+  "sourceBase": "rifornio",
+  "accountId": "aeb24d5686ed9104117c8ba6c1ef0dd2",
+  "worker": "luki-pienosmart-preview",
+  "origin": "https://luki-pienosmart-preview.sartori-luca65.workers.dev",
+  "databaseName": "luki-pienosmart-preview-db",
+  "bucket": "luki-pienosmart-preview-files",
+  "repository": "sartoriluca65/sartoriluca65.github.io",
+  "sourceSha": "c768292f1a8ff6bf527a83e4f66b3cd5685d1697",
+  "branch": "feat/cloudflare-five-apps-2026-11-09",
+  "mode": "private-live",
+  "release": "2026-11-09.1",
+  "issuer": "https://proud-rain-876d.cloudflareaccess.com",
+  "services": [
+    {
+      "name": "AI_SERVICE",
+      "service": "rifornio-gemini"
+    },
+    {
+      "name": "ROUTES_SERVICE",
+      "service": "rifornio-routes"
+    },
+    {
+      "name": "PRICES_SERVICE",
+      "service": "rifornio-mimit"
+    }
+  ],
+  "databaseId": "ed8e83be-3392-46c9-b0ee-ae6f27846470",
+  "accessAppId": "0ffb9641-28f6-4d35-ae1c-b9e3f0ada9b7",
+  "audience": "035932c373be13e3e2e7be84368c9ef3ce5b19ac25458a39e287967318f42ed1"
+}
