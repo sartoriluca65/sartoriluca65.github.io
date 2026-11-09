@@ -16,7 +16,7 @@
   "services": [
     {
       "name": "AI_SERVICE",
-      "service": "luki-stickers-gemini"
+      "service": "luki-stickers-cloudflare-ai"
     }
   ],
   "databaseId": "412b22bd-6dd1-4e0c-94ef-33dcd3c1a79c",
