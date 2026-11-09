@@ -28,7 +28,7 @@ let packs = (Array.isArray(savedPacks) ? savedPacks : examplePacks).map(pack => 
 }));
 let stickers = readStore('ss-stickers', exampleStickers);
 let currentView = 'home', currentFilter = '', uploadImage = null, originalUploadImage = null, uploadName = '', activeStyle = 'comic', localBackgroundPipeline = null, localBackgroundPipelinePromise = null, uploadHasLocalCutout = false, connectedGeminiKey = 'server', aiStickerImage = null, aiGenerating = false;
-let styleStrength = 46, lineStrength = 24, toastTimer, targetPack = '', targetPlatform = 'whatsapp', uploadMode = 'single', sheetSegments = [], cameraStream = null, modalHistory = [];
+let styleStrength = 46, lineStrength = 24, toastTimer, targetPack = '', targetPlatform = 'whatsapp', uploadMode = 'single', sheetSegments = [], cameraStream = null, cameraGeneration = 0, modalHistory = [];
 
 let stickerDbPromise;
 function openStickerDb() {
@@ -186,7 +186,7 @@ function goBackModal() {
   qs('#modal-backdrop').hidden = false;
   bindModalNavigation();
 }
-function stopCamera() { cameraStream?.getTracks().forEach(track => track.stop()); cameraStream = null; }
+function stopCamera() { cameraGeneration++; cameraStream?.getTracks().forEach(track => track.stop()); cameraStream = null; }
 function closeModal() { stopCamera(); modalHistory = []; qs('#modal-backdrop').hidden = true; }
 
 function openPackModal() {
@@ -357,36 +357,76 @@ function handleImageSelection(event) {
 qs('#file-input').addEventListener('change', handleImageSelection);
 qs('#camera-input').addEventListener('change', handleImageSelection);
 
+// camera-controls-start
+function cameraConstraints(deviceId, mobile) {
+  return {audio:false,video:{width:{ideal:1280},height:{ideal:1280},...(deviceId?{deviceId:{exact:deviceId}}:mobile?{facingMode:{ideal:'environment'}}:{})}};
+}
+function preferredCamera(devices) {
+  return devices.find(d=>d.kind==='videoinput'&&!/iphone|continuity|continu[it]à/i.test(d.label)&&/facetime|built.?in|integrat|incorporat/i.test(d.label))?.deviceId;
+}
+function drawCameraFrame(context, video, rotation, mirror) {
+  const quarter=rotation%180!==0,w=video.videoWidth,h=video.videoHeight;
+  context.canvas.width=quarter?h:w;context.canvas.height=quarter?w:h;
+  context.translate(context.canvas.width/2,context.canvas.height/2);
+  context.rotate(rotation*Math.PI/180);if(mirror)context.scale(-1,1);
+  context.drawImage(video,-w/2,-h/2,w,h);
+}
 async function openCameraCapture() {
   if (!navigator.mediaDevices?.getUserMedia) {
-    toast('Fotocamera live non disponibile qui. Prova da Safari/Chrome o scegli una foto.');
-    qs('#camera-input').click();
-    return;
+    toast('Fotocamera live non disponibile qui. Prova da Safari/Chrome o scegli una foto.');qs('#camera-input').click();return;
   }
-  try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 1280 } } });
-    setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="section-overline">FOTOCAMERA</div><h2 id="modal-title">Scatta il tuo sticker</h2><p>Inquadra il soggetto e premi il pulsante per acquisire la foto.</p><video id="live-camera" class="live-camera" autoplay playsinline muted></video><div class="camera-actions"><button class="secondary-button" id="cancel-camera">Annulla</button><button class="create-button" id="take-photo">◎ Scatta foto</button></div>`, 'modal camera-modal');
-    const video = qs('#live-camera'); video.srcObject = cameraStream;
-    await video.play();
-    qs('#cancel-camera').onclick = closeModal;
-    qs('#take-photo').onclick = async () => {
-      if (!video.videoWidth || !video.videoHeight) { toast('Attendi che la fotocamera si attivi.'); return; }
-      const canvas = document.createElement('canvas'); canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0);
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.94));
-      const mode = uploadMode; stopCamera(); closeModal();
-      if (blob) processImageFile(new File([blob], `foto-${Date.now()}.jpg`, { type: 'image/jpeg' }), mode);
-      else toast('Non riesco a salvare lo scatto. Riprova.');
-    };
-  } catch (error) {
-    stopCamera();
-    const message = error.name === 'NotAllowedError' ? 'Consenti l’accesso alla fotocamera nelle impostazioni del browser e riprova.' : error.name === 'NotFoundError' ? 'Non è stata trovata una fotocamera su questo dispositivo.' : 'La fotocamera non si è avviata. Verifica i permessi del browser.';
-    setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="section-overline">FOTOCAMERA NON DISPONIBILE</div><h2 id="modal-title">Non riesco ad aprire l’obiettivo</h2><p>${message}</p><div class="camera-actions"><button class="secondary-button" id="camera-back">Torna alle foto</button><button class="secondary-button" id="camera-device">Apri fotocamera dispositivo</button><button class="create-button" id="camera-retry">Riprova fotocamera</button></div>`);
-    qs('#camera-back').onclick = () => openUpload(targetPack);
-    qs('#camera-device').onclick = () => qs('#camera-input').click();
-    qs('#camera-retry').onclick = openCameraCapture;
+  stopCamera();const generation=cameraGeneration;
+  const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  let rotation=0,mirror=false,switching=false;
+  setModal(`<button class="modal-close" id="modal-close" aria-label="Chiudi">×</button><div class="section-overline">FOTOCAMERA</div><h2 id="modal-title">Scatta il tuo sticker</h2><label for="camera-select">Fotocamera</label><select id="camera-select" class="caption-input" disabled><option>Avvio fotocamera…</option></select><p id="camera-status" role="status">Consenti l’accesso alla fotocamera. Sul Mac puoi scegliere quella integrata.</p><div style="overflow:hidden"><video id="live-camera" class="live-camera" style="object-fit:contain" autoplay playsinline muted></video></div><div class="camera-actions" style="flex-wrap:wrap"><button class="secondary-button" id="rotate-camera" disabled>Ruota di 90°</button><button class="secondary-button" id="mirror-camera" aria-pressed="false" disabled>Specchia</button><button class="secondary-button" id="cancel-camera">Annulla</button><button class="create-button" id="take-photo" disabled>◎ Scatta foto</button></div>`,'modal camera-modal');
+  const video=qs('#live-camera'),select=qs('#camera-select'),status=qs('#camera-status'),take=qs('#take-photo'),rotate=qs('#rotate-camera'),flip=qs('#mirror-camera');
+  const active=()=>generation===cameraGeneration&&video.isConnected;
+  const preview=()=>{video.style.transform=`rotate(${rotation}deg) scaleX(${mirror?-1:1})`;};
+  qs('#cancel-camera').onclick=closeModal;
+  rotate.onclick=()=>{rotation=(rotation+90)%360;preview();};
+  flip.onclick=()=>{mirror=!mirror;flip.setAttribute('aria-pressed',String(mirror));preview();};
+  async function start(deviceId,initial=false){
+    if(switching||!active())return;switching=true;take.disabled=true;select.disabled=true;
+    const previous=cameraStream?.getVideoTracks()[0]?.getSettings()?.deviceId;
+    cameraStream?.getTracks().forEach(t=>t.stop());cameraStream=null;
+    try{
+      let stream=await navigator.mediaDevices.getUserMedia(cameraConstraints(deviceId,mobile));
+      if(!active()){stream.getTracks().forEach(t=>t.stop());return;}
+      cameraStream=stream;
+      let devices=[];try{devices=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');}catch{/* La camera predefinita resta utilizzabile. */}
+      if(!active()){stream.getTracks().forEach(t=>t.stop());return;}
+      const builtIn=!mobile&&initial?preferredCamera(devices):null;
+      if(builtIn&&stream.getVideoTracks()[0]?.getSettings()?.deviceId!==builtIn){
+        stream.getTracks().forEach(t=>t.stop());cameraStream=null;
+        try{stream=await navigator.mediaDevices.getUserMedia(cameraConstraints(builtIn,false));}
+        catch{stream=await navigator.mediaDevices.getUserMedia(cameraConstraints(null,false));}
+        if(!active()){stream.getTracks().forEach(t=>t.stop());return;}cameraStream=stream;
+      }
+      if(!active()){stream.getTracks().forEach(t=>t.stop());return;}
+      video.srcObject=stream;await video.play();if(!active())return;
+      const selected=stream.getVideoTracks()[0]?.getSettings()?.deviceId;
+      select.replaceChildren();for(const [i,d] of devices.entries()){const option=document.createElement('option');option.value=d.deviceId;option.textContent=d.label||`Fotocamera ${i+1}`;select.appendChild(option);}
+      if(selected&&devices.some(d=>d.deviceId===selected))select.value=selected;
+      if(!devices.length){const option=document.createElement('option');option.textContent='Fotocamera predefinita';select.appendChild(option);}
+      status.textContent='Scegli la fotocamera. Se l’immagine è capovolta, premi Ruota due volte. La foto salvata seguirà l’orientamento scelto.';
+      rotation=0;mirror=false;flip.setAttribute('aria-pressed','false');preview();take.disabled=false;rotate.disabled=false;flip.disabled=false;
+    }catch(error){
+      if(!active())return;
+      status.textContent=error.name==='NotAllowedError'?'Consenti l’accesso alla fotocamera nelle impostazioni di Safari e riprova.':'Fotocamera non disponibile: scegli un’altra voce o chiudi e riprova.';
+      if(previous&&[...select.options].some(o=>o.value===previous))select.value=previous;
+    }finally{switching=false;if(active())select.disabled=select.options.length<2;}
   }
+  select.onchange=()=>start(select.value);
+  take.onclick=async()=>{
+    if(!active()||switching||!video.videoWidth||!video.videoHeight)return;
+    take.disabled=true;const canvas=document.createElement('canvas');drawCameraFrame(canvas.getContext('2d'),video,rotation,mirror);
+    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.94));
+    if(!active())return;const mode=uploadMode;closeModal();
+    if(blob)processImageFile(new File([blob],`foto-${Date.now()}.jpg`,{type:'image/jpeg'}),mode);else toast('Non riesco a salvare lo scatto. Riprova.');
+  };
+  await start(null,true);
 }
+// camera-controls-end
 
 function projectionRuns(projection, threshold, bridge) {
   const active = projection.map(value => value >= threshold);
