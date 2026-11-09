@@ -2,6 +2,7 @@
 import {bootstrap,controller} from './assets.mjs';
 import {adapter} from './native-transform.mjs';
 import {serviceRequest} from './services.mjs';
+import {injectHTML} from './html.mjs';
 const encoder = new TextEncoder();
 export const LIMIT = 8 * 1024 * 1024;
 export const HASH = /^[a-f0-9]{64}$/;
@@ -124,13 +125,10 @@ export async function handle(request,env,ctx) {
   const extension=path.split('.').pop();const mime={html:'text/html; charset=utf-8',js:'text/javascript; charset=utf-8',mjs:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8',json:'application/json',webmanifest:'application/manifest+json',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',ico:'image/x-icon',svg:'image/svg+xml',pdf:'application/pdf',wasm:'application/wasm',ttf:'font/ttf',woff2:'font/woff2'}[extension]||'application/octet-stream';
   const headers=new Headers(response.headers);headers.set('Content-Type',mime);let body=response.body;
   if(extension==='html'){
-   phase='HTML';let html=await response.text();const config=JSON.stringify({user:user.id,app:env.APP,release:env.RELEASE_ID||'2026-11-09.1',...state}).replace(/</g,'\\u003c');
-   html=html.replace(/<head([^>]*)>/i,`<head$1><script>window.LUKI_CONFIG=${config};</script><script src="/_luki/bootstrap.js"></script>`);
-   const end=html.toLowerCase().lastIndexOf('</body>');
-   if(end<0)denied(502,'Documento applicativo non valido');
-   html=html.slice(0,end)+'<script src="/_luki/adapter.js"></script><script src="/_luki/controller.js"></script>'+html.slice(end);body=html;headers.delete('Content-Length');headers.delete('ETag');
+   phase='HTML';let html=injectHTML(await response.text(),{user:user.id,app:env.APP,release:env.RELEASE_ID||'2026-11-09.1',...state});body=html;headers.delete('Content-Length');headers.delete('ETag');
   }
   return protect(new Response(request.method==='HEAD'?null:body,{headers,status:response.status}));
  }catch(error){const status=error.status||500,reference='STAGING_'+phase+'_'+String(error.name||'Error').replace(/[^A-Za-z]/g,'');if(status===500)console.error(JSON.stringify({event:'request_failed',code:reference,frames:String(error.stack||'').split('\n').slice(1,4)}));return protect(json({error:status===500?'Operazione non completata. La copia locale resta disponibile.':error.message,...(status===500?{reference}:{})},status));}
 }
 export default {fetch:handle};
+
