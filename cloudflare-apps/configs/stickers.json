@@ -1,0 +1,25 @@
+{
+  "app": "stickers",
+  "title": "Luki Stickers",
+  "sourceBase": "stickers",
+  "accountId": "aeb24d5686ed9104117c8ba6c1ef0dd2",
+  "worker": "luki-stickers-preview",
+  "origin": "https://luki-stickers-preview.sartori-luca65.workers.dev",
+  "databaseName": "luki-stickers-preview-db",
+  "bucket": "luki-stickers-preview-files",
+  "repository": "sartoriluca65/sartoriluca65.github.io",
+  "sourceSha": "c768292f1a8ff6bf527a83e4f66b3cd5685d1697",
+  "branch": "feat/cloudflare-five-apps-2026-11-09",
+  "mode": "staging",
+  "release": "2026-11-09.1",
+  "issuer": "https://proud-rain-876d.cloudflareaccess.com",
+  "services": [
+    {
+      "name": "AI_SERVICE",
+      "service": "luki-stickers-gemini"
+    }
+  ],
+  "databaseId": "412b22bd-6dd1-4e0c-94ef-33dcd3c1a79c",
+  "accessAppId": "203ed607-1b9e-4a73-95cf-f78fd4d56676",
+  "audience": "ec139e786c5eaa27acef6f8e5a6d9b621cb2bbbdd447ac7b4c906b4435d0d2e8"
+}
