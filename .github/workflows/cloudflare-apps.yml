@@ -32,9 +32,10 @@ jobs:
         env:
           TEST_ENGINES: chromium,webkit
         run: |
+          node cloudflare-apps/shared/build.mjs
           node cloudflare-apps/shared/browser-server.mjs > /tmp/luki-fixture.log 2>&1 &
           fixturePid=$!
           trap 'kill "$fixturePid" 2>/dev/null || true' EXIT
+          node --input-type=module -e 'import net from "node:net"; for(let i=0;i<100;i++){try{await new Promise((resolve,reject)=>net.createConnection(8770,"127.0.0.1").on("connect",function(){this.destroy();resolve()}).on("error",reject));break;}catch(e){if(i===99)throw e;await new Promise(r=>setTimeout(r,100));}}' || { cat /tmp/luki-fixture.log; exit 1; }
           python cloudflare-apps/shared/integration.py
           python cloudflare-apps/shared/transfer-browser.py
-
