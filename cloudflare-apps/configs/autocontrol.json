@@ -10,7 +10,7 @@
   "repository": "sartoriluca65/sartoriluca65.github.io",
   "sourceSha": "c768292f1a8ff6bf527a83e4f66b3cd5685d1697",
   "branch": "feat/cloudflare-five-apps-2026-11-09",
-  "mode": "private-live",
+  "mode": "staging",
   "release": "2026-11-09.1",
   "issuer": "https://proud-rain-876d.cloudflareaccess.com",
   "services": [],
