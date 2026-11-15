@@ -22,3 +22,11 @@ fs.writeFileSync(path.join(root,'report-pdf.js'),`/* PDF engine ${revision}: imm
  return globalThis.DemoReport;
 })();globalThis.DemoReportReady.catch(()=>{});})();\n`);
 console.log(`PDF engine ${revision}: ${code.length} bytes, ${packed.length} compressed bytes in ${names.length} parts.`);
+// Rimuove solo i frammenti generati superati, dopo aver scritto il nuovo loader.
+// Font, allegati e altri asset non appartengono a questa famiglia di file.
+const current=new Set(names.map(name=>path.basename(name)));
+for(const name of fs.readdirSync(path.join(root,'assets'))){
+ if(/^report-(?:[a-f0-9]{12}-)?\d{2,}\.gzpart$/.test(name)&&!current.has(name)){
+  fs.unlinkSync(path.join(root,'assets',name));
+ }
+}

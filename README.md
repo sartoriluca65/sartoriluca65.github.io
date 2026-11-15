@@ -8,7 +8,7 @@ Questo repository contiene la versione pubblicata da GitHub Pages. Gli archivi p
 | `/luca-apps/` | Catalogo delle app |
 | `/autocontrol/` | AutoControl |
 | `/cochi/` | Cassa Agricola Cochi |
-| `/registro-credenziali/` | Ricorda, demo locale |
+| `/registro-credenziali/` | Ricorda, pubblicata dal repository separato `registro-credenziali` |
 | `/rifornio/` | PienoSmart / Rifornio |
 | `/stickers/` | Luki Stickers web |
 | `/terapia-demo/` | Terapia e cartella clinica |
@@ -25,6 +25,18 @@ Il catalogo `luca-apps/` è un’esportazione statica con risorse compilate. Il 
 TeFinanza pubblica è nel repository separato `tefinanza-app`: la radice contiene l’unica copia pubblicata; `dist/` conserva soltanto un rimando per i vecchi indirizzi. La versione privata `tefinanza` ha una configurazione di hosting distinta.
 
 Il catalogo `/luca-apps/` apre direttamente le otto app pubbliche disponibili. AutoValuta resta su richiesta, perché non è stato verificato un indirizzo di esecuzione Streamlit. Il codice iOS di Luki Stickers è un progetto nativo distinto dalla versione web.
+
+## Pulizia e copia principale
+
+Il [registro delle copie principali](docs/COPIE-PRINCIPALI.md) distingue sorgenti attivi,
+versioni native e pagine di recupero. Non aggiornare le copie storiche come se fossero
+versioni correnti e non rimuovere le pagine `archivio.html` dai vecchi indirizzi.
+
+Le vecchie anteprime `/anteprima-clinical/` e `/anteprima-clinical/completa.html`
+aprono ora `/terapia-demo/`; `/rifornio/pienosmart.html` apre `/rifornio/`.
+Questi rimandi conservano i collegamenti senza mantenere un'altra interfaccia.
+I sei frammenti PDF precedenti `report-00.gzpart`–`report-05.gzpart` sono stati
+rimossi: il motore corrente usa solo i 23 frammenti elencati in `report-parts.json`.
 
 ## Verifica
 
