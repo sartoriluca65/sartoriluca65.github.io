@@ -61,7 +61,7 @@ async function updateOfficialPrices(){
   if(!origin||!Number.isFinite(origin.lat)||!Number.isFinite(origin.lng))return;
   const request=++lastPricesRequest;
   try{
-    const url=new URL(MIMIT_ENDPOINT);
+    const url=new URL(MIMIT_ENDPOINT, window.location.origin);
     url.searchParams.set('lat',origin.lat);
     url.searchParams.set('lng',origin.lng);
     let response;try{response=await fetch(url.toString(),{signal:AbortSignal.timeout(20000)})}catch(firstError){await new Promise(resolve=>setTimeout(resolve,900));response=await fetch(url.toString(),{signal:AbortSignal.timeout(25000)})}
