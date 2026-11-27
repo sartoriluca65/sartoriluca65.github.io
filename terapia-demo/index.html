@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <script src="./document-categories.js?v=20261105-patologie"></script>
+  <script src="./document-categories.js?v=20261127-visit-files"></script>
   <script src="./reliability-core.js?v=20261024-compact-grouped"></script>
   <script src="./profile-context.js?v=20261023-2"></script>
   <script src="./profiles-local.js?v=20261103-delete-v8"></script>
@@ -971,9 +971,9 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       gestisciFile({ target: { files: dt.files, value: '' } });
     });
     function renderAttachPreview() {
-      attachPreview.innerHTML = allegatiTemp.map((a,i) => a.tipo.startsWith('image/')
-        ? `<div class="attach-item"><button class="rm" onclick="rimuoviAllegato(${i})">✕</button><img src="${esc(fileUrl(a))}" loading="lazy" decoding="async" alt=""><div class="fname">${esc(a.nome)}</div></div>`
-        : `<div class="attach-item"><button class="rm" onclick="rimuoviAllegato(${i})">✕</button><div class="fname">📄 ${esc(a.nome)}</div></div>`
+      attachPreview.innerHTML = allegatiTemp.map((a,i) => (a.tipo||'').startsWith('image/')
+        ? `<div class="attach-item"><button class="rm" onclick="rimuoviAllegato(${i})">✕</button><img src="${esc(fileUrl(a))}" loading="lazy" decoding="async" alt=""><button type="button" class="btn btn-outline btn-sm fname" onclick="openClinicalAttachment(allegatiTemp[${i}])">${esc(a.nome)}</button></div>`
+        : `<div class="attach-item"><button class="rm" onclick="rimuoviAllegato(${i})">✕</button><button type="button" class="btn btn-outline btn-sm fname" onclick="openClinicalAttachment(allegatiTemp[${i}])">📄 ${esc(a.nome)}</button></div>`
       ).join('');
     }
     function rimuoviAllegato(i) { allegatiTemp.splice(i,1); renderAttachPreview(); }
@@ -995,7 +995,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       salvaDati(); chiudiModal('modalEvento');
       if(obj.promemoria!==''&&window.Notification&&Notification.permission==='default')Notification.requestPermission().catch(()=>{});
       if (document.querySelector('.tab.active').dataset.tab==='cartella') renderCartella();
-      if (document.querySelector('.tab.active').dataset.tab==='archivio') renderArchivio();
+      if (document.querySelector('.tab.active').dataset.tab==='archivio') {renderArchivio();refreshArchiveDetail();}
       mostraToast('Evento salvato'+(obj.allegati.length?' con '+obj.allegati.length+' allegato/i':''));
       if (eTipo.value==='terapia' && eCreaFarmaco.value==='si' && !id) {
         setTimeout(() => {
@@ -1040,14 +1040,28 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       if(/renale/.test(s)) return 'Nefrologia';
       return testo||'Senza area';
     }
+    function clinicalArea(record,fallback='Medico di famiglia'){
+      const branch=TerapiaCategories.canonical(record.ramo);
+      const category=branch==='Medico di famiglia'&&record.patologia ? record.patologia : record.ramo||record.patologia;
+      return ramoArchivio(category||fallback);
+    }
+    function archivedVisits(){
+      return (data.controlli||[]).filter(c=>c.stato==='completato'||c.allegati?.length);
+    }
     function renderArchivio() {
       const map = {};
       data.eventi.forEach(e => {
-        const k = ramoArchivio(e.ramo||e.patologia||e.tipo);
+        const k = clinicalArea(e,e.tipo);
         if (!map[k]) map[k] = { eventi: 0, farmaci: 0, allegati: 0, documenti:0 };
         map[k].eventi++;
         map[k].allegati += (e.allegati||[]).length;
       });
+      for(const visit of archivedVisits()){
+        const area=clinicalArea(visit);
+        const group=map[area]||={eventi:0,farmaci:0,allegati:0,documenti:0};
+        group.allegati+=(visit.allegati||[]).length;
+        group.visite=(group.visite||0)+1;
+      }
       data.farmaci.forEach(f => {
         const k = ramoArchivio(f.patologia||'Terapia');
         if (!map[k]) map[k] = { eventi: 0, farmaci: 0, allegati: 0, documenti:0 };
@@ -1065,7 +1079,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       archivioGrid.innerHTML = keys.map(k => `
         <div class="arch-card" onclick="apriArchivioDettaglio('${esc(k).replace(/'/g,"\\'")}')">
           <h3>${esc(k==='Medico'?'Medico di famiglia':k)}</h3>
-          <div class="cnt">${map[k].integratori?map[k].integratori+' integratori · ':''}${k==='Medico di famiglia'?map[k].documenti+' PDF · '+map[k].allegati+' allegati':map[k].eventi+' eventi · '+map[k].farmaci+' farmaci · '+map[k].documenti+' PDF · '+map[k].allegati+' allegati'}</div>
+          <div class="cnt">${map[k].visite?map[k].visite+' visite · ':''}${map[k].integratori?map[k].integratori+' integratori · ':''}${k==='Medico di famiglia'?map[k].documenti+' PDF · '+map[k].allegati+' allegati':map[k].eventi+' eventi · '+map[k].farmaci+' farmaci · '+map[k].documenti+' PDF · '+map[k].allegati+' allegati'}</div>
           <div class="actions no-print" style="margin-top:.6rem"><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();modificaAreaClinica('${esc(k).replace(/'/g,"\\'")}')">Modifica</button><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();eliminaAreaClinica('${esc(k).replace(/'/g,"\\'")}')">Elimina</button></div>
         </div>`).join('') || '<div class="empty-state">Nessun archivio</div>';
     }
@@ -1077,18 +1091,18 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       if(nome===area)return;
       if(!confirm('Rinominare '+area+' in '+nome+'? Gli eventi, i farmaci e i documenti collegati resteranno conservati.'))return;
       let changes=0;
-      for(const e of data.eventi){if(ramoArchivio(e.ramo||e.patologia||e.tipo)===area){if(e.ramo){e.ramo=nome;}else{e.patologia=nome;}changes++;}}
+      for(const e of data.eventi){if(clinicalArea(e,e.tipo)===area){if(e.ramo){e.ramo=nome;}else{e.patologia=nome;}changes++;}}
       for(const f of data.farmaci){if(ramoArchivio(f.patologia||'Terapia')===area){f.patologia=nome;changes++;}}
       for(const d of data.documenti||[]){if(documentArea(d)===area){d.ramo=nome;changes++;}}
-      for(const group of ['controlli','vaccinazioni','integratori'])for(const row of data[group]||[]){if(TerapiaCategories.canonical(row.ramo||row.patologia)===area){row.ramo=nome;changes++;}}
+      for(const group of ['controlli','vaccinazioni','integratori'])for(const row of data[group]||[]){if((group==='controlli'?clinicalArea(row):TerapiaCategories.canonical(row.ramo||row.patologia))===area){row.ramo=nome;changes++;}}
       for(const group of ['eventi','controlli','vaccinazioni','integratori'])for(const row of data[group]||[])for(const file of row.allegati||[]){if(TerapiaCategories.canonical(file.ramo)===area){file.ramo=nome;changes++;}}
       if((data.areePersonalizzate||[]).includes(area)){data.areePersonalizzate=data.areePersonalizzate.map(a=>a===area?nome:a);changes++;}
       salvaDati();renderArchivio();chiudiArchivioDettaglio();mostraToast('Area aggiornata · '+changes+' elementi');
     }
     function eliminaAreaClinica(area){
-      if(TerapiaCategories.list(data).some(d=>d.area===area)||data.eventi.some(e=>ramoArchivio(e.ramo||e.patologia||e.tipo)===area)||data.farmaci.some(f=>ramoArchivio(f.patologia||'Terapia')===area)||(data.controlli||[]).some(c=>ramoArchivio(c.ramo||c.patologia)===area)){alert('La patologia contiene dati collegati e non può essere eliminata.');return;}
+      if(TerapiaCategories.list(data).some(d=>d.area===area)||data.eventi.some(e=>clinicalArea(e,e.tipo)===area)||data.farmaci.some(f=>ramoArchivio(f.patologia||'Terapia')===area)||(data.controlli||[]).some(c=>clinicalArea(c)===area)){alert('La patologia contiene dati collegati e non può essere eliminata.');return;}
       if((data.areePersonalizzate||[]).includes(area)){if(!confirm('Eliminare la patologia '+area+'?'))return;data.areePersonalizzate=data.areePersonalizzate.filter(a=>a!==area);syncChanged();repaint();renderArchivio();chiudiArchivioDettaglio();return;}
-      const events=data.eventi.filter(e=>ramoArchivio(e.ramo||e.patologia||e.tipo)===area);
+      const events=data.eventi.filter(e=>clinicalArea(e,e.tipo)===area);
       const drugs=data.farmaci.filter(f=>ramoArchivio(f.patologia||'Terapia')===area);
       const docs=(data.documenti||[]).filter(d=>documentArea(d)===area);
       if(!confirm('Rimuovere la classificazione '+area+'? '+events.length+' eventi, '+drugs.length+' farmaci e '+docs.length+' documenti resteranno conservati, ma saranno spostati nelle categorie generali.'))return;
@@ -1101,13 +1115,21 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
       archivioDettaglio.style.display = 'block';
       pat=pat==='Medico'?'Medico di famiglia':pat;
       archTitolo.textContent = pat;
-      const ev = data.eventi.filter(e=>e.tipo!=='visita_futura'&&ramoArchivio(e.ramo||e.patologia||e.tipo)===pat).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+      const ev = data.eventi.filter(e=>e.tipo!=='visita_futura'&&clinicalArea(e,e.tipo)===pat).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
       const farm = data.farmaci.filter(f=>ramoArchivio(f.patologia||'Terapia')===pat);
       const docs = (data.documenti||[]).filter(d=>documentArea(d)===pat).sort((a,b)=>a.nome.localeCompare(b.nome));
-      const linkedDocs=pat==='Medico di famiglia'&&globalThis.TerapiaCategories?TerapiaCategories.list(data).filter(d=>d.area===pat&&d.index<0):[];
+      const linkedDocs=pat==='Medico di famiglia'&&globalThis.TerapiaCategories?TerapiaCategories.list(data).filter(d=>d.area===pat&&d.index<0&&!d.locations.some(location=>location.group==='controlli'||location.group==='eventi')):[];
       let html = '<button class="btn btn-primary no-print" onclick="apriNuovoPdf(true)">➕ Aggiungi PDF in questa area</button>';
-      const completedVisits=(data.controlli||[]).filter(c=>c.stato==='completato'&&ramoArchivio(c.ramo||'Medico di famiglia')===pat);
-      if(completedVisits.length){html+='<h3 style="margin:1rem 0 .5rem">Visite effettuate archiviate</h3>';for(const v of completedVisits){html+='<div class="card"><strong>'+esc(v.titolo||'Visita')+'</strong> · '+esc(v.data?formatData(v.data):'Data non indicata')+'<p>'+esc(v.note||'')+'</p>'+(v.allegati||[]).map(a=>'<div>📄 '+esc(a.nome||'Allegato PDF')+'</div>').join('')+'<button class="btn btn-outline btn-sm" onclick="navigateToSection(\'controlli\');modificaControllo(\''+esc(v.id)+'\')">Apri scheda visita</button></div>';}}
+      const visits=archivedVisits().filter(c=>clinicalArea(c)===pat);
+      const visitLinks=visit=>(visit.allegati||[]).map((file,index)=>
+        `<button type="button" class="btn btn-outline btn-sm" data-visit-file="${esc(visit.id)}" data-file-index="${index}">📄 ${esc(file.nome||'Apri allegato')}</button>`
+      ).join('');
+      if(visits.length){
+        html+='<h3 style="margin:1rem 0 .5rem">Visite mediche</h3>';
+        for(const visit of visits){
+          html+=`<div class="card"><strong>${esc(visit.titolo||'Visita')}</strong> · ${esc(visit.data?formatData(visit.data):'Data non indicata')}<p>${esc(visit.note||'')}</p><div class="actions">${visitLinks(visit)}<button type="button" class="btn btn-outline btn-sm" data-visit-edit="${esc(visit.id)}">Apri scheda visita</button></div></div>`;
+        }
+      }
 
       if(pat==='Integratori')html+=supplementList().map(s=>`<div class="card"><h3>${esc(s.nome)}</h3><p>${esc(s.dosaggio||'')} · ${formatData(s.inizio)}${s.fine?' – '+formatData(s.fine):''} · ${TerapiaSupplements.status(s)}</p><div class="attach-preview">${(s.allegati||[]).map((a,i)=>supplementAttachment(a,s.id,i)).join('')}</div></div>`).join('');
       if(docs.length){html+='<h3 style="font-size:1rem;margin:.5rem 0">Referti e documenti originali</h3><ul style="margin-left:1.2rem;margin-bottom:1rem">';docs.forEach(d=>{html+=`<li style="margin:.3rem 0">${documentLink(data.documenti.indexOf(d))}${documentControls(d)}${d.nota?`<div style="font-size:.8rem;color:var(--muted)">${esc(d.nota)}</div>`:''}</li>`});html+='</ul>';}
@@ -1117,7 +1139,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
         farm.forEach(f => { html += `<li><strong>${esc(f.nome)}</strong> ${esc(f.dosaggio||'')} – ${f.stato}${f.inizio?' (dal '+formatData(f.inizio)+')':''}</li>`; });
         html += '</ul>';
       }
-      if (ev.length && pat!=='Medico di famiglia') {
+      if (ev.length) {
         html += '<h3 style="font-size:1rem;margin:.5rem 0">Eventi</h3>';
         ev.forEach(e => {
           html += `<div style="margin-bottom:.8rem;padding-bottom:.6rem;border-bottom:1px solid #eee">
@@ -1369,6 +1391,14 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     const filtroPatEvento = document.getElementById('filtroPatEvento');
     const archivioGrid = document.getElementById('archivioGrid');
     const archivioDettaglio = document.getElementById('archivioDettaglio');
+    archivioDettaglio.addEventListener('click',event=>{
+      const button=event.target.closest('[data-visit-file],[data-visit-edit]');
+      if(!button)return;
+      const visit=(data.controlli||[]).find(c=>c.id===(button.dataset.visitFile??button.dataset.visitEdit));
+      if(!visit)return;
+      if(button.hasAttribute('data-visit-file'))openClinicalAttachment(visit.allegati?.[Number(button.dataset.fileIndex)]);
+      else{navigateToSection('controlli');modificaControllo(visit.id);}
+    });
     const archTitolo = document.getElementById('archTitolo');
     const archContenuto = document.getElementById('archContenuto');
     const modalNota = document.getElementById('modalNota');
@@ -1432,13 +1462,20 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
     let uploadsPending=0, originalTarget=null;const originalPaths=[];
     function fileUrl(a){return a.fileKey?demoFileUrl(a.fileKey):(a.data||'');}
     function attachmentHtml(a,eid,index){
-      const url=fileUrl(a);if(!url)return '<span>Allegato non disponibile</span>';
+      const url=fileUrl(a);if(!url)return `<span>${esc(a.nome||'Allegato')} · File non disponibile su questo dispositivo</span>`;
       const isImage=(a.tipo||'').startsWith('image/');
-      const open=a.fileKey?`href="${esc(url)}" target="_blank" rel="noopener"`:`href="#" onclick="openInlineAttachment('${eid}',${index});return false"`;
+      const open=`href="#" onclick="openInlineAttachment('${eid}',${index});return false"`;
       return `<div class="attach-item">${isImage?`<a ${open}><img loading="lazy" decoding="async" src="${esc(url)}" alt="${esc(a.nome||'Foto')}"></a>`:''}<a ${open}>${isImage?'🖼️':'📄'} ${esc(a.nome||'Apri allegato')}</a>${a.fileKey?`<a href="${esc(url)}" download="${esc(a.nome)}" style="display:block;font-size:.8rem">Scarica</a>${deleteFileButton(a.fileKey)}`:`<button class="btn btn-danger btn-sm no-print" onclick="rinominaAllegatoLocale('eventi','${eid}',${index})">✏️ Rinomina</button><button class="btn btn-danger btn-sm no-print" onclick="deleteInlineAttachment('eventi','${eid}',${index})">🗑️ Elimina allegato</button>`}</div>`;
     }
     function openInlineAttachment(eid,index){
-      const a=data.eventi.find(e=>e.id===eid)?.allegati?.[index];if(!a?.data)return;
+      openClinicalAttachment(data.eventi.find(e=>e.id===eid)?.allegati?.[index]);
+    }
+    function openClinicalAttachment(a){
+      if(a?.fileKey){
+        const url=fileUrl(a);
+        if(url){openDocumentUrl(url,a.nome||'Allegato');return;}
+      }
+      if(!a?.data){alert('File non disponibile su questo dispositivo. Ricarica l’originale o ripristina un backup completo.');return;}
       const match=a.data.match(/^data:([^;,]+);base64,([\s\S]+)$/);
       if(!match||!['application/pdf','image/jpeg','image/png'].includes(match[1])){alert('Formato non supportato');return;}
       const bytes=Uint8Array.from(atob(match[2]),c=>c.charCodeAt(0));
@@ -1737,7 +1774,7 @@ Modifiche contemporanee sugli stessi dati: la copia locale è conservata. Scaric
   <script defer src="./backup-zip-stream.js?v=20261020-iphone-fix"></script>
 <link rel="stylesheet" href="./backup-ui.css?v=20261021-progress">
 <script defer src="./backup-ui.js?v=20261023-json"></script>
-<script defer src="./medical.js?v=20261103-archive-v13"></script>
+<script defer src="./medical.js?v=20261127-visit-files"></script>
 <script defer src="./exit-app.js?v=20261021-exit"></script>
 <script id="lukiapp-brand-script" data-public-url="https://sartoriluca65.github.io/terapia-demo/" data-app-name="Terapia e Cartella Clinica">
 /* Lukiapp authorship and public-link sharing. No storage, tracking or personal app data. */

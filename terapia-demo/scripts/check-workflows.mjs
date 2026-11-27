@@ -25,6 +25,28 @@ check('All inline and application scripts parse',()=>{
  for(const file of fs.readdirSync(root).filter(f=>f.endsWith('.js')))new vm.Script(fs.readFileSync(path.join(root,file),'utf8'),{filename:file});
 });
 const archive=()=>({paziente:{nome:'Paziente di prova'},farmaci:[],integratori:[],vaccinazioni:[],eventi:[],assunzioni:[],documenti:[],controlli:[],esamiRoutine:[]});
+check('Endocrinology visit attachments appear in the archive and open in the app',()=>{
+ load('document-categories.js');
+ for(const name of ['ramoArchivio','clinicalArea','archivedVisits','renderArchivio','apriArchivioDettaglio','fileUrl','openClinicalAttachment'])vm.runInContext(functionSource(name),context);
+ const file={nome:'referto.pdf',tipo:'application/pdf',fileKey:'test-pdf'};
+ const legacy={ramo:'Medico',patologia:'Endocrinologia'};
+ const visit={...legacy,id:'visit',stato:'fissata',allegati:[file]};
+ let opened;
+ Object.assign(context,{
+  data:{...archive(),controlli:[visit]},esc:String,supplementList:()=>[],
+  archivioGrid:{},archivioDettaglio:{style:{},scrollIntoView(){}},archTitolo:{},archContenuto:{},
+  demoFileUrl:key=>key==='test-pdf'?'blob:referto-test':'',
+  openDocumentUrl:(url,name)=>{opened={url,name};}
+ });
+ assert.equal(call('clinicalArea',legacy),'Endocrinologia');
+ assert.equal(context.TerapiaCategories.list(context.data)[0].area,'Endocrinologia');
+ call('renderArchivio');
+ assert.match(context.archivioGrid.innerHTML,/<h3>Endocrinologia<\/h3>\s*<div class="cnt">1 visite[^<]*1 allegati/);
+ call('apriArchivioDettaglio','Endocrinologia');
+ assert.match(context.archContenuto.innerHTML,/data-visit-file="visit"[^>]*>📄 referto.pdf/);
+ call('openClinicalAttachment',file);
+ assert.deepEqual(opened,{url:'blob:referto-test',name:'referto.pdf'});
+});
 const med={id:'f_prova',nome:'Terapia fittizia',tipo:'cronico',stato:'attivo',inizio:'2026-03-01',fine:'2026-10-31',orari:['08:00','08:00','20:00','99:00']};
 check('Schedules exclude before-start, after-end and off-cycle dates',()=>{
  assert.equal(call('farmacoPrevisto',med,'2026-02-28'),false);assert.equal(call('farmacoPrevisto',med,'2026-11-01'),false);assert.equal(call('farmacoPrevisto',med,'2026-10-27'),true);
